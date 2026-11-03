@@ -55,6 +55,23 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--primary);outlin
 .tabs{display:flex;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:4px}
 .tabs button{border:0;background:transparent;padding:8px 14px;border-radius:999px;font-family:var(--display);font-weight:600;font-size:1.05rem}
 .tabs button[aria-selected="true"]{background:var(--primary);color:var(--primary-ink)}
+/* Mode tabs: one scrolling row of icon tiles */
+.modetabs{flex:1 1 100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;position:relative;gap:2px;border-radius:18px;padding:5px;scroll-padding-inline:8px}
+.modetabs::-webkit-scrollbar{display:none}
+.modetabs.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px);mask-image:linear-gradient(90deg,transparent,#000 36px)}
+.modetabs.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
+.modetabs.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,transparent,#000 36px,#000 calc(100% - 36px),transparent)}
+.modetabs button{flex:none;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:74px;min-height:64px;padding:8px 10px 7px;border-radius:13px;font-size:.8rem;font-weight:700;line-height:1.1;white-space:nowrap;color:var(--muted);transition:background .15s,color .15s,transform .15s}
+.modetabs button:hover{color:var(--ink);background:var(--bg)}
+.modetabs button:active{transform:scale(.95)}
+.modetabs button[aria-selected="true"]{background:var(--primary);color:var(--primary-ink)}
+.modetabs button:focus-visible{outline-offset:-3px}
+.ti{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.modetabs button[aria-selected="true"] .ti{stroke-width:2.3}
+.modetabs button:not([aria-selected="true"]):nth-child(4n+1) .ti{color:color-mix(in srgb,var(--ink) 40%,#D6336C)}
+.modetabs button:not([aria-selected="true"]):nth-child(4n+2) .ti{color:color-mix(in srgb,var(--ink) 40%,#2F6FD6)}
+.modetabs button:not([aria-selected="true"]):nth-child(4n+3) .ti{color:color-mix(in srgb,var(--ink) 40%,#7048E8)}
+.modetabs button:not([aria-selected="true"]):nth-child(4n+4) .ti{color:color-mix(in srgb,var(--ink) 40%,#2B9348)}
 .filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .filter button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:5px 10px;font-size:.9rem;color:var(--muted)}
 .filter button[aria-pressed="true"]{border-color:var(--ink);background:var(--card);color:var(--ink);font-weight:700}
@@ -174,6 +191,16 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 .stars span:nth-child(2){animation-delay:.15s}.stars span:nth-child(3){animation-delay:.3s}
 @keyframes starIn{0%{transform:scale(0) rotate(-40deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 .winbox{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.floaty.big{font-size:1.6rem;padding:6px 18px;background:var(--hi);color:var(--hi-ink);animation-duration:1.6s}
+/* Right/wrong marks so answers read without relying on color */
+.opt{position:relative}
+.opt.right,.opt.wrong{padding-right:44px}
+.opt.right::after,.opt.wrong::after{position:absolute;right:10px;top:50%;width:26px;height:26px;margin-top:-13px;border-radius:50%;display:grid;place-items:center;font-size:.95rem;line-height:1;color:#fff;animation:markIn .35s cubic-bezier(.3,1.6,.5,1) both}
+.opt.right::after{content:"✓";background:var(--good)}
+.opt.wrong::after{content:"✕";background:var(--bad)}
+.opt.wrong{animation:shake .4s}
+@keyframes markIn{0%{transform:scale(0)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.opt.wrong,.opt.right::after,.opt.wrong::after{animation:none}}
 @media (prefers-reduced-motion: reduce){.floaty,.popin,.streak.bump,.stars span.on{animation:none}.floaty{display:none}}
 /* Progress */
 .namebar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;background:var(--card);border:1.5px solid var(--hi);border-radius:12px;padding:10px 14px}
@@ -238,19 +265,35 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 .sheet{display:flex;flex-direction:column;gap:14px;padding:6px 2px;white-space:normal}
 #mrange{font:inherit;padding:3px 6px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
 /* Badges */
-.medal{position:relative;flex:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--bg);color:var(--muted);box-shadow:inset 0 0 0 3px var(--line);font-weight:700;font-size:.9rem;letter-spacing:-.01em}
-.medal span{max-width:48px;overflow:hidden;white-space:nowrap}
-.medal.on{color:var(--paper-ink);box-shadow:inset 0 0 0 3px rgba(0,0,0,.12),0 3px 0 rgba(0,0,0,.15)}
-.medal.on::after{content:"";position:absolute;inset:5px;border-radius:50%;border:2px dashed rgba(255,255,255,.65)}
-.medal.on.m-start{background:var(--hi)}.medal.on.m-streak{background:color-mix(in srgb,var(--hi) 55%,var(--prefix))}.medal.on.m-quiz{background:var(--suffix)}.medal.on.m-clues{background:var(--latin)}
-.medal.on.m-games{background:var(--prefix)}.medal.on.m-cards{background:var(--greek)}.medal.on.m-parts{background:linear-gradient(135deg,var(--prefix),var(--suffix),var(--latin),var(--greek))}
-.medal.sm{width:26px;height:26px;font-size:.55rem;box-shadow:none}.medal.sm::after{inset:2px;border-width:1px}.medal.sm span{max-width:22px}
+.medal{position:relative;flex:none;width:66px;height:68px;display:block}
+.medal svg{display:block;width:100%;height:100%;overflow:visible}
+.medal .bs{fill:var(--bg);stroke:var(--line);stroke-width:2.5;stroke-dasharray:5 3.5;stroke-linejoin:round}
+.medal .bring{fill:none;stroke:var(--line);stroke-width:1.5;opacity:.7}
+.medal .be{text-anchor:middle;dominant-baseline:central;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;filter:grayscale(1);opacity:.4}
+.medal.on .be{filter:drop-shadow(0 1.5px 0 rgba(0,0,0,.2));opacity:1}
+.medal .btag rect{fill:var(--card);stroke:var(--line);stroke-width:1.2}
+.medal .btag text{text-anchor:middle;dominant-baseline:central;font-family:var(--display);font-weight:800;font-size:8.5px;fill:var(--muted)}
+.medal.on .btag rect{fill:#fff;stroke:rgba(0,0,0,.15)}.medal.on .btag text{fill:#1B2433}
+.medal .block circle{fill:var(--card);stroke:var(--line);stroke-width:2}
+.medal .block rect{fill:var(--muted)}.medal .block path{fill:none;stroke:var(--muted);stroke-width:1.8}
+.medal.on .bs{stroke:rgba(0,0,0,.12);stroke-width:1.5;stroke-dasharray:none}
+.medal.on .bshadow{fill:rgba(0,0,0,.18)}
+.medal.on .bring{stroke:#fff;stroke-width:2;stroke-dasharray:3 2.5;opacity:.75}
+.medal.on .bglint{fill:#fff;opacity:.4}
+.medal .brib{fill:url(#bg-rib);stroke:rgba(0,0,0,.1);stroke-width:1}
+.medal.sm{width:26px;height:27px}.medal.sm .bring,.medal.sm .bglint{display:none}
+.badge.on .medal{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.badge.on:hover .medal{transform:rotate(-8deg) scale(1.08)}
+.btoast .medal{width:56px;height:58px;animation:badgeIn .7s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes badgeIn{0%{transform:scale(0) rotate(-200deg)}100%{transform:scale(1) rotate(0)}}
+@media (prefers-reduced-motion: reduce){.btoast .medal{animation:none}.badge.on:hover .medal{transform:none}}
 .bcat{margin:6px 0 0;font-size:.8rem;font-weight:700;color:var(--muted)}
 .bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .badge{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding:10px 8px;border-radius:12px;background:var(--bg);min-width:0}
 .badge b{font-size:.92rem;line-height:1.2}
 .badge small{font-size:.74rem;color:var(--muted);line-height:1.25}
-.badge:not(.on) .medal{opacity:.75}
+.badge:not(.on) .medal{opacity:.85}
+.badge:not(.on) b{color:var(--muted)}
 .badge.on{background:color-mix(in srgb,var(--hi) 16%,var(--card));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--hi) 60%,transparent)}
 .badge em{font-style:normal;font-weight:700;font-size:.78rem;color:var(--good)}
 .bprog{width:80%;height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:2px}
@@ -466,20 +509,20 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
       <div class="grp"><input id="nameInput" maxlength="40" placeholder="Your name" autocomplete="off"><button class="btn small primary" id="nameSave">Save</button></div>
     </div>
     <div class="bar">
-      <div class="tabs" role="tablist">
-        <button id="tab-cards" role="tab" aria-selected="true">Flashcards</button>
-        <button id="tab-review" role="tab" aria-selected="false">Daily review</button>
-        <button id="tab-quiz" role="tab" aria-selected="false">Quiz</button>
-        <button id="tab-parts" role="tab" aria-selected="false">Break it down</button>
-        <button id="tab-build" role="tab" aria-selected="false">Build it</button>
-        <button id="tab-match" role="tab" aria-selected="false">Match</button>
-        <button id="tab-memory" role="tab" aria-selected="false">Memory</button>
-        <button id="tab-spell" role="tab" aria-selected="false">Spell it</button>
-        <button id="tab-sort" role="tab" aria-selected="false">Word sort</button>
-        <button id="tab-speed" role="tab" aria-selected="false">Speed round</button>
-        <button id="tab-context" role="tab" aria-selected="false">Context clues</button>
-        <button id="tab-plan" role="tab" aria-selected="false">Plan</button>
-        <button id="tab-progress" role="tab" aria-selected="false">Progress</button>
+      <div class="tabs modetabs" id="modeTabs" role="tablist" aria-label="Ways to study">
+        <button id="tab-cards" role="tab" aria-selected="true"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="13" height="16" rx="2"/><path d="M4 7v12a2 2 0 0 0 2 2h10"/></svg><span>Flashcards</span></button>
+        <button id="tab-review" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/><path d="m9 12 2 2 4-4"/></svg><span>Daily review</span></button>
+        <button id="tab-quiz" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 8 1.5 1.5L12 7"/><path d="M14 8.5h3"/><path d="m8 14 1.5 1.5L12 13"/><path d="M14 14.5h3"/></svg><span>Quiz</span></button>
+        <button id="tab-parts" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9"/><path d="M14.5 14.5 20 20"/><path d="M8.1 8.1 12 12"/></svg><span>Break it down</span></button>
+        <button id="tab-build" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><rect x="8" y="3" width="8" height="8" rx="1.5"/></svg><span>Build it</span></button>
+        <button id="tab-match" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 6.5 17 17.5"/><path d="M7 17.5 17 6.5"/></svg><span>Match</span></button>
+        <button id="tab-memory" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><path d="M17 13.5v7M13.5 17h7"/></svg><span>Memory</span></button>
+        <button id="tab-spell" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5 19.5 8.5 8 20H4v-4z"/><path d="m13 7 4 4"/></svg><span>Spell it</span></button>
+        <button id="tab-sort" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M3 13l2.5-8h13L21 13v6a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19z"/></svg><span>Word sort</span></button>
+        <button id="tab-speed" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span>Speed round</span></button>
+        <button id="tab-context" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/><path d="M8 10.5a2.5 2.5 0 0 1 2.5-2.5"/></svg><span>Context clues</span></button>
+        <button id="tab-plan" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg><span>Plan</span></button>
+        <button id="tab-progress" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.5A3.5 3.5 0 0 0 7.5 11M17 6h3v1.5a3.5 3.5 0 0 1-3.5 3.5"/><path d="M12 14v3M8.5 21h7l-1-4h-5z"/></svg><span>Progress</span></button>
       </div>
       <div class="weekbar" id="weekbar">
         <span class="wlbl" id="weekLbl">Study</span>
@@ -964,7 +1007,14 @@ function results(){
 
 const MODES=['cards','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
 function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
-  if(!noStart)refreshMode()}
+  centerTab(m);if(!noStart)refreshMode()}
+function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
+  try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
+(()=>{const c=$('modeTabs');if(!c)return;const edge=()=>{const max=c.scrollWidth-c.clientWidth;c.classList.toggle('fl',c.scrollLeft>4);c.classList.toggle('fr',c.scrollLeft<max-4)};
+  c.addEventListener('scroll',edge,{passive:true});addEventListener('resize',edge);edge();
+  c.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&c.scrollWidth>c.clientWidth){const max=c.scrollWidth-c.clientWidth;if((e.deltaY<0&&c.scrollLeft>0)||(e.deltaY>0&&c.scrollLeft<max)){c.scrollLeft+=e.deltaY;e.preventDefault()}}},{passive:false});
+  c.addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const bs=[...c.querySelectorAll('[role=tab]')],i=bs.indexOf(document.activeElement);if(i<0)return;
+    const n=bs[(i+(e.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.focus();n.click();e.preventDefault()})})();
 function refreshMode(){if(mode==='review')renderReview();else if(mode==='spell')startSpell();else if(mode==='sort')newSort();else if(mode==='speed'){stopSpeedIfLeaving();renderSpeedStart()}else if(mode==='quiz')startQuiz();else if(mode==='parts'){buildWdeck();renderParts()}else if(mode==='build')newBuild();else if(mode==='plan')renderPlan();else if(mode==='progress'){if(progView==='class')watchClass();renderProgress()}else if(mode==='match')newMatch();else if(mode==='memory')newMemory();else if(mode==='context')startContext()}
 $('tab-cards').onclick=()=>{setMode('cards');deck=pool();idx=0;renderCard()};
 MODES.slice(1).forEach(x=>$('tab-'+x).onclick=()=>setMode(x));
@@ -1180,16 +1230,17 @@ const FX=(()=>{
     parts=parts.filter(p=>p.life>0);
     for(const p of parts){p.vy+=p.g;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
       cx.save();cx.globalAlpha=Math.min(1,p.life/30);cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;
-      if(p.round){cx.beginPath();cx.arc(0,0,p.s/2,0,7);cx.fill()}else cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()}
+      if(p.star){cx.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5,r=k%2?p.s*.42:p.s;cx.lineTo(Math.sin(a)*r,-Math.cos(a)*r)}cx.closePath();cx.fill()}
+      else if(p.round){cx.beginPath();cx.arc(0,0,p.s/2,0,7);cx.fill()}else cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()}
     raf=parts.length?requestAnimationFrame(loop):0}
   function go(){if(!raf)raf=requestAnimationFrame(loop)}
   function burstAt(x,y,n=28){if(reduce())return;const cs=COLORS();
     for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=2+Math.random()*5;
-      parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2.5,g:.18,r:Math.random()*6,vr:(Math.random()-.5)*.4,s:5+Math.random()*6,c:cs[i%cs.length],life:55+Math.random()*25,round:Math.random()<.35})}go()}
+      parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2.5,g:.18,r:Math.random()*6,vr:(Math.random()-.5)*.4,s:5+Math.random()*6,c:cs[i%cs.length],life:55+Math.random()*25,round:Math.random()<.3,star:i%3===0})}go()}
   function burst(el,n){if(!el)return;const r=el.getBoundingClientRect?el.getBoundingClientRect():el;burstAt(r.left+r.width/2,r.top+r.height/2,n)}
   function shower(){if(reduce())return;const cs=COLORS();
-    for(let i=0;i<160;i++)parts.push({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.6,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,g:.05,r:Math.random()*6,vr:(Math.random()-.5)*.3,s:6+Math.random()*7,c:cs[i%cs.length],life:160+Math.random()*80,round:Math.random()<.3});go()}
-  function cheer(el,text){if(!el)return;const r=el.getBoundingClientRect?el.getBoundingClientRect():el;const d=document.createElement('div');d.className='floaty';d.textContent=text;
+    for(let i=0;i<160;i++)parts.push({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.6,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,g:.05,r:Math.random()*6,vr:(Math.random()-.5)*.3,s:6+Math.random()*7,c:cs[i%cs.length],life:160+Math.random()*80,round:Math.random()<.3,star:i%4===0});go()}
+  function cheer(el,text){if(!el)return;const r=el.getBoundingClientRect?el.getBoundingClientRect():el;const d=document.createElement('div');d.className='floaty'+(/^\d+ in a row!$/.test(text)?' big':'');d.textContent=(/^\d+ in a row!$/.test(text)?'🔥 ':'')+text;
     d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1200)}
   function tone(f,t0,dur,type='sine',vol=.18){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
     g.gain.setValueAtTime(0,ac.currentTime+t0);g.gain.linearRampToValueAtTime(vol,ac.currentTime+t0+.02);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t0+dur);
@@ -1204,7 +1255,7 @@ const FX=(()=>{
   function setSound(on){soundOn=on;store.set('rd-sound',on);const b=$('soundBtn');b.textContent=on?'Sound on':'Sound off';b.setAttribute('aria-pressed',on)}
   $('soundBtn').onclick=()=>{setSound(!soundOn);if(soundOn)play('good')};setSound(soundOn);
   const PRAISE=['Match!','Nice!','You got it!','Root-tastic!','Great eye!','Super sleuth!','Case closed!','Brilliant!','Spot on!','Word wizard!'];
-  const praise=streak=>streak>=5?`${streak} in a row!`:streak>=3?`On fire! ${streak} in a row`:PRAISE[Math.floor(Math.random()*PRAISE.length)];
+  const praise=streak=>(streak>=5&&streak%5===0&&setTimeout(shower,120),0)||streak>=5?`${streak} in a row!`:streak>=3?`On fire! ${streak} in a row`:PRAISE[Math.floor(Math.random()*PRAISE.length)];
   return{burst,burstAt,shower,cheer,play,praise};
 })();
 /* ---------- Read aloud (always English) ---------- */
@@ -4993,8 +5044,8 @@ function rangeKeys(days,range){const all=Object.keys(days).sort();if(range==='al
   return range==='yesterday'?[ks[1]]:ks}
 function dayLine(k,d){const bits=[];
   if(d.cards&&(d.cards.ids||[]).length)bits.push(`${d.cards.ids.length} flashcards`);
-  if(d.quiz&&d.quiz.t)bits.push(`Quiz ${d.quiz.c}/${d.quiz.t}`);
-  if(d.ctx&&d.ctx.t)bits.push(`Context clues ${d.ctx.c}/${d.ctx.t}${Object.keys(d.ctx.lv||{}).length?' (level '+Object.keys(d.ctx.lv).sort().join(', ')+')':''}`);
+  if(d.quiz&&d.quiz.t)bits.push(`Quiz ${d.quiz.c||0}/${d.quiz.t}`);
+  if(d.ctx&&d.ctx.t)bits.push(`Context clues ${d.ctx.c||0}/${d.ctx.t}${Object.keys(d.ctx.lv||{}).length?' (level '+Object.keys(d.ctx.lv).sort().join(', ')+')':''}`);
   if(d.match&&d.match.r)bits.push(`Match ${d.match.r} round${d.match.r>1?'s':''}`);
   if(d.mem&&d.mem.r)bits.push(`Memory ${d.mem.r} round${d.mem.r>1?'s':''}`);
   if(d.build&&d.build.n)bits.push(`Built ${d.build.n} word${d.build.n>1?'s':''}`);
@@ -5170,7 +5221,29 @@ const BADGES=[
 ];
 const BCAT={start:'Getting started',streak:'Practice habits',quiz:'Quiz',clues:'Context clues',games:'Games',cards:'Cards',parts:'Word-part experts'};
 function earnedBadges(days,name){const v=badgeVals(days,name);return{v,ids:BADGES.filter(b=>b.val(v)>=b.n).map(b=>b.id)}}
-function medal(b,on,small){return`<span class="medal m-${b.cat} ${on?'on':''} ${small?'sm':''}" aria-hidden="true"><span>${esc(b.sym)}</span></span>`}
+/* Badge art: each category has its own shape and colors; locked badges are grey outlines with a lock */
+const BSHAPE=(()=>{const poly=(n,r1,r2,cy,rot=0)=>{const pts=[];for(let i=0;i<n*(r2?2:1);i++){const a=rot+i*Math.PI/(r2?n:n/2),r=r2&&i%2?r2:r1;pts.push((32+r*Math.sin(a)).toFixed(1)+','+(cy-r*Math.cos(a)).toFixed(1))}return`<polygon points="${pts.join(' ')}"`};
+  return{start:poly(5,28,14,32),streak:poly(12,26,22.5,30),quiz:poly(6,26,0,30,Math.PI/6),clues:'<rect x="12" y="10" width="40" height="40" rx="9" transform="rotate(45 32 30)"',
+    games:'<path d="M32 4 54 11v19c0 14-10 23-22 28C20 53 10 44 10 30V11z"',cards:'<rect x="12" y="5" width="40" height="50" rx="7" transform="rotate(-6 32 30)"',parts:poly(8,27,0,30,Math.PI/8)}})();
+const BGRAD={start:['#FFE066','#F59F00'],streak:['#FFA94D','#E8590C'],quiz:['#74C0FC','#1C7ED6'],clues:['#B197FC','#6741D9'],games:['#FAA2C1','#D6336C'],cards:['#8CE99A','#2B8A3E']};
+(()=>{const g=Object.entries(BGRAD).map(([k,[a,b]])=>`<linearGradient id="bg-${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join('');
+  const d=document.createElement('div');d.setAttribute('aria-hidden','true');d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+  d.innerHTML=`<svg width="0" height="0"><defs>${g}<linearGradient id="bg-parts" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F783AC"/><stop offset=".35" stop-color="#4DABF7"/><stop offset=".65" stop-color="#9775FA"/><stop offset="1" stop-color="#51CF66"/></linearGradient><linearGradient id="bg-rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4263EB"/><stop offset="1" stop-color="#364FC7"/></linearGradient></defs></svg>`;
+  document.body.appendChild(d)})();
+/* Badge pictures: an emoji plus an optional little number tag */
+const BEMO={name:['👋'],first:['🔍'],run3:['🔥','3'],run5:['🔥','5'],run10:['🚀','10'],days10:['📅','10'],days30:['🗓️','30'],min60:['⏰','60m'],
+  ans100:['💪','100'],ans500:['🤖','500'],quiz10:['💯'],quizr10:['📝','10'],check1:['✅'],grow3:['📈','+3'],
+  ctx1:['🧩'],lv3:['🔎','L3'],lv4:['🧠','L4'],lv5:['🕵️','L5'],ctx10:['🌟'],
+  mperf:['🎯'],mfast:['⚡','30s'],mstreak:['🎉','6'],mem:['🐘'],mem10:['🃏','10'],build10:['🧱','10'],build50:['🏗️','50'],
+  spell10:['🐝'],spellp:['🏅'],sortp:['📦'],speed15:['🏃','15'],speed25:['🌩️','25'],
+  cards50:['🗂️','50'],cards150:['📚','150'],mast10:['🌱','10'],mast50:['🌳','50'],mast100:['👑','100'],week:['🎁'],rev5:['☀️','5'],
+  pre:['🌸','pre-'],suf:['⭐','-suf'],lat:['🏛️','Latin'],grk:['🏺','Greek']};
+function medal(b,on,small){const sh=BSHAPE[b.cat]||BSHAPE.quiz,cy=b.cat==='start'?33:30,[emo,tag]=BEMO[b.id]||[b.sym],hasTag=tag&&!small,ey=hasTag?cy-4:cy+1,tw=tag?Math.max(16,[...tag].length*6.2+8):0;
+  const inner=`<g transform="translate(32 ${cy}) scale(.76) translate(-32 -${cy})">${sh} class="bring"/></g>`;
+  const rib=on&&!small?`<path class="brib" d="M21 40 14 62l7-4 4 5 6-19z"/><path class="brib" d="M43 40l7 22-7-4-4 5-6-19z"/>`:'';
+  const lock=on||small?'':`<g class="block"><circle cx="53" cy="12" r="9"/><rect x="48.8" y="11.2" width="8.4" height="6.4" rx="1.4"/><path d="M50.7 11.2V9a2.3 2.3 0 0 1 4.6 0v2.2"/></g>`;
+  const glint=on?`<ellipse class="bglint" cx="24" cy="${cy-12}" rx="8" ry="3.5" transform="rotate(-35 24 ${cy-12})"/>`:'';
+  return`<span class="medal m-${b.cat} ${on?'on':''} ${small?'sm':''}" aria-hidden="true"><svg viewBox="0 0 64 66">${rib}${on?`<g transform="translate(0 2.5)">${sh} class="bshadow"/></g>`:''}${sh} class="bs" ${on?`style="fill:url(#bg-${b.cat})"`:''}/>${inner}${glint}<text x="32" y="${ey}" class="be" font-size="${small?30:hasTag?22:26}">${emo}</text>${hasTag?`<g class="btag"><rect x="${32-tw/2}" y="${cy+8.5}" width="${tw}" height="12" rx="6"/><text x="32" y="${cy+14.8}">${esc(tag)}</text></g>`:''}${lock}</svg></span>`}
 function badgesHTML(days,name,compact){
   const {v,ids}=earnedBadges(days,name);const got=new Set(ids);
   if(compact)return ids.length?`<div class="bmini">${BADGES.filter(b=>got.has(b.id)).map(b=>`<span class="bchip" title="${esc(b.desc)}">${medal(b,true,true)}${esc(b.name)}</span>`).join('')}</div>`:'<p class="note">No badges yet.</p>';
