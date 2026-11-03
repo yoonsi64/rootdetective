@@ -9,9 +9,9 @@ Everything is in one file, `index.html`, which works offline with no installs.
 - **Flashcards** for 150 word parts (65 affixes, 43 Latin bases, 42 Greek bases)
 - **Daily review** of each student's weakest and least-recent cards
 - **Quiz**, **Break it down**, **Build it**, **Match**, **Memory**, **Spell it**, **Word sort** and **Speed round**
-- **Context clues**: 1,830 sentences at five challenge levels, with word-part explanations
+- **Context clues**: 2,014 sentences at six challenge levels, with word-part explanations. Level 6 (Master) has hidden-clue sentences, including 34 with two mystery words to solve at once
 - **16-week plan** with weekly check-in quizzes; students can study any mix of weeks
-- **Progress history**, detailed statistics and 42 badges
+- **Progress history**, detailed statistics and 43 badges
 - **Read-aloud**, text size, easier-reading and calm-mode options
 
 ## Put it online with GitHub Pages

@@ -168,7 +168,17 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 .wp.c-free{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .wp.isword{box-shadow:inset 0 0 0 1.5px var(--muted);border:0}
 .wplus{font-weight:700;opacity:.6}
-.levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.levels{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+@media (max-width:520px){.levels{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.lvl[data-lv="6"]{background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 35%,var(--card)),var(--card))}
+.pn{display:inline-grid;place-items:center;min-width:1.35em;height:1.35em;border-radius:50%;background:var(--primary);color:var(--primary-ink);font-size:.72em;font-weight:800;line-height:1;vertical-align:.15em;margin:0 .3em 0 0;font-style:normal}
+sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
+.blank[data-n]{position:relative}
+.blank[data-n]::before{content:attr(data-n);position:absolute;left:50%;top:-.75em;transform:translateX(-50%);display:grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;background:var(--primary);color:var(--primary-ink);font-size:.62em;font-weight:800}
+.pairopt{display:flex;flex-direction:column;gap:6px}
+.pl{display:flex;align-items:baseline;gap:6px}.pl .pn{flex:none;margin:0}
+.pl+.pl{border-top:1px dashed var(--line);padding-top:6px}
+.twotag{display:inline-block;background:var(--hi);color:var(--hi-ink);border-radius:999px;padding:1px 9px;margin-right:8px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
 .lvl{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;min-width:0}
 .lvl b{font-size:1.25rem}
 .lvl span{font-size:.78rem;font-weight:700}
@@ -4742,14 +4752,207 @@ l28|disclose|The magician refused to [disclose] how the trick worked, keeping th
 g29|monogram|Her towel had a [monogram] showing her one initial stitched in gold.|design of a person's initials|2
 `;
 const CTX=CRAW.trim().split("\n").map(l=>{const [id,w,sent,def,lv]=l.split("|");return{c:BYID[id],w,sent,def,lv:Math.min(5,Math.max(1,+lv||3))}}).filter(x=>x.c&&x.sent&&x.sent.includes('['+x.w+']'));
+/* Level 6 (Master): one hidden-clue sentence per card, plus two-word sentences.
+   Singles: card id | word | sentence | meaning.  Pairs: id | word | meaning | id | word | meaning | sentence */
+const C6RAW=`
+a1|crutches|After the skateboarding accident, Leo hobbled down the hall on [crutches] for six weeks until his ankle healed.|more than one crutch
+a2|stammered|Caught without his homework, Theo [stammered] an excuse, tripping over every other word.|spoke with pauses and repeated sounds
+a3|dawdling|Stop [dawdling] by the fountain, or we'll miss the bus that leaves in two minutes!|wasting time by moving slowly
+a4|prosecutor|The [prosecutor] stood before the jury and argued that the evidence proved the man had stolen the painting.|one who argues a case against someone in court
+a5|flimsiest|Of all the bridges our class built from straws, Jo's was the [flimsiest]; it collapsed under a single paperclip.|most easily broken
+a6|unscathed|The vase toppled off the top shelf, yet when Mom lifted it from the thick rug, it was [unscathed].|not harmed at all
+a7|impartial|Because the judge had no friends on either team, everyone trusted her to be [impartial] when scoring the debate.|not favoring one side
+a8|misnomer|Calling the town's bumpy dirt road a "highway" is a [misnomer]; it can barely fit one car.|a wrong or misleading name
+a9|disheveled|After a windy night in the tent, Ava crawled out [disheveled], her hair tangled and her shirt twisted sideways.|messy and untidy
+a10|foreboding|As dark clouds gathered over the empty playground, Sam felt a sense of [foreboding] and hurried home.|a feeling that something bad will happen
+a11|relinquish|The toddler refused to [relinquish] the toy truck, clutching it tighter whenever his sister reached for it.|to give up or let go of
+a12|debunk|Our science fair project set out to [debunk] the myth that goldfish forget everything after three seconds.|to show that a claim is false
+a13|precocious|The [precocious] four-year-old was already reading chapter books that most third graders found hard.|developing skills earlier than usual
+a14|anomaly|A snowstorm in July would be an [anomaly] in Texas, where summers are usually scorching.|something that is not normal
+a15|nonchalantly|Even though she had just won the spelling bee, Priya shrugged [nonchalantly], as if it were no big deal.|in a calm, unconcerned way
+a16|trepidation|With great [trepidation], Marco stepped onto the shaky rope bridge, gripping both rails and refusing to look down.|fear or worry
+a17|insatiable|The puppy has an [insatiable] appetite; even after a full bowl, it sits by the fridge and begs for more.|not able to be satisfied
+a18|gangly|During his growth spurt, Eli became tall and [gangly], all elbows and knees, and he kept bumping into doorways.|tall, thin, and awkward
+a19|embellish|Grandpa likes to [embellish] his fishing stories, so the trout he caught gets a little bigger every time he tells it.|to add details to make something more impressive
+a20|nonpartisan|The library's voting guide was [nonpartisan], so readers from every political party trusted it.|not taking any party's side
+a21|overwrought|By the end of the stressful day, the [overwrought] coach was pacing the sideline and shouting at the referees.|too upset or nervous
+a22|subservient|In the old story, the [subservient] servant bowed low and obeyed every order without a single question.|too eager to obey others
+a23|rueful|Jake gave a [rueful] smile as he looked at the broken window, wishing he had never kicked the ball so hard.|showing regret
+a24|listless|On the hottest afternoon of summer, the [listless] dog lay in the shade and wouldn't even lift its head for a treat.|without energy
+a25|elusive|The [elusive] fox appeared at the edge of the woods for a second, then vanished before anyone could take a photo.|hard to find or catch
+a26|forthrightness|We admired her [forthrightness]; she always told us exactly what she thought, even when it was hard to hear.|the state of being direct and honest
+a27|intermediary|When the two neighbors stopped speaking, Mrs. Lin acted as an [intermediary], carrying messages back and forth.|someone who acts between two people
+a28|transgress|Players who [transgress] the rules by shoving have to spend five minutes on the bench.|to go beyond a limit or break a rule
+a29|supercilious|The [supercilious] waiter raised his eyebrows and sniffed at our muddy sneakers as if we didn't belong there.|acting above or better than others
+a30|semitransparent|Through the [semitransparent] curtain we could see shapes moving in the next room, but not who they were.|partly see-through
+a31|anticlimactic|After months of buildup, the fireworks show was [anticlimactic]: three small sparks and a puff of smoke.|disappointing after great excitement
+a32|midsection|The snake had a big bulge in its [midsection] after swallowing the egg whole.|the middle part of a body
+a33|understated|Her [understated] outfit, a plain gray sweater and jeans, stood out at a party where everyone else wore sequins.|simple and not showy
+a34|bereavement|After her grandfather died, the school gave Lena a few days off for [bereavement].|the state of grieving after someone dies
+a35|terrestrial|Frogs start life in the water, but many become [terrestrial] adults that hop around forests far from any pond.|living on land
+a36|audacity|He had the [audacity] to cut in front of the whole line and then complain that it was moving too slowly!|boldness that ignores rules or manners
+a37|tedious|Sorting ten thousand beads by color was so [tedious] that Kai was yawning after the first five minutes.|boring and slow
+a38|sorceress|In the fairy tale, the [sorceress] waved her wand and turned the prince's horse into a mouse.|a woman who does magic
+a39|archaeologist|The [archaeologist] brushed dirt away from the ancient pot, careful not to crack it.|one who studies remains from long ago
+a40|lethargic|The flu left Nora so [lethargic] that she slept through two whole days.|very tired and slow
+a41|malevolent|The [malevolent] villain smiled as he planned to flood the village just for fun.|wishing harm on others
+a42|multifaceted|Our principal is [multifaceted]: she coaches soccer, plays the cello, and writes mystery novels.|having many sides or talents
+a43|obliterate|The tornado seemed to [obliterate] the barn, leaving only a few scattered boards where it had stood.|to destroy completely
+a44|hasten|Hearing thunder rumble closer, the hikers began to [hasten] down the mountain trail.|to hurry
+a45|chiefdom|Long ago, the island was a [chiefdom], ruled by one leader who settled every dispute.|a land ruled by a chief
+a46|womanhood|In many cultures, a special ceremony marks a girl's journey from childhood into [womanhood].|the state of being a woman
+a47|squeamish|Ben is so [squeamish] that he has to look away whenever the nurse brings out a needle.|easily upset by unpleasant things
+a48|proponent|Ms. Ortiz is a strong [proponent] of recess; at every meeting she argues that kids need more time outside.|a person who supports an idea
+a49|consensus|After an hour of debate, the class reached a [consensus], and not one hand went up when Ms. Park asked who objected.|agreement among everyone in a group
+a50|unanimous|The vote was [unanimous], so there was nobody left to convince.|agreed on by everyone
+a51|bifurcate|Halfway up the mountain, the trail will [bifurcate], so take the left path to reach the waterfall.|to split into two branches
+a52|trimaran|Unlike a regular sailboat, the [trimaran] had a long middle hull with a smaller float on each side, making it very hard to tip over.|a boat with three hulls
+a53|exonerate|The video from the hallway camera helped [exonerate] Dev; it proved he was in the library when the trophy went missing.|to clear of blame
+a54|posthumous|The painter never sold a picture while he was alive; his fame was entirely [posthumous].|happening after death
+a55|acquiesce|After an hour of begging, the kids finally got their dad to [acquiesce], and he drove them to the ice cream shop.|to agree without arguing
+a56|contraband|At the border, officers searched suitcases for [contraband], such as fruit and other goods that are not allowed into the country.|goods brought in against the law
+a57|flamboyant|The [flamboyant] singer wore a gold cape, purple boots, and a hat with three feathers.|showy and bold
+a58|diligent|Despite the pouring rain, the [diligent] mail carrier delivered every single letter on time.|hardworking and careful
+a59|compassionate|The [compassionate] nurse held the frightened boy's hand and stayed until he fell asleep.|showing care for others' suffering
+a60|escapee|Police searched the woods all night for the [escapee] who had climbed over the prison wall.|one who has escaped
+a61|mollify|Mom tried to [mollify] the wailing toddler with a cookie and a song.|to calm or soothe
+a62|wreckage|Divers explored the [wreckage] of the old ship scattered across the sea floor.|the broken remains of something
+a63|altruism|Her [altruism] showed when she spent her own birthday money on blankets for the animal shelter.|caring about others more than oneself
+a64|volatile|The chemical is so [volatile] that a single spark could make it explode.|likely to change suddenly or explode
+a65|exposure|After hours in the snow without gloves, the hiker was treated for [exposure] to the cold.|the state of being unprotected
+l1|corrupt|The [corrupt] mayor took secret money from builders in exchange for approving their projects.|dishonest; broken in morals
+l2|intractable|The [intractable] mule planted its feet and would not move, no matter how hard the farmer pulled.|hard to control or manage
+l3|deformed|Years of growing against the fence left the tree's trunk [deformed], bending sharply to one side.|twisted out of its normal shape
+l4|portfolio|The artist carried a [portfolio] full of her best drawings to the interview.|a case for carrying papers or artwork
+l5|constructive|Instead of just saying "it's bad," the coach gave [constructive] advice that helped us improve our passes.|helpful for building up
+l6|edict|The king's [edict] was read aloud in every town square, and by sundown everyone had to obey it.|an official order
+l7|credulous|The [credulous] boy handed over his lunch money after the stranger claimed to be a famous wizard.|too quick to believe
+l8|transcribe|During the interview, Ana had to [transcribe] every word the mayor said so she could print it in the school paper.|to write out in full
+l9|reflective|In a [reflective] mood, Grandma looked through old photos and thought about her years as a teacher.|thoughtful; thinking back
+l10|audiovisual|The [audiovisual] presentation used videos, slides, and recorded whale songs to teach us about the ocean.|using both sound and pictures
+l11|circumspect|Be [circumspect] when you post online; think about who might see it before you share.|careful to think about possible results
+l12|emissary|The queen sent an [emissary] across the sea to deliver her message to the rival king.|a person sent on a mission
+l13|conscientious|A [conscientious] worker, Mr. Diaz double-checks every lock before he leaves the building at night.|careful to do what is right
+l14|interject|During the debate, Sam tried to [interject] a quick fact, but the moderator asked him to wait his turn.|to throw in a remark
+l15|compensate|The company offered free tickets to [compensate] fans for the canceled concert.|to make up for a loss
+l16|vista|From the mountaintop we enjoyed a sweeping [vista] of valleys and lakes stretching for miles.|a wide view
+l17|proliferate|In warm, wet weather, mosquitoes [proliferate], and suddenly there are swarms everywhere.|to increase quickly in number
+l18|adversity|The team faced [adversity] all season, from injuries to a flooded field, but still made the playoffs.|hardship or trouble
+l19|induct|Next month the Hall of Fame will [induct] three new players, adding their names to the wall of legends.|to bring in as a member
+l20|commotion|A loud [commotion] in the cafeteria made everyone turn around: trays crashed and kids were shouting.|noisy confusion and movement
+l21|circumvent|The clever raccoon found a way to [circumvent] the lock by squeezing through a gap in the fence.|to get around something
+l22|implicate|The muddy paw prints seemed to [implicate] the dog in the mystery of the ruined carpet.|to show someone is involved in something bad
+l23|imperceptible|The change in the plant's height was [imperceptible] from day to day, but after a month it had doubled.|too small to notice
+l24|equivocate|When asked who broke the vase, Jamie began to [equivocate], giving vague answers that never really said yes or no.|to avoid giving a clear answer
+l25|compulsory|Wearing a helmet is [compulsory] at the skate park; you won't be allowed in without one.|required
+l26|pedestal|The statue stood on a tall stone [pedestal] so that everyone in the park could see it.|a base that a statue stands on
+l27|revitalize|The town planted trees and opened new shops to [revitalize] its empty, run-down main street.|to give new life to
+l28|preclude|The broken ankle will [preclude] Zoe from running in Saturday's race.|to prevent ahead of time
+l29|sectional|Our family squeezed onto the big [sectional] sofa, whose separate pieces fit together in an L shape.|made of separate sections
+l30|fraternal|Unlike identical twins, [fraternal] twins can look as different as any other brother and sister.|related to brothers; not identical (for twins)
+l31|matriarchy|In an elephant herd, the oldest female leads the way, so the group is a kind of [matriarchy].|a group ruled by a mother or woman
+l32|patrimony|The old farm was his [patrimony], passed down from his father and his father's father.|property inherited from a father
+l33|conquest|After the [conquest], the victorious army raised its flag over the captured castle.|winning control by force
+l34|universal|The need for clean water is [universal]; every person on Earth depends on it.|shared by all
+l35|bivalve|A clam is a [bivalve], protected by a hinged pair of shells that snap shut when danger comes.|an animal with a two-part shell
+l36|triumvirate|Rome was once ruled by a [triumvirate]: Caesar, Pompey, and Crassus shared power until they turned against one another.|a group of three rulers
+l37|quadrangle|The students ate lunch on the grassy [quadrangle], with the old school buildings forming a wall on every side.|a four-sided courtyard
+l38|quintessential|With its red barn, white fence, and grazing cows, the farm looked like the [quintessential] country scene from a postcard.|the most perfect example of something
+l39|sextet|When two more singers joined the quartet, the group became a [sextet] and needed a bigger stage.|a group of six
+l40|September|Before the Romans added two months to the front of their calendar, [September] really was the seventh month.|the month once seventh in the year
+l41|octet|The jazz [octet] crowded onto the stage: four horns, a piano, a bass, drums, and a guitar.|a group of eight
+l42|nonagenarian|Great-Grandpa Joe, a spry [nonagenarian], celebrated his 94th birthday by beating us all at checkers.|a person in their nineties
+l43|decimate|A sudden frost can [decimate] an orange crop, killing most of the fruit in a single night.|to destroy a large part of
+g1|choreography|The dancers practiced the [choreography] for weeks until every spin and leap matched perfectly.|the planned steps of a dance
+g2|homophone|"Flower" is a [homophone] of "flour," so you have to hear the rest of the sentence to know which one I mean.|a word that sounds like another word
+g3|photovoltaic|The [photovoltaic] panels on the roof turn sunlight into enough electricity to run the whole school.|turning light into electricity
+g4|telekinesis|In the movie, the girl had [telekinesis], sliding cups across the table without ever touching them.|moving objects from a distance with the mind
+g5|autonomous|The [autonomous] robot vacuum cleans the whole house, steering around chairs without anyone guiding it.|able to act on its own
+g6|microclimate|The shady valley has its own [microclimate], staying cool and misty while the nearby town bakes in the sun.|the climate of a small area
+g7|ornithology|Because she can name hundreds of birds just by their songs, Aunt Rosa's friends call her an expert in [ornithology].|the study of birds
+g8|otoscope|Dr. Kim aimed the [otoscope] into my ear and announced that she could see the infection.|a tool for looking inside the ear
+g9|bibliophile|A true [bibliophile], Mr. Okafor owns so many novels that his shelves line every wall, even in the kitchen.|a person who loves books
+g10|biodiversity|The rainforest's [biodiversity] is astonishing; a single tree can be home to hundreds of kinds of insects.|the variety of living things in a place
+g11|hydrology|Before building the road, engineers studied the area's [hydrology], measuring where rainwater flowed and pooled.|the study of water
+g12|glossophobia|Because of his [glossophobia], Ravi's hands shook and his voice cracked whenever he had to give a speech.|fear of public speaking
+g13|meritocracy|In a true [meritocracy], the best players make the team, no matter who their parents are.|a system where ability earns power
+g14|geocaching|On our [geocaching] adventure, we followed map coordinates to a tiny box hidden under a log in the park.|a treasure hunt using locations on Earth
+g15|altimeter|As the plane climbed, the pilot watched the [altimeter] tick past ten thousand feet.|a tool that measures height
+g16|endothermic|Unlike snakes and lizards, [endothermic] animals such as dogs and birds make their own body heat.|making heat inside the body
+g17|anachronistic|A wristwatch on a knight in a castle movie would be [anachronistic], since watches hadn't been invented yet.|out of its proper time
+g18|orthodox|The [orthodox] way to bake bread is in an oven, but Grandpa insists on cooking his loaves over a campfire.|usual or widely accepted
+g19|empathetic|An [empathetic] friend, Leila could tell from one look that I'd had a terrible day, and she sat with me without a word.|able to share another's feelings
+g20|psychoanalyze|My brother loves to [psychoanalyze] cartoon characters, explaining what secret worries make each of them act so silly.|to study someone's mind closely
+g21|aerial|The [aerial] photo, taken from a helicopter, showed the whole corn maze at once.|from the air
+g22|disastrous|Forgetting the tent poles made our camping trip [disastrous]: we spent a soggy night crammed in the car.|very bad, like a catastrophe
+g23|cyclops|In the myth, the one-eyed [cyclops] rolled a boulder across the cave entrance to trap the sailors.|a giant with one round eye
+g24|spherical|Unlike a football, a basketball is perfectly [spherical], so it bounces the same way no matter how it lands.|shaped like a ball
+g25|archrival|The Eagles finally beat their [archrival], the Hawks, ending a ten-year losing streak in the biggest game of the season.|a chief enemy or competitor
+g26|acropolis|Athens built its temples high on the [acropolis], a rocky hill above the rest of the city.|the high part of an ancient Greek city
+g27|pediatrician|When the baby's fever wouldn't go down, Mom called the [pediatrician] who has been my doctor since I was born.|a doctor for children
+g28|isopod|The pill bug is a tiny [isopod] that rolls into a ball when touched; all fourteen of its legs are about the same size.|an animal with many legs of equal size
+g29|monopoly|With only one bakery in town, the shop had a [monopoly] on bread and could charge whatever it wanted.|complete control by one seller
+g30|diptych|The artist's [diptych] showed winter on its left panel and summer on its right, joined by a hinge in the middle.|a picture made of two panels
+g31|triad|The C major chord is a [triad]: C, E, and G played together.|a group of three
+g32|tetrahedron|We taped four paper triangles together at their edges to make a [tetrahedron] that looked like a tiny pyramid.|a solid shape with four faces
+g33|pentagonal|Home plate in baseball is [pentagonal]; count its edges, and you'll find one more than a square has.|having five sides
+g34|hexagonal|Honeybees build [hexagonal] wax cells, so each little room shares a wall with six neighbors.|having six sides
+g35|heptathlon|Over two exhausting days of the [heptathlon], Jackie ran hurdles, high-jumped, put the shot, sprinted, long-jumped, threw the javelin, and finished with a long race.|a contest of seven events
+g36|octahedron|Glue two square pyramids together at their bases and you get an [octahedron] that looks like a diamond.|a solid shape with eight faces
+g37|enneagon|An [enneagon] has one more side than a stop sign, so it looks almost like a circle with corners.|a shape with nine sides
+g38|decapod|Count the legs on a crab: one pair of claws plus four pairs of walking legs makes it a [decapod].|an animal with ten legs
+g39|petroleum|Plastic, gasoline, and even some crayons are made from [petroleum], an oil pumped up from deep inside rock layers.|oil found in rock
+g40|hieroglyphs|Scholars puzzled over the [hieroglyphs] carved on the tomb wall until the Rosetta Stone helped them read the pictures.|picture symbols used as writing
+g41|astronomy|Kenji's love of [astronomy] keeps him up late every clear night, charting the planets with his telescope.|the study of stars and planets
+g42|endemic|Kangaroos are [endemic] to Australia; in the wild, you won't find them on any other continent.|found only in one place
+`;
+const C6PRAW=`
+a8|misinterpreted|understood in the wrong way|a43|offended|upset or insulted|Lily [misinterpreted] her friend's joke as an insult and felt [offended] all afternoon, until she learned he had meant it kindly.
+l1|erupted|burst out|a12|descended|moved down|When the volcano [erupted], ash shot high into the sky and then slowly [descended] on the villages below.
+g6|microscopic|too small to see without a microscope|g8|telescope|a tool for seeing faraway things|Mira spent the morning studying [microscopic] pond creatures and the night peering at distant planets through her [telescope].
+a21|overestimated|thought something was more than it was|a33|underestimated|thought something was less than it was|We [overestimated] how much pizza the team would eat and [underestimated] how much water they'd need: three boxes were left over, but the bottles ran out by halftime.
+a24|fearless|without fear|a23|fearful|full of fear|The [fearless] older puppy charged at the vacuum, while its [fearful] little sister hid under the couch.
+l9|inflexible|not able to bend or change|l3|conform|to follow the usual rules|Our coach is [inflexible] about practice times, so every player must [conform] to the schedule or sit out the game.
+l10|inaudible|not able to be heard|l16|visible|able to be seen|From the back row, the actor's whisper was [inaudible], but his frantic waving was clearly [visible].
+a13|preview|a look at something before it happens|a54|postgame|after the game|We watched a [preview] of the big match on Friday and a [postgame] interview with the winning coach on Saturday night.
+l21|convened|came together|a27|intermission|a break between parts of a show|The audience [convened] in the lobby during the [intermission], chatting until the lights flashed to call them back for Act Two.
+a48|prologue|an introduction before a story|g17|chronological|in time order|The book opens with a [prologue] set years later, then tells the rest of the story in [chronological] order, from the hero's birth to her final battle.
+a41|malevolent|wishing harm on others|a31|antidote|a remedy that works against poison|The [malevolent] witch poisoned the apple, but the clever dwarf brewed an [antidote] just in time.
+a5|coldest|most cold|g16|thermos|a container that keeps drinks hot or cold|On the [coldest] morning of winter, Dad poured steaming cocoa from his [thermos] for everyone at the bus stop.
+a51|bilingual|able to speak two languages|a42|multilingual|able to speak many languages|Maria is [bilingual], speaking English and Spanish, but her uncle is [multilingual] and can chat in six languages.
+a9|disagree|to have different opinions|a49|compromise|to settle by each side giving up something|When the twins [disagree] about which movie to watch, they [compromise]: one picks tonight, and the other picks tomorrow.
+l2|attracted|pulled toward|l25|repelled|pushed away|The north end of one magnet [attracted] the south end of the other, but two north ends [repelled] each other no matter how hard we pushed.
+a26|stillness|the state of being still and quiet|l20|motionless|not moving at all|In the [stillness] of dawn, the deer stood [motionless] at the edge of the meadow, not even flicking an ear.
+g11|dehydrated|without enough water|l27|revived|brought back to strength|The [dehydrated] runner collapsed at the finish line, but a few cups of water quickly [revived] her.
+a4|employer|one who hires workers|a60|employee|one who is hired to work|The [employer] praised her newest [employee] for finishing the project a week early.
+a38|princess|a daughter of a king or queen|a46|childhood|the time of being a child|The old queen had been a shy [princess] during her [childhood], always hiding in the castle library.
+a14|asleep|sleeping|l13|conscious|awake and aware|Grandpa was [asleep] in his armchair, snoring loudly, but the moment the doorbell rang he was fully [conscious] and on his feet.
+a12|deflated|with the air let out|a11|reinflate|to fill with air again|The soccer ball was [deflated] and squishy, so Coach used the pump to [reinflate] it before practice.
+l8|manuscript|a book or paper written before it is printed|a20|nonfiction|writing about real facts and events|The author mailed her [manuscript] to the publisher: a [nonfiction] book about real astronauts.
+g25|monarchy|rule by a king or queen|g13|democracy|government by the people|After years of [monarchy], when one queen made every decision, the country became a [democracy] where citizens vote for their leaders.
+a47|sluggish|slow and lazy|a40|energetic|full of energy|The afternoon heat made the lizard [sluggish], but in the cool morning it was quick and [energetic].
+a22|submerge|to go under water|a53|emerge|to come out|A hippo can [submerge] for five minutes, then [emerge] with a snort to breathe.
+l19|produce|to make or grow|l4|export|to send goods out to another country|The farms in this valley [produce] more apples than the town can eat, so trucks [export] the extra fruit to other countries.
+l23|captured|caught and held|l12|dismissed|sent away or rejected|The detectives [captured] the jewel thief at midnight, but the judge [dismissed] the case when the evidence went missing.
+g22|astronaut|a person who travels in space|g21|aerospace|the science of air and space travel|The [astronaut] thanked the [aerospace] engineers who had built her spacecraft.
+a34|bewilderment|great confusion|a6|unharmed|not hurt|To our [bewilderment], the magician's rabbit vanished from the hat, then reappeared, [unharmed], in the back row.
+a63|optimism|hopefulness that things will go well|a37|cautious|careful to avoid danger|Despite the gloomy forecast, Dad's [optimism] never faded, but Mom was more [cautious] and packed umbrellas for everyone.
+g12|acrophobia|fear of heights|a33|underground|below the earth's surface|Tim's [acrophobia] kept him off the Ferris wheel, so he spent the day exploring the [underground] caves instead.
+g3|photosynthesis|making food from light|a12|decompose|to break down and rot|Living leaves use [photosynthesis] to make food from sunlight, but fallen leaves slowly [decompose] into soil.
+a29|supervise|to watch over|a61|notify|to tell or inform|The lifeguards [supervise] the pool from tall chairs and [notify] parents right away if a child seems to be in trouble.
+l18|diverted|turned aside|l26|pedestrians|people who are walking|Police [diverted] traffic around the parade route so that [pedestrians] could stroll safely down the middle of Main Street.
+`;
+const CTX6=C6RAW.trim().split("\n").map(l=>{const [id,w,sent,def]=l.split("|");return{c:BYID[id],w,sent,def,lv:6}}).filter(x=>x.c&&x.sent&&x.sent.includes('['+x.w+']'));
+const CTX6P=C6PRAW.trim().split("\n").map(l=>{const [id,w,def,id2,w2,def2,sent]=l.split("|");return{c:BYID[id],w,def,c2:BYID[id2],w2,def2,sent,lv:6,pair:true}}).filter(x=>x.c&&x.c2&&x.sent&&x.sent.includes('['+x.w+']')&&x.sent.includes('['+x.w2+']'));
 const CN=10; let C=null;
 const LEVELS=[
   {n:1,name:'Warm-up',desc:'Easy words, fill in the blank, 3 choices. The word-part clue is shown.',opts:3,types:['fill'],hint:'show',dist:'far'},
   {n:2,name:'Easy',desc:'Familiar words, 3 choices. Tap Hint if you need the word-part clue.',opts:3,types:['fill','mean'],hint:'button',dist:'far'},
   {n:3,name:'Medium',desc:'Grade-level words, 4 choices. Hint available.',opts:4,types:['fill','mean'],hint:'button',dist:'any'},
   {n:4,name:'Hard',desc:'Harder words, 4 choices that are all the same kind of word part. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'kind'},
-  {n:5,name:'Expert',desc:'The hardest words. Wrong answers share the same word part, so only the sentence clues can tell you. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'same'}];
-let CL=(()=>{const v=+store.get('rd-ctx-level',2);return v>=1&&v<=5?v:2})();
+  {n:5,name:'Expert',desc:'The hardest words. Wrong answers share the same word part, so only the sentence clues can tell you. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'same'},
+  {n:6,name:'Master',desc:'All-new sentences where the clues are hidden: you have to figure out the meaning from what happens. Some sentences have two mystery words to solve at once. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'same'}];
+let CL=(()=>{const v=+store.get('rd-ctx-level',2);return v>=1&&v<=6?v:2})();
 let ctxBest=store.get('rd-ctx-best',{})||{};
 function ctxPool(){const ids=new Set(pool().map(c=>c.id));const xs=CTX.filter(x=>ids.has(x.c.id));
   $('cnote').textContent=xs.length?`${xs.length} sentences use the cards you're practicing.`:'No sentences use the chosen cards yet, so all sentences are used.';
@@ -4763,7 +4966,7 @@ function makeCtxQ(x,lev){
   const val=y=>t==='mean'?y.def:y.w;
   const ans=val(x),seen=new Set([ans]),opts=[];
   const add=list=>{for(const y of shuf(list)){if(opts.length>=lev.opts-1)return;const v=val(y);if(seen.has(v))continue;seen.add(v);opts.push(v)}};
-  const others=CTX.filter(y=>y!==x);
+  const others=(lev.n===6?CTX.concat(CTX6):CTX).filter(y=>y!==x);
   if(lev.dist==='same'){add(others.filter(y=>y.c===x.c&&y.w!==x.w));add(others.filter(y=>y.c!==x.c&&y.c.kind===x.c.kind&&!overlap(y.c,x.c)))}
   else if(lev.dist==='kind')add(others.filter(y=>y.c!==x.c&&y.c.kind===x.c.kind&&!overlap(y.c,x.c)));
   else if(lev.dist==='far')add(others.filter(y=>y.c.kind!==x.c.kind&&y.lv<=3));
@@ -4776,16 +4979,69 @@ function levelPicker(){
 }
 function wireLevels(){$('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{CL=+b.dataset.lv;store.set('rd-ctx-level',CL);startContext()})}
 function startContext(){
+  if(CL===6)return startMaster();
   const lev=LEVELS[CL-1],{xs,d}=levelPool(ctxPool(),CL);
   const picks=draw('context'+CL,xs,CN,x=>x.c.id+x.w+x.sent.length);
   C={lev,qs:picks.map(x=>makeCtxQ(x,lev)),i:0,score:0,missed:[],wide:d};
   if(d>0)$('cnote').textContent+=` Not enough level ${CL} sentences for these cards, so some nearby levels are mixed in.`;
   renderContext();
 }
+function startMaster(){
+  const lev=LEVELS[5],ids=new Set(pool().map(c=>c.id));
+  let ss=CTX6.filter(x=>ids.has(x.c.id)),ps=CTX6P.filter(x=>ids.has(x.c.id)||ids.has(x.c2.id));
+  const mine=ss.length+ps.length;
+  const np=Math.random()<.5?3:4;
+  if(ps.length<np)ps=CTX6P;if(ss.length<CN-np)ss=CTX6;
+  $('cnote').textContent=mine>=CN?`${mine} master sentences use the cards you're practicing.`:'Not many master sentences use the chosen cards yet, so sentences from all cards are mixed in.';
+  const pp=draw('ctx6p',ps,np,x=>x.w+x.w2),sp=draw('ctx6',ss,CN-pp.length,x=>x.c.id+x.w);
+  C={lev,qs:shuf([...pp.map(x=>makePairQ(x,lev)),...sp.map(x=>makeCtxQ(x,lev))]),i:0,score:0,missed:[],wide:0};
+  renderContext();
+}
+const PSEP='||';
+function makePairQ(x,lev){
+  const t=Math.random()<.5?'fill':'mean',all=CTX.concat(CTX6),val=y=>t==='mean'?y.def:y.w;
+  const v1=t==='mean'?x.def:x.w,v2=t==='mean'?x.def2:x.w2;
+  const alt=(c,not)=>{const used=new Set([v1,v2,not]);const same=shuf(all.filter(y=>y.c===c).map(val)).find(v=>!used.has(v));
+    return same||shuf(all.filter(y=>y.c!==c&&y.c.kind===c.kind).map(val)).find(v=>!used.has(v))};
+  const cand=[[v1,v2],[v2,v1],[alt(x.c,x.w),v2],[v1,alt(x.c2,x.w2)],[alt(x.c,x.w),alt(x.c2,x.w2)]];
+  const seen=new Set(),opts=[];for(const o of cand){if(!o[0]||!o[1])continue;const k=o.join(PSEP);if(seen.has(k))continue;seen.add(k);opts.push(k);if(opts.length>=lev.opts)break}
+  return{x,t,pair:true,ans:v1+PSEP+v2,opts:shuf(opts),hintShown:false};
+}
+const pairSentHTML=(x,mode)=>esc(x.sent).replace('['+esc(x.w)+']',mode==='blank'?'<span class="blank" data-n="1" aria-label="blank 1"></span>':`<u>${esc(x.w)}</u><sup class="pn">1</sup>`)
+  .replace('['+esc(x.w2)+']',mode==='blank'?'<span class="blank" data-n="2" aria-label="blank 2"></span>':`<u>${esc(x.w2)}</u><sup class="pn">2</sup>`);
+const pairLabel=k=>{const [a,b]=k.split(PSEP);return`<span class="pl"><span class="pn">1</span><span>${esc(a)}</span></span><span class="pl"><span class="pn">2</span><span>${esc(b)}</span></span>`};
+function renderPairQ(q){
+  const lev=C.lev,x=q.x;
+  const sayText=q.t==='mean'?x.sent:x.sent.replace('['+x.w+']','blank one').replace('['+x.w2+']','blank two');
+  $('ccard').innerHTML=`${levelPicker()}
+    <div class="qtop"><span>Level ${lev.n} · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
+    <p class="cask"><span class="twotag">Two words</span>${q.t==='mean'?'Use the clues in the sentence. What do words 1 and 2 mean?':'Use the clues in the sentence. Which words fill blanks 1 and 2?'}</p>
+    <div class="sayrow"><p class="sent">${pairSentHTML(x,q.t==='mean'?'u':'blank')}</p>${sayBtn(sayText,'Listen to the sentence')}</div>
+    <div class="opts one">${q.opts.map((o,k)=>`<button class="opt pairopt" id="copt${k}" data-v="${esc(o)}">${pairLabel(o)}</button>`).join('')}</div>
+    <div id="cfb"></div>`;
+  wireLevels();
+  $('ccard').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const ok=b.dataset.v===q.ans,[a1,a2]=b.dataset.v.split(PSEP),[r1,r2]=q.ans.split(PSEP),ok1=a1===r1,ok2=a2===r2;
+    $('ccard').querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(o.dataset.v===q.ans)o.classList.add('right')});
+    rec(d=>{const o=sub(d,'ctx');bump(o,'t');if(ok)bump(o,'c');
+      if(ok1)bump(sub(d,'right'),x.c.id);else missCard(d,x.c.id);if(ok2)bump(sub(d,'right'),x.c2.id);else missCard(d,x.c2.id);
+      const y=sub(sub(o,'ty'),q.t);bump(y,'t');if(ok)bump(y,'c');const l=sub(sub(o,'lv'),6);bump(l,'t');if(ok)bump(l,'c');bump(o,'pairs')});
+    C.streak=C.streak||0;if(ok){C.score++;C.streak++;FX.burst(b,30);FX.cheer(b,FX.praise(C.streak));FX.play('good',C.streak);b.classList.add('popin')}else{C.streak=0;FX.play('bad');b.classList.add('wrong');if(!C.missed.includes(x))C.missed.push(x)}
+    const last=C.i===CN-1;
+    $('cfb').innerHTML=`<div class="fb ${ok?'ok':'no'}"><strong>${ok?'Double clue cracked!':ok1||ok2?'Half right! One of the two words was off.':'Not quite.'}</strong>
+      <p>${pairSentHTML(x,'u')}</p>
+      <p><span class="pn">1</span> <b>${hl(x.w,x.c)}</b> means “${esc(x.def)}.” ${clueLine(x.c)}</p>
+      <p><span class="pn">2</span> <b>${hl(x.w2,x.c2)}</b> means “${esc(x.def2)}.” ${clueLine(x.c2)}</p>
+      ${partsRow(x.w)}${partsRow(x.w2)}
+      <div class="grp" style="justify-content:space-between"><button class="btn primary" id="cnext">${last?'See my score':'Next sentence →'}</button>${reportBtn({where:'Context clues',card:x.c.main+' / '+x.c2.main,word:x.w+' / '+x.w2,sentence:x.sent})}</div></div>`;
+    $('cnext').onclick=()=>{C.i++;C.i<CN?renderContext():ctxResults()};$('cnext').focus();
+  });
+}
 const sentHTML=(x,mode)=>esc(x.sent).replace('['+esc(x.w)+']',mode==='blank'?'<span class="blank" aria-label="blank"></span>':`<u>${esc(x.w)}</u>`);
 const clueLine=c=>`The ${c.kind==='prefix'||c.kind==='suffix'?KIND[c.kind].toLowerCase():KIND[c.kind]} <mark>${esc(c.main)}</mark> means “${esc(meanOf(c))}.”`;
 function renderContext(){
   const q=C.qs[C.i],lev=C.lev;
+  if(q.pair)return renderPairQ(q);
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span>Level ${lev.n} · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
     <p class="cask">${q.t==='mean'?'Use the clues in the sentence. What does the underlined word mean?':'Use the clues in the sentence. Which word fits the blank?'}</p>
@@ -4816,12 +5072,12 @@ function ctxResults(){
   const s=C.score,L=C.lev.n,nb=ctxBest[L]==null||s>ctxBest[L];
   if(s>=7)setTimeout(celebrateWin,150);
   if(nb){ctxBest[L]=s;store.set('rd-ctx-best',ctxBest)}
-  const up=s>=8&&L<5, down=s<=4&&L>1;
+  const up=s>=8&&L<6, down=s<=4&&L>1;
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span>Level ${L} complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${CN}</p><p class="prompt">${s>=9?'Excellent detective work!':s>=7?'Nice job using the clues!':'Keep practicing. Look for clue words near the underlined word.'}${nb&&s>0?' New best for this level!':''}</p>
     ${up?`<p class="note" style="margin:0">You're ready for a bigger challenge. Try level ${L+1}.</p>`:down?`<p class="note" style="margin:0">Try level ${L-1} to warm up, then come back.</p>`:''}
-    ${C.missed.length?`<div><p class="note" style="margin-bottom:8px">Words to review:</p><div class="chips">${C.missed.map(x=>`<span>${hl(x.w,x.c)} = ${esc(x.def)}</span>`).join('')}</div></div>`:''}
+    ${C.missed.length?`<div><p class="note" style="margin-bottom:8px">Words to review:</p><div class="chips">${C.missed.flatMap(x=>x.pair?[{w:x.w,c:x.c,def:x.def},{w:x.w2,c:x.c2,def:x.def2}]:[x]).map(x=>`<span>${hl(x.w,x.c)} = ${esc(x.def)}</span>`).join('')}</div></div>`:''}
     <div class="grp">${up?`<button class="btn primary" id="cup">Try level ${L+1}</button><button class="btn" id="cagain">Play level ${L} again</button>`:`<button class="btn primary" id="cagain">Play again</button>`}${down?`<button class="btn" id="cdown">Try level ${L-1}</button>`:''}</div>`;
   wireLevels();
   $('cagain').onclick=startContext;
@@ -5193,7 +5449,7 @@ function statsHTML(days,range,opts={}){
   const KL={prefix:'Prefixes',suffix:'Suffixes',latin:'Latin bases',greek:'Greek bases'};
   const QT={mean:'What a word part means',part:'Which word part has a meaning',word:'Which word matches a meaning'};
   const XT={fill:'Fill in the blank',mean:'What the underlined word means'};
-  const LVN=['','Warm-up','Easy','Medium','Hard','Expert'];
+  const LVN=['','Warm-up','Easy','Medium','Hard','Expert','Master'];
   const tried=Object.keys(A.card).filter(id=>A.card[id].t>=2);
   const weak=tried.filter(id=>A.card[id].acc<.7).sort((a,b)=>A.card[a].acc-A.card[b].acc||A.card[b].t-A.card[a].t).slice(0,8);
   const strong=tried.filter(id=>A.card[id].acc>=.8).sort((a,b)=>A.card[b].acc-A.card[a].acc||A.card[b].t-A.card[a].t).slice(0,8);
@@ -5216,7 +5472,7 @@ function statsHTML(days,range,opts={}){
     <section class="sblock"><p class="plabel">Accuracy by word-part type</p>
       ${['prefix','suffix','latin','greek'].map(k=>{const o=A.kind[k]||{t:0,c:0,n:0};return barRow(KL[k],o.c,o.t,'k-'+k,o.n?` · ${o.n} card${o.n===1?'':'s'}`:'')}).join('')}</section>
     <section class="sblock"><p class="plabel">Context clues by level</p>
-      ${[1,2,3,4,5].map(L=>{const o=A.x.lv[L]||{t:0,c:0,r:0,best:0};return barRow(`${L} ${LVN[L]}`,o.c,o.t,'',o.r?` · ${o.r} round${o.r===1?'':'s'}${o.best?`, best ${o.best}/10`:''}`:'')}).join('')}
+      ${[1,2,3,4,5,6].map(L=>{const o=A.x.lv[L]||{t:0,c:0,r:0,best:0};return barRow(`${L} ${LVN[L]}`,o.c,o.t,'',o.r?` · ${o.r} round${o.r===1?'':'s'}${o.best?`, best ${o.best}/10`:''}`:'')}).join('')}
       <div class="ssub">${Object.keys(XT).map(k=>{const o=A.x.ty[k]||{t:0,c:0};return`<span>${XT[k]}: <b>${o.t?pct(o.c,o.t):'–'}</b> <small>${o.t?`${o.c}/${o.t}`:''}</small></span>`}).join('')}<span>Hints used: <b>${A.x.hints}</b></span></div></section>
     <section class="sblock"><p class="plabel">Quiz by question type</p>
       ${Object.keys(QT).map(k=>{const o=A.q.ty[k]||{t:0,c:0};return barRow(QT[k],o.c,o.t)}).join('')}
@@ -5253,7 +5509,7 @@ function badgeVals(days,name){
   v.days=A.act;v.run=bestRun(days);v.min=Math.round(A.min);v.name=name?1:0;
   v.answered=A.q.t+A.x.t;v.quizRounds=A.q.r;v.quizBest=A.q.best;
   v.ctxRounds=A.x.r;v.ctxBest=Math.max(0,...Object.values(A.x.lv).map(o=>o.best||0));
-  for(const L of [2,3,4,5])v['lv'+L]=Math.max(0,...[L,L+1,L+2,L+3,L+4].filter(x=>x<=5).map(x=>(A.x.lv[x]||{}).best||0));
+  for(const L of [2,3,4,5,6])v['lv'+L]=Math.max(0,...[L,L+1,L+2,L+3,L+4].filter(x=>x<=6).map(x=>(A.x.lv[x]||{}).best||0));
   v.matchRounds=A.m.r;v.matchFast=mn(d=>d.match&&d.match.fast);v.matchPerfect=all.reduce((s,d)=>s+((d.match&&d.match.perfect)||0),0);v.matchStreak=A.m.best;
   v.memRounds=A.g.r;v.memFew=mn(d=>d.mem&&d.mem.fewest);
   v.built=A.b.n;v.parts=A.parts;v.cards=A.cards.size;v.mastered=A.mastered.length;
@@ -5280,7 +5536,8 @@ const BADGES=[
  {id:'ctx1',name:'Clue Finder',desc:'Finish a Context clues round',cat:'clues',sym:'?',val:v=>v.ctxRounds,n:1},
  {id:'lv3',name:'Medium Sleuth',desc:'Score 8+ on Context clues level 3 or higher',cat:'clues',sym:'L3',val:v=>v.lv3,n:8,best:1},
  {id:'lv4',name:'Hard Case',desc:'Score 8+ on Context clues level 4 or higher',cat:'clues',sym:'L4',val:v=>v.lv4,n:8,best:1},
- {id:'lv5',name:'Expert Detective',desc:'Score 8+ on Context clues level 5',cat:'clues',sym:'L5',val:v=>v.lv5,n:8,best:1},
+ {id:'lv5',name:'Expert Detective',desc:'Score 8+ on Context clues level 5 or higher',cat:'clues',sym:'L5',val:v=>v.lv5,n:8,best:1},
+ {id:'lv6',name:'Master Detective',desc:'Score 8+ on Context clues level 6',cat:'clues',sym:'L6',val:v=>v.lv6,n:8,best:1},
  {id:'ctx10',name:'Perfect Clues',desc:'Score 10 out of 10 on Context clues',cat:'clues',sym:'10/10',val:v=>v.ctxBest,n:10,best:1},
  {id:'mperf',name:'Flawless Match',desc:'Finish a Match round with no misses',cat:'games',sym:'0x',val:v=>v.matchPerfect,n:1},
  {id:'mfast',name:'Lightning Matcher',desc:'Finish a Match round in 30 seconds or less',cat:'games',sym:'30s',val:v=>v.matchFast<=30?1:0,n:1},
@@ -5322,7 +5579,7 @@ const BGRAD={start:['#FFE066','#F59F00'],streak:['#FFA94D','#E8590C'],quiz:['#74
 /* Badge pictures: an emoji plus an optional little number tag */
 const BEMO={name:['👋'],first:['🔍'],run3:['🔥','3'],run5:['🔥','5'],run10:['🚀','10'],days10:['📅','10'],days30:['🗓️','30'],min60:['⏰','60m'],
   ans100:['💪','100'],ans500:['🤖','500'],quiz10:['💯'],quizr10:['📝','10'],check1:['✅'],grow3:['📈','+3'],
-  ctx1:['🧩'],lv3:['🔎','L3'],lv4:['🧠','L4'],lv5:['🕵️','L5'],ctx10:['🌟'],
+  ctx1:['🧩'],lv3:['🔎','L3'],lv4:['🧠','L4'],lv5:['🕵️','L5'],lv6:['🎩','L6'],ctx10:['🌟'],
   mperf:['🎯'],mfast:['⚡','30s'],mstreak:['🎉','6'],mem:['🐘'],mem10:['🃏','10'],build10:['🧱','10'],build50:['🏗️','50'],
   spell10:['🐝'],spellp:['🏅'],sortp:['📦'],speed15:['🏃','15'],speed25:['🌩️','25'],
   cards50:['🗂️','50'],cards150:['📚','150'],mast10:['🌱','10'],mast50:['🌳','50'],mast100:['👑','100'],week:['🎁'],rev5:['☀️','5'],
