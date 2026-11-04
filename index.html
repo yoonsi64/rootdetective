@@ -58,6 +58,18 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--primary);outlin
 /* Mode tabs: one scrolling row of icon tiles */
 .modetabs{flex:1 1 100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;position:relative;gap:2px;border-radius:18px;padding:5px;scroll-padding-inline:8px}
 .modetabs::-webkit-scrollbar{display:none}
+/* Phones: the mode bar sits along the bottom of the screen */
+@media (hover:none) and (pointer:coarse) and (max-width:700px){
+  #tabWrap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:color-mix(in srgb,var(--card) 94%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.08);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px))}
+  #tabWrap .modetabs{border:0;border-radius:0;background:transparent;padding:2px}
+  #tabWrap .modetabs button{min-width:66px;min-height:56px;padding:6px 6px 5px;font-size:.72rem;border-radius:12px;gap:3px}
+  #tabWrap .modetabs .ti{width:24px;height:24px}
+  #tabWrap .modetabs button.ping::after{top:2px;right:8px}
+  body{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  body .btoast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  body.typing #tabWrap{display:none}
+  body.typing{padding-bottom:0}
+}
 .tabwrap{position:relative;flex:1 1 100%;min-width:0;display:flex}
 .tabwrap .modetabs{flex:1 1 auto}
 .tabarrow{display:none;position:absolute;top:50%;z-index:2;width:36px;height:36px;margin-top:-18px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);box-shadow:0 3px 10px rgba(0,0,0,.15);place-items:center;padding:0;cursor:pointer}
@@ -1277,6 +1289,8 @@ function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{
   centerTab(m);document.body.classList.toggle('on-home',m==='home');try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
+document.addEventListener('focusin',e=>{if(e.target.matches&&e.target.matches('input:not([type=checkbox]):not([type=radio]),textarea'))document.body.classList.add('typing')});
+document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!(a&&a.matches&&a.matches('input:not([type=checkbox]):not([type=radio]),textarea')))document.body.classList.remove('typing')},50));
 (()=>{const c=$('modeTabs');if(!c)return;const w=$('tabWrap'),edge=()=>{const max=c.scrollWidth-c.clientWidth;c.classList.toggle('fl',c.scrollLeft>4);c.classList.toggle('fr',c.scrollLeft<max-4);if(w){w.classList.toggle('cl',c.scrollLeft>4);w.classList.toggle('cr',c.scrollLeft<max-4)}};
   const step=d=>{try{c.scrollBy({left:d*c.clientWidth*.7,behavior:document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft+=d*c.clientWidth*.7}};
   if($('tabPrev'))$('tabPrev').onclick=()=>step(-1);if($('tabNext'))$('tabNext').onclick=()=>step(1);
