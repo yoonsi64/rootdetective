@@ -1173,8 +1173,8 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .wmap.simple{background:var(--card)}
 .wmap.simple .stage{z-index:3}
 .scard{position:absolute;z-index:2;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px 10px 10px;box-shadow:0 3px 10px rgba(0,0,0,.06);cursor:pointer;max-width:320px}
-.scard.r{left:calc(22% + 42px);right:10px}
-.scard.l{right:calc(22% + 42px);left:10px;margin-left:auto}
+.scard.r{left:calc(22% + 48px);right:10px}
+.scard.l{right:calc(22% + 48px);left:10px;margin-left:auto}
 .scard:hover{border-color:var(--primary)}
 .scard.done{border-color:#E8C35A;background:color-mix(in srgb,#F6C445 9%,var(--card))}
 .scard.cur{border:2px solid var(--primary);box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 16%,transparent),0 3px 10px rgba(0,0,0,.08)}
@@ -1192,7 +1192,13 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .snake-start,.snake-end{position:absolute;left:22%;transform:translateX(-50%);z-index:3;background:var(--ink);color:var(--card);font-weight:800;font-size:.8rem;border-radius:999px;padding:3px 12px;white-space:nowrap}
 .snake-end{left:50%;background:#F6C445;color:#5A3B00;font-size:.9rem;padding:5px 14px}
 .wmap.simple .slock{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:420px){.scard.r{left:calc(22% + 34px);right:8px}.scard.l{right:calc(22% + 34px);left:8px}.scard{padding:7px 8px 8px}.scard .chip{font-size:.74rem;padding:1px 6px}}
+@media (max-width:420px){.scard.r{left:calc(22% + 42px);right:8px}.scard.l{right:calc(22% + 42px);left:8px}.scard{padding:7px 8px 8px}.scard .chip{font-size:.74rem;padding:1px 6px}}
+/* selected week: shown on its card (no dashed outline around the circle) */
+.wmap.simple .stage.sel,.wmap.simple .stage:focus-visible{outline:none!important}
+.wmap.simple .stage.sel{transform:translate(-50%,-50%) scale(1.08)}
+.wmap.simple .stage:focus-visible{box-shadow:0 0 0 3px var(--card),0 0 0 6px var(--ink)!important}
+.scard.sel{border:2px solid var(--ink);box-shadow:0 0 0 4px color-mix(in srgb,var(--ink) 14%,transparent),0 3px 10px rgba(0,0,0,.08)}
+.scard:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 /* ---------- Phones: fit each activity on one screen ---------- */
 .lvtoggle{display:none}
 @media (max-width:700px){
@@ -16060,7 +16066,7 @@ function renderPlan(){
 function openStage(w,keep){
   mapSel=w;const el=$('stageSheet');if(!el)return;const p=PLAN[w-1],st=stageState(w),ch=checkHistory(HIST.days)[w],stars=ch?starsFor(ch.best):0;
   const fw=frontierWeek(),isNext=w===fw&&st==='open',ready=checkReady(w),got=actsFor(w),n=Math.min(got.length,READY);
-  document.querySelectorAll('.stage.sel').forEach(s=>s.classList.remove('sel'));const sb=document.querySelector(`.stage[data-stage="${w}"]`);if(sb)sb.classList.add('sel');
+  document.querySelectorAll('.stage.sel,.scard.sel').forEach(s=>s.classList.remove('sel'));const sb=document.querySelector(`.stage[data-stage="${w}"]`);if(sb)sb.classList.add('sel');const sc=document.querySelector(`.scard[data-stage="${w}"]`);if(sc)sc.classList.add('sel');
   const chips=p.review?`<p class="note" style="margin:0">Review: all ${p.ids.length} word parts from weeks 1–${w-1}.</p>`
     :`<div class="chipset ${st==='locked'?'dim':''}">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
   let status='',btns='';
@@ -16076,7 +16082,7 @@ function openStage(w,keep){
     <h3>Week ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
   el.hidden=false;
   el.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const a=b.dataset.ss;
-    if(a==='close'){el.hidden=true;mapSel=null;document.querySelectorAll('.stage.sel').forEach(s=>s.classList.remove('sel'));return}
+    if(a==='close'){el.hidden=true;mapSel=null;document.querySelectorAll('.stage.sel,.scard.sel').forEach(s=>s.classList.remove('sel'));return}
     if(a==='check'){el.hidden=true;mapSel=null;startCheckin(w);scrollTo({top:0});return}
     if(a==='study'){el.hidden=true;mapSel=null;setStudyWeeks([w]);setMode('cards',true);deck=cardPool();idx=0;renderCard();scrollTo({top:0})}});
   if(!keep)setTimeout(()=>{const f=el.querySelector('.btn');f&&f.focus({preventScroll:true})},30);
