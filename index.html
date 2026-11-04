@@ -165,6 +165,8 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 .mbtn{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 12px;text-align:left;font-size:1rem;min-height:48px;overflow-wrap:anywhere}
 .mbtn.part{font-size:1.3rem;font-weight:700;text-align:center;border-color:transparent;background:var(--fc);color:var(--paper-ink)}
 .mbtn.sel{outline:3px solid var(--primary);outline-offset:2px}
+.srrule{margin:0;background:color-mix(in srgb,var(--hi) 22%,var(--card));border:1.5px solid var(--hi);border-radius:12px;padding:10px 12px;font-size:.95rem}
+.srfreeze{margin:0;text-align:center;background:var(--bad-bg);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:1rem}.srfreeze b{color:var(--bad)}
 .mbtn.done{opacity:.35;cursor:default}
 .mbtn.done.part{opacity:.45}
 .mbtn.ok{border-color:var(--good);background:var(--good-bg);color:var(--good)}
@@ -1104,7 +1106,7 @@ function results(){
 }
 
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
-function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
+function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
   centerTab(m);document.body.classList.toggle('on-home',m==='home');try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
@@ -1321,25 +1323,31 @@ const FX=(()=>{
   const cv=$('fx'),cx=cv.getContext('2d');let parts=[],raf=0;
   const reduce=()=>document.documentElement.classList.contains('calm')||(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   let soundOn=store.get('rd-sound',true)!==false,ac=null;
-  const COLORS=()=>{const cs=getComputedStyle(document.documentElement);return['--prefix','--suffix','--latin','--greek','--hi','--good','--primary'].map(v=>cs.getPropertyValue(v).trim()||'#ffd24a')};
-  function size(){const d=window.devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;cx.setTransform(d,0,0,d,0,0)}
-  addEventListener('resize',size);size();
-  function loop(){cx.clearRect(0,0,innerWidth,innerHeight);
-    parts=parts.filter(p=>p.life>0);
+  /* bright colors only: dark specks over text looked like smudges */
+  const PAL=['#FF6B8B','#4DABF7','#9775FA','#51CF66','#FFD43B','#FF922B','#22B8CF'],COLORS=()=>PAL,MAXP=240;let dpr=1;
+  function size(){dpr=Math.min(2,window.devicePixelRatio||1);const w=innerWidth,h=innerHeight;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px';cx.setTransform(dpr,0,0,dpr,0,0)}
+  addEventListener('resize',size);if(window.visualViewport)visualViewport.addEventListener('resize',size);size();
+  function wipe(){cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,cv.width,cv.height);cx.setTransform(dpr,0,0,dpr,0,0)}
+  function clear(){parts=[];if(raf)cancelAnimationFrame(raf);raf=0;wipe();document.querySelectorAll('.floaty').forEach(f=>f.remove())}
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)clear()});
+  function loop(){wipe();
+    parts=parts.filter(p=>p.life>0&&p.y<innerHeight+40);
     for(const p of parts){p.vy+=p.g;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
       cx.save();cx.globalAlpha=Math.min(1,p.life/30);cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;
       if(p.star){cx.beginPath();for(let k=0;k<10;k++){const a=k*Math.PI/5,r=k%2?p.s*.42:p.s;cx.lineTo(Math.sin(a)*r,-Math.cos(a)*r)}cx.closePath();cx.fill()}
       else if(p.round){cx.beginPath();cx.arc(0,0,p.s/2,0,7);cx.fill()}else cx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx.restore()}
-    raf=parts.length?requestAnimationFrame(loop):0}
-  function go(){if(!raf)raf=requestAnimationFrame(loop)}
+    if(parts.length)raf=requestAnimationFrame(loop);else{raf=0;wipe()}}
+  function go(){if(parts.length>MAXP)parts.splice(0,parts.length-MAXP);if(!raf)raf=requestAnimationFrame(loop)}
   function burstAt(x,y,n=28){if(reduce())return;const cs=COLORS();
     for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=2+Math.random()*5;
-      parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2.5,g:.18,r:Math.random()*6,vr:(Math.random()-.5)*.4,s:5+Math.random()*6,c:cs[i%cs.length],life:55+Math.random()*25,round:Math.random()<.3,star:i%3===0})}go()}
+      parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-2.5,g:.18,r:Math.random()*6,vr:(Math.random()-.5)*.4,s:5+Math.random()*5,c:cs[i%cs.length],life:45+Math.random()*20,round:Math.random()<.3,star:i%3===0})}go()}
   function burst(el,n){if(!el)return;const r=el.getBoundingClientRect?el.getBoundingClientRect():el;burstAt(r.left+r.width/2,r.top+r.height/2,n)}
   function shower(){if(reduce())return;const cs=COLORS();
-    for(let i=0;i<160;i++)parts.push({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.6,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,g:.05,r:Math.random()*6,vr:(Math.random()-.5)*.3,s:6+Math.random()*7,c:cs[i%cs.length],life:160+Math.random()*80,round:Math.random()<.3,star:i%4===0});go()}
+    for(let i=0;i<90;i++)parts.push({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.5,vx:(Math.random()-.5)*2,vy:2.5+Math.random()*3,g:.05,r:Math.random()*6,vr:(Math.random()-.5)*.3,s:5+Math.random()*6,c:cs[i%cs.length],life:120+Math.random()*60,round:Math.random()<.3,star:i%4===0});go()}
   function cheer(el,text){if(!el)return;const r=el.getBoundingClientRect?el.getBoundingClientRect():el;const d=document.createElement('div');d.className='floaty'+(/^\d+ in a row!$/.test(text)?' big':'');d.textContent=(/^\d+ in a row!$/.test(text)?'🔥 ':'')+text;
-    d.style.left=(r.left+r.width/2)+'px';d.style.top=(r.top+r.height/2)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1200)}
+    document.querySelectorAll('.floaty').forEach(f=>f.remove());
+    d.style.left=Math.min(innerWidth-90,Math.max(90,r.left+r.width/2))+'px';d.style.top=Math.max(60,r.top+r.height/2)+'px';document.body.appendChild(d);
+    const done=()=>d.remove();d.addEventListener('animationend',done);setTimeout(done,2200)}
   function tone(f,t0,dur,type='sine',vol=.18){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
     g.gain.setValueAtTime(0,ac.currentTime+t0);g.gain.linearRampToValueAtTime(vol,ac.currentTime+t0+.02);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+t0+dur);
     o.connect(g).connect(ac.destination);o.start(ac.currentTime+t0);o.stop(ac.currentTime+t0+dur+.05)}
@@ -1354,7 +1362,7 @@ const FX=(()=>{
   $('soundBtn').onclick=()=>{setSound(!soundOn);if(soundOn)play('good')};setSound(soundOn);
   const PRAISE=['Match!','Nice!','You got it!','Root-tastic!','Great eye!','Super sleuth!','Case closed!','Brilliant!','Spot on!','Word wizard!','Clue cracked! 🔍','Mystery solved!','Sharp detective!','Elementary! 🕵️'];
   const praise=streak=>(streak>=5&&streak%5===0&&setTimeout(shower,120),0)||streak>=5?`${streak} in a row!`:streak>=3?`On fire! ${streak} in a row`:PRAISE[Math.floor(Math.random()*PRAISE.length)];
-  return{burst,burstAt,shower,cheer,play,praise};
+  return{burst,burstAt,shower,cheer,play,praise,clear};
 })();
 /* ---------- Read aloud (always English) ---------- */
 const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;let voice=null;
@@ -1371,7 +1379,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(
 
 /* ---------- Display options ---------- */
 const DISP=Object.assign({ts:'',easy:false,calm:false,speak:true},store.get('rd-display',{})||{});
-function applyDisp(){const r=document.documentElement;['ts-l','ts-xl'].forEach(c=>r.classList.toggle(c,DISP.ts===c));r.classList.toggle('easy',!!DISP.easy);r.classList.toggle('calm',!!DISP.calm);r.classList.toggle('nospeak',!DISP.speak);
+function applyDisp(){const r=document.documentElement;['ts-l','ts-xl'].forEach(c=>r.classList.toggle(c,DISP.ts===c));r.classList.toggle('easy',!!DISP.easy);r.classList.toggle('calm',!!DISP.calm);if(DISP.calm)try{FX.clear()}catch(e){}r.classList.toggle('nospeak',!DISP.speak);
   $('tsSeg').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ts===DISP.ts));$('optEasy').checked=!!DISP.easy;$('optCalm').checked=!!DISP.calm;$('optSpeak').checked=!!DISP.speak;store.set('rd-display',DISP)}
 $('tsSeg').querySelectorAll('button').forEach(b=>{b.setAttribute('aria-label',['Normal','Large','Extra large'][[...b.parentNode.children].indexOf(b)]+' text');b.onclick=()=>{DISP.ts=b.dataset.ts;applyDisp()}});
 $('optEasy').onchange=e=>{DISP.easy=e.target.checked;applyDisp()};$('optCalm').onchange=e=>{DISP.calm=e.target.checked;applyDisp()};$('optSpeak').onchange=e=>{DISP.speak=e.target.checked;applyDisp()};
@@ -1403,19 +1411,21 @@ function renderMatch(){
   $('mcard').innerHTML=`<div class="gtop"><b>Match each word part to its meaning</b><span class="grp">${fin?'':streakPill(M.streak)}<span class="note">${M.done.size} of ${M.cs.length} matched · ${M.miss} miss${M.miss===1?'':'es'}</span></span></div>
    ${fin?`<div class="winbox">${starRow(M.miss===0?3:M.miss<=2?2:1)}<p class="whole" style="font-size:1.3rem;margin:0"><b>${M.miss===0?'Perfect match!':'All matched!'}</b> ${secs} second${secs===1?'':'s'}, ${M.miss} miss${M.miss===1?'':'es'}${M.best>=3?`, best streak ${M.best}`:''}.</p>
      <div class="controls" style="justify-content:center"><button class="btn primary" id="mAgain">Play again</button></div></div>`:''}
-   <div class="mcols"><div class="mcol">${M.left.map(c=>`<button class="mbtn part c-${c.kind} ${M.done.has(c.id)?'done':''} ${M.sel===c.id?'sel':''}" data-l="${c.id}" ${M.done.has(c.id)?'disabled':''}>${esc(c.main)}</button>`).join('')}</div>
-   <div class="mcol">${M.right.map(c=>`<button class="mbtn ${M.done.has(c.id)?'ok done':''}" data-r="${c.id}" ${M.done.has(c.id)?'disabled':''}>${esc(meanOf(c))}</button>`).join('')}</div></div>
-   ${fin?'':`<p class="note" style="margin:0;text-align:center">Tap a word part, then tap its meaning.</p>`}`;
-  $('mcard').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{M.sel=b.dataset.l;renderMatch()});
-  $('mcard').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{
-    if(!M.sel){const l=$('mcard').querySelector('.mcol');l.classList.remove('shake');void l.offsetWidth;l.classList.add('shake');return}
-    if(b.dataset.r===M.sel){const id=M.sel,lr=$('mcard').querySelector(`[data-l="${id}"]`).getBoundingClientRect(),rr=b.getBoundingClientRect();
-      M.done.add(id);M.sel=null;M.streak++;M.best=Math.max(M.best,M.streak);const fin=M.done.size===M.cs.length;if(fin)M.t1=Date.now();
-      renderMatch();FX.burst(lr,18);FX.burst(rr,26);FX.cheer(rr,FX.praise(M.streak));FX.play('good',M.streak);
-      ['l','r'].forEach(k=>{const e=$('mcard').querySelector(`[data-${k}="${id}"]`);if(e)e.classList.add('popin')});
+   <div class="mcols"><div class="mcol">${M.left.map(c=>`<button class="mbtn part c-${c.kind} ${M.done.has(c.id)?'done':''} ${M.sel&&M.sel.side==='l'&&M.sel.id===c.id?'sel':''}" data-l="${c.id}" aria-pressed="${!!(M.sel&&M.sel.side==='l'&&M.sel.id===c.id)}" ${M.done.has(c.id)?'disabled':''}>${esc(c.main)}</button>`).join('')}</div>
+   <div class="mcol">${M.right.map(c=>`<button class="mbtn ${M.done.has(c.id)?'ok done':''} ${M.sel&&M.sel.side==='r'&&M.sel.id===c.id?'sel':''}" data-r="${c.id}" aria-pressed="${!!(M.sel&&M.sel.side==='r'&&M.sel.id===c.id)}" ${M.done.has(c.id)?'disabled':''}>${esc(meanOf(c))}</button>`).join('')}</div></div>
+   ${fin?'':`<p class="note" style="margin:0;text-align:center">Tap a word part and its meaning, in either order.</p>`}`;
+  const pick=(side,id,b)=>{
+    if(!M.sel||M.sel.side===side){M.sel=M.sel&&M.sel.side===side&&M.sel.id===id?null:{side,id};renderMatch();return}
+    const lid=side==='l'?id:M.sel.id,rid=side==='r'?id:M.sel.id;
+    if(lid===rid){const lr=$('mcard').querySelector(`[data-l="${lid}"]`).getBoundingClientRect(),rr=$('mcard').querySelector(`[data-r="${rid}"]`).getBoundingClientRect();
+      M.done.add(lid);M.sel=null;M.streak++;M.best=Math.max(M.best,M.streak);const fin=M.done.size===M.cs.length;if(fin)M.t1=Date.now();
+      renderMatch();FX.burst(lr,18);FX.burst(rr,26);FX.cheer(side==='r'?rr:lr,FX.praise(M.streak));FX.play('good',M.streak);
+      ['l','r'].forEach(k=>{const e=$('mcard').querySelector(`[data-${k}="${lid}"]`);if(e)e.classList.add('popin')});
       if(fin){rec(d=>{const o=sub(d,'match');bump(o,'r');bump(o,'miss',M.miss);bump(o,'sec',Math.round((M.t1-M.t0)/1000));o.fast=Math.min(o.fast||99999,Math.round((M.t1-M.t0)/1000));if(M.miss===0)bump(o,'perfect');o.best=Math.max(o.best||0,M.best);M.cs.forEach(c=>bump(sub(d,'right'),c.id))});setTimeout(celebrateWin,350)}}
-    else{M.miss++;M.streak=0;rec(d=>missCard(d,M.sel));FX.play('bad');renderMatch();const r=$('mcard').querySelector(`[data-r="${b.dataset.r}"]`);r.classList.add('shake');}
-  });
+    else{M.miss++;M.streak=0;rec(d=>missCard(d,lid));FX.play('bad');M.sel=null;renderMatch();const e=$('mcard').querySelector(`[data-${side}="${id}"]`);if(e)e.classList.add('shake')}
+  };
+  $('mcard').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>pick('l',b.dataset.l,b));
+  $('mcard').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>pick('r',b.dataset.r,b));
   if(fin)$('mAgain').onclick=newMatch;
 }
 let G=null;
@@ -15025,26 +15035,32 @@ function renderSpeedStart(){
   const best=store.get('rd-speed-best',0);
   $('speedBody').innerHTML=`<div class="qcard"><div class="gtop"><b style="font-size:1.25rem">Speed round</b>${best?`<span class="streak">Best: ${best}</span>`:''}</div>
     <p class="note" style="margin:0">Answer as many as you can in 60 seconds. Each question shows a word part or a meaning; tap its match.</p>
+    <p class="srrule"><b>No guessing!</b> A wrong answer freezes you for 3 seconds while the right answer is shown, and the clock keeps running. Think first, then tap.</p>
     <div><button class="btn primary" id="srGo">Start the clock</button></div></div>`;
   $('srGo').onclick=startSpeed}
 function startSpeed(){SR={score:0,miss:0,end:Date.now()+60000,q:null,timer:null,streak:0};nextSpeedQ();SR.timer=setInterval(()=>{const left=Math.max(0,Math.ceil((SR.end-Date.now())/1000));const el=$('srTime');if(el)el.textContent=left+'s';if(left<=0)endSpeed()},250)}
 function nextSpeedQ(){
   const p=pool().length>=3?pool():BANK;const c=draw('speed',p,1)[0];const t=Math.random()<.5?'mean':'part';
   const val=y=>t==='mean'?meanOf(y):y.main;const seen=new Set([val(c)]),opts=[];
-  for(const y of shuf(BANK)){if(opts.length>=2)break;if(y===c||overlap(y,c))continue;const v=val(y);if(seen.has(v))continue;seen.add(v);opts.push(v)}
+  for(const y of shuf(BANK)){if(opts.length>=3)break;if(y===c||overlap(y,c))continue;const v=val(y);if(seen.has(v))continue;seen.add(v);opts.push(v)}
   SR.q={c,t,ans:val(c),opts:shuf([val(c),...opts])};renderSpeed()}
 function renderSpeed(){const q=SR.q,left=Math.max(0,Math.ceil((SR.end-Date.now())/1000));
   $('speedBody').innerHTML=`<div class="qcard"><div class="qtop"><span class="srtime" id="srTime">${left}s</span><span>★ ${SR.score}</span></div>
     <p class="prompt" style="text-align:center;font-size:1.8rem">${q.t==='mean'?`<span class="r">${esc(q.c.main)}</span>`:`“${esc(meanOf(q.c))}”`}</p>
     <div class="opts one">${q.opts.map((o,k)=>`<button class="opt" id="sro${k}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div></div>`;
-  $('speedBody').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(Date.now()>SR.end)return;const ok=b.dataset.v===q.ans;
+  $('speedBody').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(Date.now()>SR.end||q.answered)return;q.answered=true;const ok=b.dataset.v===q.ans;
+    $('speedBody').querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(!ok&&o.dataset.v===q.ans)o.classList.add('right')});
     rec(d=>{if(ok)bump(sub(d,'right'),q.c.id);else missCard(d,q.c.id)});
     if(ok){SR.score++;SR.streak++;FX.burst(b,14);FX.play('good')}else{SR.miss++;SR.streak=0;FX.play('bad')}
-    b.classList.add(ok?'right':'wrong');setTimeout(nextSpeedQ,ok?120:450)})}
+    b.classList.add(ok?'right':'wrong');
+    if(ok){setTimeout(()=>{if(SR&&!SR.done)nextSpeedQ()},150);return}
+    const FREEZE=3,until=Date.now()+FREEZE*1000,box=document.createElement('p');box.className='srfreeze';box.setAttribute('role','status');$('speedBody').querySelector('.qcard').appendChild(box);
+    const tick=()=>{if(!SR||SR.done)return;const n=Math.ceil((until-Date.now())/1000);if(n<=0){nextSpeedQ();return}
+      box.innerHTML=`<b>Wait ${n}…</b> ${q.t==='mean'?`${esc(q.c.main)} means “${esc(meanOf(q.c))}.”`:`“${esc(meanOf(q.c))}” is ${esc(q.c.main)}.`}`;setTimeout(tick,200)};tick()})}
 function endSpeed(){if(!SR||SR.done)return;SR.done=true;clearInterval(SR.timer);const s=SR.score,best=store.get('rd-speed-best',0),nb=s>best;if(nb)store.set('rd-speed-best',s);
   rec(d=>{const o=sub(d,'speed');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=10)setTimeout(celebrateWin,100);
   $('speedBody').innerHTML=`<div class="qcard"><div class="qtop"><span>Time!</span></div>${starRow(s>=20?3:s>=12?2:s>=6?1:0)}
-    <p class="score">${s}</p><p class="prompt">${s} right in 60 seconds${SR.miss?`, ${SR.miss} miss${SR.miss===1?'':'es'}`:''}.${nb&&s?' New personal best!':''}</p>
+    <p class="score">${s}</p><p class="prompt">${s} right in 60 seconds${SR.miss?`, ${SR.miss} miss${SR.miss===1?'':'es'}`:''}.${nb&&s?' New personal best!':''}</p>${SR.miss>s&&SR.miss>=4?`<p class="note" style="margin:0">More misses than right answers: slow down and read each one. Wrong taps cost 3 seconds each.</p>`:''}
     <div class="grp"><button class="btn primary" id="srAgain">Go again</button></div></div>`;
   $('srAgain').onclick=startSpeed}
 function stopSpeedIfLeaving(){if(SR&&!SR.done&&SR.timer){clearInterval(SR.timer);SR=null}}
