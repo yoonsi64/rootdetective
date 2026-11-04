@@ -740,6 +740,9 @@ body.in-act #filter>:first-child{margin-left:auto}
 .cardstop{gap:8px}
 .cardsbottom{display:flex;flex-direction:column;gap:10px;margin-top:16px}.cardsbottom:empty{display:none}
 .cardsbottom .note{margin:0}
+.wkinds{display:none;flex-direction:column;gap:6px}
+.wkinds .wkrow button{min-height:40px;padding:4px 12px;font-size:.88rem}
+.wkf{display:none}
 /* Decluttered home */
 body.on-home #practiceNote,body.on-home #weekbar{display:none}
 @media (max-width:480px){h1{font-size:1.85rem}header{align-items:center}}
@@ -882,7 +885,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .bwords{display:flex;flex-direction:column;gap:4px}
 .bwords span{background:var(--card);color:var(--ink);border-radius:8px;padding:3px 6px;font-size:.95rem;overflow-wrap:anywhere}
 .tile.selt{outline:3px solid var(--primary);outline-offset:2px}
-@media (max-width:520px){.bins{grid-template-columns:1fr!important}.bin{min-height:0}}
+@media (max-width:520px){.bin{min-height:0}}
 .srtime{font-family:var(--display);font-weight:800;font-size:1.6rem;color:var(--primary);font-variant-numeric:tabular-nums}
 .opts.one{grid-template-columns:1fr}
 /* Reports, modal, tips */
@@ -997,6 +1000,94 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .status{font-size:.92rem;margin:0}
 .status.err{color:var(--bad)} .status.ok{color:var(--good)}
 .gh{font-size:.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;grid-column:1/-1;margin-top:6px}
+/* ---------- Phones: fit each activity on one screen ---------- */
+.lvtoggle{display:none}
+@media (max-width:700px){
+  .lvtoggle{display:inline-flex;align-items:center;gap:4px;font:inherit;font-weight:800;color:var(--primary);background:color-mix(in srgb,var(--primary) 10%,var(--card));border:1.5px solid color-mix(in srgb,var(--primary) 40%,var(--line));border-radius:999px;padding:3px 10px;min-height:32px;cursor:pointer}
+  .lvtoggle i{font-style:normal;font-size:.8em;transition:transform .2s}
+  #ccard.lvopen .lvtoggle i{transform:rotate(180deg)}
+  .lvtxt{display:none}
+  #ccard:has(.lvtoggle):not(.lvopen) .levels{display:none}
+  #ccard.lvopen .lvdesc{display:block!important;-webkit-line-clamp:unset}
+  #ccard .opt{font-size:.95rem;padding:8px 12px}
+  #ccard .qtop{min-height:32px}
+  /* two-word questions */
+  .dndhint{display:none}
+  .mrows{gap:6px;margin-top:6px}.mrow{gap:2px 6px;font-size:.95rem}.mrow .slot{flex:1 1 9em;min-height:40px;margin:0}
+  .bank6{gap:6px;padding:8px;border-radius:12px}
+  .tile6{padding:7px 12px;min-height:44px;font-size:.92rem;line-height:1.25;box-shadow:0 2px 0 var(--line)}
+  .mrow{flex-wrap:nowrap}.mrow b{min-width:0;overflow-wrap:anywhere}.mrow .slot{flex:1 1 0;min-width:0}
+  /* tighter layout, only for questions that would not fit */
+  #ccard.tight{gap:6px}
+  #ccard.tight .sent{font-size:1rem;line-height:1.4}
+  #ccard.tight .cask{font-size:.82rem}
+  #ccard.tight .opt{font-size:.9rem;padding:7px 10px;line-height:1.22}
+  #ccard.tight .bank6.long{display:grid;grid-template-columns:1fr 1fr;padding:6px;gap:6px}
+  #ccard.tight .bank6.long .tile6{font-size:.82rem;font-weight:700;padding:6px 8px;line-height:1.22}
+  #ccard.tight .mrow{font-size:.88rem}
+  #ccard.tight .twotag{font-size:.64rem;padding:1px 7px;margin-right:5px}
+  #ccard.tight .sayrow .say{width:36px;height:36px;min-width:36px;min-height:36px}
+  #ccard.tight .btn.big{padding-block:8px;min-height:44px;font-size:1rem}
+}
+/* Phones with the bottom bar: one top row, Study menu on the left, Sound and Display on the right */
+@media (hover:none) and (pointer:coarse) and (max-width:700px){
+  body.in-act .wrap{position:relative;padding-top:8px;gap:10px}
+  body.in-act:not(.no-study) header>div:not(.grp){display:none}
+  body.in-act:not(.no-study) header{position:absolute;z-index:6;top:8px;right:max(16px, env(safe-area-inset-right, 0px))}
+  body.in-act:not(.no-study) .bar{padding-right:100px;min-height:44px}
+  body.in-act #filter{display:none}
+  body.in-act .wkinds{display:flex}
+  body.in-act .wkf{display:inline}
+  body.in-act .weekbar.kindon{border-color:var(--primary);box-shadow:inset 0 0 0 1px var(--primary)}
+  body.in-act #weekbar{flex:0 1 auto;min-width:0}
+  body.in-act #weekBtn{max-width:none;min-width:0}
+}
+@media (hover:none) and (pointer:coarse) and (max-width:359px){body.in-act .weekbar .wlbl{display:none}}
+@media (max-width:700px) and (max-height:760px){.lvdesc{display:none!important}}
+@media (max-width:700px){
+  /* roomier cards become snug */
+  .qcard{padding:14px;gap:12px;border-radius:16px}
+  .wcard{padding:14px 12px;gap:12px}
+  .gtop{gap:2px 10px}.gtop b{font-size:1rem;line-height:1.25}.gtop .note{font-size:.8rem}
+  /* Flashcards */
+  .scopebar.slim{padding:4px 4px 4px 12px;min-height:44px}.scopebar.slim .sb-ico{display:none}
+  .scopebar.slim .sb-text b{font-size:.95rem}.scopebar.slim .sb-text span{font-size:.8rem}
+  .face{min-height:clamp(250px,calc(100svh - 360px),380px)}
+  .band{font-size:1rem;padding:8px 10px 7px}
+  .heads{padding:8px 0 6px;gap:6px}.heads b{font-size:1.05rem}.heads i{font-size:.85rem;margin-top:2px}
+  .tchart{min-height:110px}.tchart .col{padding:8px 6px 10px;gap:.15em;font-size:1.15rem}
+  .scopebar.slim{box-sizing:border-box}
+  #cards .controls{margin-top:10px!important;gap:8px}
+  /* Break it down */
+  .wlabel{font-size:.75rem}
+  .segs{font-size:clamp(1.6rem,7.5vw,2.4rem)}.eq{font-size:.95rem;gap:4px 6px}
+  .parts{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px}
+  .part h4{padding:3px 8px;font-size:.62rem}.part .ps{font-size:1.15rem;padding:4px 8px 0}.part .pm{padding:0 8px 6px;font-size:.84rem;line-height:1.3}
+  #wcard .rpbtn{font-size:.78rem}
+  .whole{font-size:1rem}.whole b{font-size:1.1rem}
+  #parts .controls{margin-top:10px!important}
+  /* Match */
+  .mcols{grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:8px}
+  .mcol{gap:6px}
+  .mbtn{padding:7px 10px;min-height:44px;font-size:.9rem;line-height:1.25}
+  /* Memory */
+  .memopts{margin:0}.memopts .swtext small{display:none}
+  .mgrid{gap:8px}.tile2{aspect-ratio:5/4;padding:6px;font-size:.8rem}
+  /* Word sort */
+  .tray{gap:6px}
+  .tray .tile{padding:5px 10px 4px}.tray .tile b{font-size:1.1rem}
+  .bins{gap:6px}.bin{padding:8px 4px;gap:6px;border-radius:12px}
+  .bhead b{font-size:1.1rem}.bhead small{font-size:.68rem;line-height:1.2}
+  .bwords span{font-size:.8rem;padding:2px 4px}
+  /* Context clues */
+  .levels{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+  .lvl{padding:4px 1px;border-radius:9px}.lvl b{font-size:1.05rem}.lvl span{font-size:.58rem}.lvl small{display:none}
+  .lvdesc{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:.82rem;cursor:pointer}
+  .lvdesc.open{display:block}
+  .opts{gap:8px}.opt{padding:9px 12px;font-size:1rem}
+  .cask{font-size:.88rem}.cask1{display:none}#ccard{gap:8px}#ccard .opt{line-height:1.25}
+  .sent{font-size:1.1rem;line-height:1.45}
+}
 </style>
 
 <script>document.documentElement.lang="en";document.documentElement.setAttribute("translate","no");document.documentElement.classList.add("notranslate");</script>
@@ -1070,6 +1161,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
           <button type="button" class="wclass" id="weekClass">My class's cards</button>
           <p class="note" style="margin:0">Or tick one or more weeks:</p>
           <div class="wgrid" id="weekGrid"></div>
+          <div class="wkinds" id="weekKinds"></div>
           <div class="grp" style="justify-content:space-between"><button type="button" class="btn small" id="weekClear">Clear</button><button type="button" class="btn small primary" id="weekDone">Done</button></div>
         </div>
       </div>
@@ -1492,6 +1584,7 @@ function renderWeekMenu(){
   $('weekGrid').innerHTML=PLAN.map(p=>{const lk=!isUnlocked(p.w);return`<label class="wchk ${studyWeeks.includes(p.w)?'on':''} ${lk?'locked':''}" for="wk-${p.w}" title="${lk?`Score ${PASS}/10 on the week ${p.w-1} check-in to unlock`:''}"><input type="checkbox" id="wk-${p.w}" data-w="${p.w}" ${studyWeeks.includes(p.w)?'checked':''} ${lk?'disabled':''}><span>${lk?'🔒':p.w}${lk?`<small>week ${p.w}</small>`:p.review?'<small>review</small>':curWeek===p.w?'<small>this week</small>':''}</span></label>`}).join('');
   $('weekGrid').querySelectorAll('input').forEach(i=>i.onchange=()=>{const w=+i.dataset.w;setStudyWeeks(i.checked?studyWeeks.concat(w):studyWeeks.filter(x=>x!==w));const n=$('wk-'+w);n&&n.focus()});
   $('weekbar').classList.toggle('on',!!studyWeeks.length);
+  try{kindLabel()}catch(e){}
 }
 function setStudyWeeks(ws){
   studyWeeks=[...new Set(ws.map(Number).filter(w=>w>=1&&w<=WEEKS&&isUnlocked(w)))].sort((x,y)=>x-y);store.set('rd-study-weeks',studyWeeks);
@@ -1509,10 +1602,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('weekPop').hidde
 function renderFilter(){
   const ch=chosen(), counts={a:0,l:0,g:0};ch.forEach(c=>counts[c.set]++);
   const opts=[['all',`All (${ch.length})`],...Object.keys(SETS).filter(s=>counts[s]).map(s=>[s,`${SETS[s].split(' ')[0]} (${counts[s]})`])];
+  const pickKind=k=>{filter=k;renderFilter();deck=cardPool();idx=0;renderCard();if(mode!=='cards')refreshMode()};
   $('filter').innerHTML=opts.length>2?opts.map(([k,t])=>`<button id="f-${k}" data-f="${k}" aria-pressed="${filter===k}">${t}</button>`).join(''):'';
-  $('filter').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderFilter();deck=cardPool();idx=0;renderCard();if(mode!=='cards')refreshMode()});
+  $('filter').querySelectorAll('button').forEach(b=>b.onclick=()=>pickKind(b.dataset.f));
+  const wk=$('weekKinds');if(wk){wk.innerHTML=opts.length>2?`<p class="note" style="margin:0">Card type:</p><div class="filter wkrow">${opts.map(([k,t])=>`<button type="button" data-f="${k}" aria-pressed="${filter===k}">${t}</button>`).join('')}</div>`:'';
+    wk.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>pickKind(b.dataset.f))}
+  kindLabel();
   filterEdge();
 }
+/* Phones: the Study button also names the card type when it isn't "All" */
+function kindLabel(){const b=$('weekBtn');if(!b)return;let sp=b.querySelector('.wkf');const t=filter!=='all'&&SETS[filter]?SETS[filter].split(' ')[0]:'';
+  $('weekbar').classList.toggle('kindon',!!t);if(!t){if(sp)sp.remove();return}
+  if(!sp){sp=document.createElement('span');sp.className='wkf';b.appendChild(sp)}sp.textContent=' · '+t}
 function filterEdge(){const f=$('filter');if(!f)return;const max=f.scrollWidth-f.clientWidth;f.classList.toggle('fl',max>4&&f.scrollLeft>4);f.classList.toggle('fr',max>4&&f.scrollLeft<max-4)}
 (()=>{const f=$('filter');if(!f)return;f.addEventListener('scroll',filterEdge,{passive:true});addEventListener('resize',filterEdge)})();
 
@@ -15302,9 +15403,10 @@ function makeCtxQ(x,lev){
 }
 function levelPicker(){
   return`<div class="levels" role="group" aria-label="Challenge level">${LEVELS.map(l=>`<button class="lvl ${l.n===CL?'on':''}" data-lv="${l.n}" aria-pressed="${l.n===CL}"><b>${l.n}</b><span>${l.name}</span>${ctxBest[l.n]!=null?`<small>best ${ctxBest[l.n]}/${CN}</small>`:''}</button>`).join('')}</div>
-    <p class="note" style="margin:0">${LEVELS[CL-1].desc}</p>`;
+    <p class="note lvdesc" style="margin:0" title="${esc(LEVELS[CL-1].desc)}" onclick="this.classList.toggle('open')">${LEVELS[CL-1].desc}</p>`;
 }
-function wireLevels(){$('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{CL=+b.dataset.lv;store.set('rd-ctx-level',CL);startContext()})}
+function wireLevels(){const tg=$('ccard').querySelector('.lvtoggle');if(tg){const open=$('ccard').classList.contains('lvopen');tg.setAttribute('aria-expanded',open);tg.onclick=()=>{const o=$('ccard').classList.toggle('lvopen');tg.setAttribute('aria-expanded',o)}}
+  $('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{$('ccard').classList.remove('lvopen');CL=+b.dataset.lv;store.set('rd-ctx-level',CL);startContext()})}
 function startContext(){
   if(CL===6)return startMaster();
   const lev=LEVELS[CL-1],{xs,d}=levelPool(ctxPool(),CL);
@@ -15337,12 +15439,12 @@ const pairSentHTML=(x,mode)=>esc(x.sent).replace('['+esc(x.w)+']',`<u>${esc(x.w)
 function slotHTML(q,i){const k=q.place[i],v=k==null?'':q.bank[k];
   const st=q.done?(v===(i?q.v2:q.v1)?' right':' wrong'):'';
   return`<button type="button" class="slot${k==null?'':' filled'}${st}" data-s="${i}" ${q.done?'disabled':''} aria-label="Blank ${i+1}: ${k==null?'empty':esc(v)}"><span class="pn">${i+1}</span>${k==null?'<span class="sl-e">drop here</span>':`<span>${esc(v)}</span>`}</button>`}
-function renderPairQ(q){
+function renderPairQ(q){$('ccard').classList.remove('tight');
   const lev=C.lev,x=q.x,long=q.t==='mean';
   const sayText=long?x.sent:x.sent.replace('['+x.w+']','blank one').replace('['+x.w2+']','blank two');
   $('ccard').innerHTML=`${levelPicker()}
-    <div class="qtop"><span>Level ${lev.n} · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
-    <p class="cask"><span class="twotag">Two words</span>${long?'Use the clues in the sentence. Drop the right meaning onto each word.':'Use the clues in the sentence. Drop the right word into each blank.'}</p>
+    <div class="qtop"><span><button type="button" class="lvtoggle" aria-expanded="false">Level ${lev.n} <i aria-hidden="true">▾</i></button><span class="lvtxt">Level ${lev.n}</span> · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
+    <p class="cask"><span class="twotag">Two words</span><span class="cask1">Use the clues in the sentence. </span>${long?'Tap or drag a meaning onto each word.':'Tap or drag a word into each blank.'}</p>
     <div class="sayrow"><div id="psent" class="psent"></div>${sayBtn(sayText,'Listen to the sentence')}</div>
     <p class="note dndhint" style="margin:0">Tap a ${long?'meaning':'word'}, then tap where it goes. You can also drag it.</p>
     <div id="pbank" class="bank6 ${long?'long':''}" role="group" aria-label="${long?'Meanings':'Words'} to choose from"></div>
@@ -15389,7 +15491,7 @@ function renderPairQ(q){
       <div class="grp" style="justify-content:space-between"><button class="btn primary" id="cnext">${last?'See my score':'Next sentence →'}</button>${reportBtn({where:'Context clues',card:x.c.main+' / '+x.c2.main,word:x.w+' / '+x.w2,sentence:x.sent})}</div></div>`;
     $('cnext').onclick=()=>{C.i++;C.i<CN?renderContext():ctxResults()};$('cnext').focus();
   };
-  draw6();
+  draw6();requestAnimationFrame(fitCtx);
 }
 /* Answer explanation: meaning, how the word part helps, and the clue in the sentence */
 function explainHTML(w,c,def,sid,num){
@@ -15402,18 +15504,22 @@ function explainHTML(w,c,def,sid,num){
   </div>`}
 const sentHTML=(x,mode)=>esc(x.sent).replace('['+esc(x.w)+']',mode==='blank'?'<span class="blank" aria-label="blank"></span>':`<u>${esc(x.w)}</u>`);
 const clueLine=c=>`The ${c.kind==='prefix'||c.kind==='suffix'?KIND[c.kind].toLowerCase():KIND[c.kind]} <mark>${esc(c.main)}</mark> means “${esc(meanOf(c))}.”`;
+/* Phones: if a long question would run under the bottom bar, switch it to a tighter layout */
+function fitCtx(){const cc=$('ccard'),bar=$('tabWrap');if(!cc||!bar||mode!=='context'||getComputedStyle(bar).position!=='fixed')return;
+  const room=innerHeight-bar.offsetHeight,bottom=cc.getBoundingClientRect().bottom+scrollY;if(bottom>room)cc.classList.add('tight')}
 function renderContext(){
   const q=C.qs[C.i],lev=C.lev;
   if(q.pair)return renderPairQ(q);
+  $('ccard').classList.remove('tight');
   $('ccard').innerHTML=`${levelPicker()}
-    <div class="qtop"><span>Level ${lev.n} · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
-    <p class="cask">${q.t==='mean'?'Use the clues in the sentence. What does the underlined word mean?':'Use the clues in the sentence. Which word fits the blank?'}</p>
+    <div class="qtop"><span><button type="button" class="lvtoggle" aria-expanded="false">Level ${lev.n} <i aria-hidden="true">▾</i></button><span class="lvtxt">Level ${lev.n}</span> · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
+    <p class="cask"><span class="cask1">Use the clues in the sentence. </span>${q.t==='mean'?'What does the underlined word mean?':'Which word fits the blank?'}</p>
     <div class="sayrow"><p class="sent">${sentHTML(q.x,q.t==='mean'?'u':'blank')}</p>${sayBtn(q.t==='mean'?q.x.sent:q.x.sent.replace('['+q.x.w+']','blank'),'Listen to the sentence')}</div>
     ${q.hintShown?`<p class="hintbox">Clue: ${clueLine(q.x.c)}</p>`:''}
     <div class="opts">${q.opts.map((o,k)=>`<button class="opt" id="copt${k}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
     ${lev.hint==='button'&&!q.hintShown?`<div><button class="btn small" id="chint">Hint</button></div>`:''}
     <div id="cfb"></div>`;
-  wireLevels();
+  wireLevels();requestAnimationFrame(fitCtx);
   if($('chint'))$('chint').onclick=()=>{q.hintShown=true;q.usedHint=true;renderContext()};
   $('ccard').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
     const ok=b.dataset.v===q.ans;
