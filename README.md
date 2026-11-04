@@ -2,7 +2,7 @@
 
 A study app for 5th–6th graders learning word parts: affixes, Latin bases and Greek bases.
 
-Everything is in one file, `index.html`, which works offline with no installs.
+The app is one file, `index.html`, which works offline with no installs. The icon files beside it are only used for the browser tab and home-screen/desktop icon.
 
 ## What's inside
 
@@ -21,6 +21,16 @@ Everything is in one file, `index.html`, which works offline with no installs.
 3. After a minute, the app is live at `https://<your-username>.github.io/rootdetective/`.
 
 To open a specific week, add `#week-5` (or `#weeks-3-4-5`) to the end of the link.
+
+## Add it to a desktop or home screen
+
+The app has its own icon (the detective mascot), so students can open it like an app:
+
+- **Chromebook or Windows/Mac (Chrome or Edge):** open the link, then click the install icon at the right end of the address bar (or **⋮ → Cast, save and share → Install page as app**). Root Detective gets its own window and a desktop/shelf icon.
+- **iPad or iPhone (Safari):** tap **Share → Add to Home Screen**.
+- **Android (Chrome):** tap **⋮ → Add to Home screen**.
+
+The icon files are `icon.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` and `favicon-32.png`, listed in `manifest.webmanifest`. Keep them next to `index.html`.
 
 ## Saving progress
 
