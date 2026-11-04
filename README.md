@@ -10,7 +10,7 @@ Everything is in one file, `index.html`, which works offline with no installs.
 - **Daily review** of each student's weakest and least-recent cards
 - **Quiz**, **Break it down**, **Build it**, **Match**, **Memory**, **Spell it**, **Word sort** and **Speed round**
 - **Context clues**: 3,890 sentences at six challenge levels. After each answer, students see the meaning, a word part clue and a sentence clue. Level 6 (Master) goes up to 8th-grade difficulty and includes 84 touch-and-drop sentences with two mystery words
-- **16-week plan** with weekly check-in quizzes; students can study any mix of weeks
+- **16-week plan** that students unlock one week at a time: scoring 8/10 on a week's check-in quiz opens the next week. Teachers see every week, and a `#week-5` link opens that week for students
 - **Progress history**, detailed statistics and 43 badges
 - **Read-aloud**, text size, easier-reading and calm-mode options
 

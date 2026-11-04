@@ -383,6 +383,18 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 @keyframes toastIn{0%{transform:translate(-50%,40px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
 @media (prefers-reduced-motion: reduce){.btoast.in,.btoast.in .medal{animation:none}}
 /* Home screen */
+.wchk.locked{opacity:.55;cursor:not-allowed}.wchk.locked small{font-size:.65rem}
+.wk.locked.far{padding-top:8px;padding-bottom:8px}.wk.locked.far .note{font-size:.82rem}.wk.locked.far h3{font-size:1rem}
+.wk.locked{opacity:.75;background:repeating-linear-gradient(135deg,var(--card) 0 12px,var(--bg) 12px 24px)}
+.planprog{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.planprog p{margin:8px 0 0}
+.pp-bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.pp-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--good),var(--hi))}
+.hplan{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
+.hp-top{display:flex;gap:12px;align-items:flex-start}.hp-top>div{display:flex;flex-direction:column;gap:2px}.hp-top b{font-size:1.15rem}
+.hp-ico{font-size:2rem;line-height:1}
+.unlockbox{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;background:color-mix(in srgb,var(--good) 14%,var(--card));border:2px solid var(--good);border-radius:14px;padding:12px 14px;text-align:left}
+.unlockbox>div{display:flex;flex-direction:column;flex:1 1 12em}.unlockbox b{font-size:1.15rem;color:var(--good)}
+.ub-ico{font-size:2rem;animation:popIn .6s cubic-bezier(.3,1.6,.5,1)}
 body.on-home #filter{display:none}
 .home{display:flex;flex-direction:column;gap:16px}
 .hhero{display:flex;align-items:center;gap:14px}
@@ -625,6 +637,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
       <div class="tabwrap" id="tabWrap"><button type="button" class="tabarrow l" id="tabPrev" aria-label="Show earlier modes" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg></button>
       <div class="tabs modetabs" id="modeTabs" role="tablist" aria-label="Ways to study">
         <button id="tab-home" role="tab" aria-selected="true"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M5.5 10.2 12 4.8l6.5 5.4V20h-13z"/><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/></svg><span>Home</span></button>
+        <button id="tab-plan" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M9 4v13.5L3 20V6.5zM21 4v13.5L15 20V6.5z"/><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Plan</span></button>
         <button id="tab-cards" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect class="d" x="3.5" y="5.5" width="11" height="15" rx="2" transform="rotate(-10 9 13)"/><rect x="3.5" y="5.5" width="11" height="15" rx="2" transform="rotate(-10 9 13)"/><rect x="9" y="3.5" width="11.5" height="16" rx="2" class="bg"/><path d="M12.5 9.5h5M12.5 13h3.5"/></svg><span>Flashcards</span></button>
         <button id="tab-review" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M3 8a2.5 2.5 0 0 1 2.5-2.5h13A2.5 2.5 0 0 1 21 8v2H3z"/><rect x="3" y="5.5" width="18" height="15.5" rx="2.5"/><path d="M3 10h18M8 3v4.5M16 3v4.5"/><path d="m8.5 15.2 2.4 2.3 4.6-4.6"/></svg><span>Daily review</span></button>
         <button id="tab-quiz" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M4 6a2.5 2.5 0 0 1 2.5-2.5h11A2.5 2.5 0 0 1 20 6v8.5a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5z"/><path d="M4 6a2.5 2.5 0 0 1 2.5-2.5h11A2.5 2.5 0 0 1 20 6v8.5a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5z"/><path d="M9.8 8.4a2.3 2.3 0 1 1 3.2 2.1c-.7.3-1 .8-1 1.5v.2"/><circle class="dot" cx="12" cy="14.6" r="1"/></svg><span>Quiz</span></button>
@@ -636,7 +649,6 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
         <button id="tab-sort" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M2.5 14.5h8v6h-8zM13.5 14.5h8v6h-8z"/><path d="M2.5 14.5h8v6h-8zM13.5 14.5h8v6h-8z"/><path d="M12 3v4.5M12 7.5 6.5 12M12 7.5l5.5 4.5"/><path d="M6 9.4 6.5 12l2.6.1M18 9.4l-.5 2.6-2.6.1"/></svg><span>Word sort</span></button>
         <button id="tab-speed" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><circle class="d" cx="12" cy="13.5" r="7.5"/><circle cx="12" cy="13.5" r="7.5"/><path d="M10 2.5h4M12 2.5V6M18.3 6.8l1.6-1.6"/><path class="dot" d="m13 9-3.2 4.8h2.5l-1 3.7 3.4-5h-2.6z"/></svg><span>Speed round</span></button>
         <button id="tab-context" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h10M3 9h6M3 13h3.5M3 17h3"/><circle class="d" cx="14.5" cy="13.5" r="5"/><circle cx="14.5" cy="13.5" r="5"/><path d="m18.2 17.2 3.3 3.3"/><path d="M12.3 12.2a2.4 2.4 0 0 1 2-1.4"/></svg><span>Context clues</span></button>
-        <button id="tab-plan" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M9 4v13.5L3 20V6.5zM21 4v13.5L15 20V6.5z"/><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Plan</span></button>
         <button id="tab-progress" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5v1.5A3.5 3.5 0 0 0 8 11M17 6h2.5v1.5A3.5 3.5 0 0 1 16 11"/><path d="M12 14v3M8.5 21h7l-.8-4H9.3z"/></svg><span>Progress</span></button>
       </div>
       <button type="button" class="tabarrow r" id="tabNext" aria-label="Show more modes" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button></div>
@@ -979,9 +991,19 @@ let studyWeeks=(()=>{let a=store.get('rd-study-weeks',null);if(!Array.isArray(a)
 function weeksLabel(ws){if(!ws.length)return'';const parts=[];let a=ws[0],b=ws[0];
   for(const w of ws.slice(1).concat([null])){if(w===b+1){b=w;continue}parts.push(a===b?`${a}`:b===a+1?`${a}, ${b}`:`${a}–${b}`);a=b=w}
   return(ws.length===1?'Week ':'Weeks ')+parts.join(', ')}
+/* ---------- Week unlocking: week 1 is open; scoring PASS+ on a week's check-in opens the next.
+   Teachers see every week; a teacher's assigned week or a #week link also opens that week. ---------- */
+const PASS=8;
+function weekPassed(w){try{const h=checkHistory(HIST.days)[w];return !!h&&h.best>=PASS}catch(e){return false}}
+function openWeeks(){const o=new Set(store.get('rd-open-weeks',[]));if(curWeek)o.add(curWeek);return o}
+function isUnlocked(w){try{if(canTeach||w<=1||openWeeks().has(w))return true;return weekPassed(w-1)&&isUnlocked(w-1)}catch(e){return true}}
+function unlockedWeeks(){return PLAN.map(p=>p.w).filter(isUnlocked)}
+function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))||u[u.length-1]}
+function startCheckin(w){setMode('quiz',true);startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})}
 const chosen=()=>{
   if(studyWeeks.length){const ids=new Set();studyWeeks.forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id))}
-  return BANK.filter(c=>!selected||selected.has(c.id));
+  if(selected)return BANK.filter(c=>selected.has(c.id));
+  const ids=new Set();unlockedWeeks().forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id));
 };
 const pool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
 
@@ -991,26 +1013,31 @@ function applySelection(ids,week){
   curWeek=selected&&week>=1&&week<=WEEKS?week:null;
   const ch=chosen();
   if(filter!=='all'&&!ch.some(c=>c.set===filter))filter='all';
+  refreshStudyUI();
+  renderFilter();deck=pool();idx=0;renderCard();
+  if(mode!=='cards')refreshMode();
+}
+function refreshStudyUI(){
+  const ch=chosen(),uw=unlockedWeeks();
   renderWeekMenu();
   $('practiceNote').textContent=studyWeeks.length
     ?`Studying ${weeksLabel(studyWeeks).toLowerCase()}${studyWeeks.some(w=>PLAN[w-1].review)?' (review weeks include all earlier cards)':''}: ${ch.length} cards. Every game uses only these cards.`
     :selected
     ?(curWeek?`Week ${curWeek} of ${WEEKS}${PLAN[curWeek-1].review?' (review)':''}: practicing ${ch.length} card${ch.length===1?'':'s'}.`:`Practicing ${ch.length} card${ch.length===1?'':'s'} your teacher picked.`)
-    :`Practicing all ${BANK.length} cards: affixes, Latin bases and Greek bases.`;
-  renderFilter();deck=pool();idx=0;renderCard();
-  if(mode!=='cards')refreshMode();
+    :uw.length>=WEEKS?`Practicing all ${BANK.length} cards: every week is unlocked.`
+    :`Practicing your unlocked ${weeksLabel(uw).toLowerCase()}: ${ch.length} cards. Score ${PASS}/10 on a check-in to unlock the next week.`;
 }
 
 function renderWeekMenu(){
-  const classLbl=selected?(curWeek?`My class (week ${curWeek})`:"My class's cards"):'All cards';
+  const classLbl=selected?(curWeek?`My class (week ${curWeek})`:"My class's cards"):unlockedWeeks().length>=WEEKS?'All cards':'All my weeks';
   $('weekBtn').textContent=studyWeeks.length?weeksLabel(studyWeeks):classLbl;
   $('weekClass').textContent=classLbl;$('weekClass').classList.toggle('on',!studyWeeks.length);
-  $('weekGrid').innerHTML=PLAN.map(p=>`<label class="wchk ${studyWeeks.includes(p.w)?'on':''}" for="wk-${p.w}"><input type="checkbox" id="wk-${p.w}" data-w="${p.w}" ${studyWeeks.includes(p.w)?'checked':''}><span>${p.w}${p.review?'<small>review</small>':curWeek===p.w?'<small>this week</small>':''}</span></label>`).join('');
+  $('weekGrid').innerHTML=PLAN.map(p=>{const lk=!isUnlocked(p.w);return`<label class="wchk ${studyWeeks.includes(p.w)?'on':''} ${lk?'locked':''}" for="wk-${p.w}" title="${lk?`Score ${PASS}/10 on the week ${p.w-1} check-in to unlock`:''}"><input type="checkbox" id="wk-${p.w}" data-w="${p.w}" ${studyWeeks.includes(p.w)?'checked':''} ${lk?'disabled':''}><span>${lk?'🔒':p.w}${lk?`<small>week ${p.w}</small>`:p.review?'<small>review</small>':curWeek===p.w?'<small>this week</small>':''}</span></label>`}).join('');
   $('weekGrid').querySelectorAll('input').forEach(i=>i.onchange=()=>{const w=+i.dataset.w;setStudyWeeks(i.checked?studyWeeks.concat(w):studyWeeks.filter(x=>x!==w));const n=$('wk-'+w);n&&n.focus()});
   $('weekbar').classList.toggle('on',!!studyWeeks.length);
 }
 function setStudyWeeks(ws){
-  studyWeeks=[...new Set(ws.map(Number).filter(w=>w>=1&&w<=WEEKS))].sort((x,y)=>x-y);store.set('rd-study-weeks',studyWeeks);
+  studyWeeks=[...new Set(ws.map(Number).filter(w=>w>=1&&w<=WEEKS&&isUnlocked(w)))].sort((x,y)=>x-y);store.set('rd-study-weeks',studyWeeks);
   applySelection(selected?[...selected]:null,curWeek);
 }
 function toggleStudyWeek(w){setStudyWeeks(studyWeeks.includes(w)?studyWeeks.filter(x=>x!==w):studyWeeks.concat(w))}
@@ -1106,17 +1133,23 @@ function answer(b){
   $('qnext').onclick=()=>{Q.i++;Q.i<QN?renderQ():results()};$('qnext').focus();
 }
 function results(){
+  const wasOpen=new Set(unlockedWeeks());
   rec(d=>{const o=sub(d,'quiz');bump(o,'r');o.best=Math.max(o.best||0,Q.score);if(Q.tag.review)bump(d,'review');
     if(Q.tag.check){const c=sub(sub(d,'check'),Q.tag.check);if(c.f==null)c.f=Q.score;c.s=Math.max(c.s||0,Q.score);c.l=Q.score;bump(c,'n')}});
   const tagNote=Q.tag.check?(()=>{const h=checkHistory(HIST.days)[Q.tag.check]||{};return`<p class="note" style="margin:0">Week ${Q.tag.check} check-in. First try: ${h.first}/10 · Best: ${h.best}/10${h.n>1&&h.best>h.first?` · up ${h.best-h.first} since your first try!`:''}</p>`})():Q.tag.review?'<p class="note" style="margin:0">Daily review done. Come back tomorrow for a new set.</p>':'';
+  const opened=Q.tag.check?unlockedWeeks().filter(w=>!wasOpen.has(w)):[];
+  const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Week ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to week ${opened[0]}</button></div>`
+    :Q.score<PASS&&!weekPassed(Q.tag.check)&&Q.tag.check<WEEKS?`<p class="note" style="margin:0">Score ${PASS} or more to unlock week ${Q.tag.check+1}. Study the missed cards and try again.</p>`:'';
+  if(opened.length){refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
   const s=Q.score,newBest=best===null||s>best;if(newBest){best=s;store.set('rd-best2',s)}
   if(s>=7)setTimeout(celebrateWin,150);
   const msg=s===QN?'Perfect score! Every word part found.':s>=8?'Great job, detective!':s>=5?"Good work. A little more practice and you've got it.":'Keep going. Study the flashcards and try again.';
   $('qcard').innerHTML=`<div class="qtop"><span>Round complete</span><div class="track"><i style="width:100%"></i></div><span>Best: ${best} / ${QN}</span></div>
-    ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${QN}</p><p class="prompt">${msg}${newBest&&s>0?' New best!':''}</p>${tagNote}
+    ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${QN}</p><p class="prompt">${msg}${newBest&&s>0?' New best!':''}</p>${tagNote}${unlockNote}
     ${Q.missed.length?`<div><p class="note" style="margin-bottom:8px">Cards to practice:</p><div class="chips">${Q.missed.map(c=>`<span><mark>${esc(c.main)}</mark> = ${esc(c.mean)}</span>`).join('')}</div></div>`:''}
     <div class="grp"><button class="btn primary" id="again">Play again</button>${Q.missed.length?'<button class="btn" id="studyMissed">Study missed cards</button><button class="btn" id="quizMissed">Quiz me on these</button>':''}</div>`;
   $('again').onclick=()=>Q.tag.check?startQuiz(BANK.filter(c=>weekIds(Q.tag.check,false).includes(c.id)),Q.tag):Q.tag.review?(setMode('review')):startQuiz();
+  if($('goNewWeek'))$('goNewWeek').onclick=()=>{setStudyWeeks([opened[0]]);setMode('cards',true);deck=pool();idx=0;renderCard();scrollTo({top:0})};
   if(Q.missed.length){const m=Q.missed.slice();
     $('studyMissed').onclick=()=>{setMode('cards',true);deck=m;idx=0;renderCard()};
     $('quizMissed').onclick=()=>startQuiz(m)}
@@ -14965,10 +14998,17 @@ function renderHome(){
       ${picks.length?`<div class="chips">${picks.slice(0,6).map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)}</span>`).join('')}${picks.length>6?`<span class="chip">+${picks.length-6} more</span>`:''}</div>
       <button class="btn primary big" id="homeReview">${done?'Review again':'Start today\'s review'} →</button>`:''}
     </div>
+    ${(()=>{const uw=unlockedWeeks(),fw=frontierWeek(),all=uw.length>=WEEKS,ph=checkHistory(HIST.days)[fw];
+      return`<div class="hplan"><div class="hp-top"><span class="hp-ico">🗺️</span><div><p class="hkick">Your plan</p><b>${all?`All ${WEEKS} weeks unlocked`:`Week ${fw} of ${WEEKS}`}</b>
+        <span class="note">${all?'Keep reviewing to stay sharp.':`Score ${PASS}/10 on the week ${fw} check-in to unlock week ${fw+1}.${ph?` Your best so far: ${ph.best}/10.`:''}`}</span></div></div>
+        <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div>
+        <div class="grp">${all?'':`<button class="btn primary small" id="homeCheck">Take the week ${fw} check-in</button>`}<button class="btn small" id="homePlan">See the plan</button></div></div>`})()}
     <div><p class="plabel">Or pick a game</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');return`<button class="hgame" data-go="${k}">${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
   </div>`;
   const hr2=$('homeReview');if(hr2)hr2.onclick=()=>{setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
   $('homeBadges').onclick=()=>{progView='me';setMode('progress')};
+  if($('homeCheck'))$('homeCheck').onclick=()=>{startCheckin(frontierWeek());scrollTo({top:0})};
+  $('homePlan').onclick=()=>{setMode('plan');scrollTo({top:0})};
   $('homeBody').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{$('tab-'+b.dataset.go).click();window.scrollTo({top:0})});
 }
 
@@ -15106,7 +15146,7 @@ function openReport(info){
 /* ---------- Week links: #week-5 or #weeks-3-4-5 opens those weeks ---------- */
 function weeksFromHash(){const h=(location.hash||'').toLowerCase();const m=h.match(/^#weeks?-([\d-]+)$/);if(!m)return null;
   const ws=m[1].split('-').map(Number).filter(w=>w>=1&&w<=WEEKS);return ws.length?ws:null}
-function applyHashWeeks(){const ws=weeksFromHash();if(ws)setStudyWeeks(ws)}
+function applyHashWeeks(){const ws=weeksFromHash();if(ws){store.set('rd-open-weeks',[...new Set([...store.get('rd-open-weeks',[]),...ws])]);setStudyWeeks(ws)}}
 addEventListener('hashchange',applyHashWeeks);
 
 /* ---------- Class report spreadsheet ---------- */
@@ -15143,8 +15183,13 @@ const ROUTINE=[['Mon','Flashcards','Meet the new cards. Flip each one and say th
 function renderPlan(){
   let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a week:</b> add <code>#week-5</code> to the end of your share link (or <code>#weeks-3-4-5</code> for several). The link opens with those weeks ticked in the Study menu.</div>`:''}<div class="routine"><h2>Each week</h2><p class="note">About 15 minutes a day. Weeks 8 and 16 review everything learned so far.</p>
     <div class="days">${ROUTINE.map(([d,m,t])=>`<div class="day"><b>${d}</b><span>${m}</span><small>${t}</small></div>`).join('')}</div></div><div class="weeks">`;
+  const uw=unlockedWeeks(),fw=frontierWeek();
+  h=`<div class="planprog"><div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div><p><b>🔓 ${uw.length} of ${WEEKS} weeks unlocked.</b> ${uw.length>=WEEKS?'You can study every week!':`Score ${PASS}/10 or better on the week ${fw} check-in to unlock week ${fw+1}.`}</p></div>`+h;
   PLAN.forEach(p=>{
     const now=curWeek===p.w;
+    if(!isUnlocked(p.w)){const next=isUnlocked(p.w-1);
+      h+=`<div class="wk locked ${p.review?'rev':''} ${next?'':'far'}"><div class="wkhead"><h3>🔒 Week ${p.w}${p.review?' · Review':''}</h3><span class="note">${p.ids.length} cards</span></div>
+        <p class="note" style="margin:0">${next?`Score ${PASS}/10 or better on the week ${p.w-1} check-in to unlock.`:`Unlock week ${p.w-1} first.`}</p></div>`;return}
     const chips=p.review?`<p class="note" style="margin:0">Review all ${p.ids.length} cards from weeks 1–${p.w-1}.</p>`
       :`<div class="chipset">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
     let counts='';
@@ -15152,11 +15197,12 @@ function renderPlan(){
       counts=[a&&`${a} affix${a>1?'es':''}`,l&&`${l} Latin`,g&&`${g} Greek`].filter(Boolean).join(' · ')}
     h+=`<div class="wk ${now?'now':''} ${p.review?'rev':''}"><div class="wkhead"><h3>Week ${p.w}${p.review?' · Review':''}</h3>${now?'<span class="pill">This week</span>':`<span class="note">${p.ids.length} cards</span>`}</div>
       ${counts?`<span class="note">${counts}</span>`:''}${chips}
-      ${p.review?'':(()=>{const h=checkHistory(HIST.days)[p.w];return h?`<p class="note" style="margin:0">Check-in: first ${h.first}/10 · best ${h.best}/10</p>`:''})()}
-      <div class="grp">${p.review?'':`<button class="btn small" data-check="${p.w}">Check-in quiz</button>`}<button class="btn small ${studyWeeks.includes(p.w)?'primary':''}" data-study="${p.w}" aria-pressed="${studyWeeks.includes(p.w)}">${studyWeeks.includes(p.w)?'Studying (tap to remove)':studyWeeks.length?'Add to my study':'Study this week'}</button></div></div>`;
+      ${(()=>{const h=checkHistory(HIST.days)[p.w];return h?`<p class="note" style="margin:0">Check-in: first ${h.first}/10 · best ${h.best}/10</p>`:''})()}
+      ${weekPassed(p.w)?'<p class="note" style="margin:0;color:var(--good);font-weight:700">✓ Check-in passed</p>':''}
+      <div class="grp"><button class="btn small ${p.w===fw&&!weekPassed(p.w)?'primary':''}" data-check="${p.w}">${p.review?'Review check-in':'Check-in quiz'}</button><button class="btn small ${studyWeeks.includes(p.w)?'primary':''}" data-study="${p.w}" aria-pressed="${studyWeeks.includes(p.w)}">${studyWeeks.includes(p.w)?'Studying (tap to remove)':studyWeeks.length?'Add to my study':'Study this week'}</button></div></div>`;
   });
   $('planBody').innerHTML=h+'</div>';
-  $('planBody').querySelectorAll('[data-check]').forEach(b=>b.onclick=()=>{const w=+b.dataset.check;setMode('quiz',true);startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})});
+  $('planBody').querySelectorAll('[data-check]').forEach(b=>b.onclick=()=>startCheckin(+b.dataset.check));
   $('planBody').querySelectorAll('[data-study]').forEach(b=>b.onclick=()=>{toggleStudyWeek(+b.dataset.study);renderPlan()});
 }
 
@@ -15511,6 +15557,7 @@ $('nameInput').onkeydown=e=>{if(e.key==='Enter')setName($('nameInput').value)};
 renderNameBar();
 
 /* ---------- Boot: local first, then the class's shared choice ---------- */
+studyWeeks=studyWeeks.filter(isUnlocked);
 applySelection(null,null);
 applyHashWeeks();
 deck=pool();idx=0;renderCard();setMode('home');
