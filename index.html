@@ -195,8 +195,16 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 @media (prefers-reduced-motion: reduce){.tile2{transition:none}}
 .memopts{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin:2px 0 10px}
 .peektog{flex:1 1 15em}
+.switch{display:flex;align-items:center;gap:12px;cursor:pointer;position:relative}
+.switch input{position:absolute;opacity:0;width:52px;height:30px;margin:0;cursor:pointer}
+.switch .sw{flex:none;width:52px;height:30px;border-radius:99px;background:var(--line);position:relative;transition:background .2s}
+.switch .sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.switch input:checked+.sw{background:var(--good)}
+.switch input:checked+.sw::after{transform:translateX(22px)}
+.switch input:focus-visible+.sw{outline:3px solid var(--primary);outline-offset:2px}
+.swtext{display:flex;flex-direction:column}.swtext small{color:var(--muted);font-size:.82rem}
 .peeknote{position:relative;font-weight:800;color:var(--primary);padding-bottom:6px}
-.peekbar{position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:99px;background:var(--primary);transform-origin:left;animation:peekBar 1.5s linear forwards}
+.peekbar{position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:99px;background:var(--primary);transform-origin:left;animation:peekBar 3s linear forwards}
 @keyframes peekBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 .mgrid.peeking .tile2{cursor:default}
 .tile2.flipdown{animation:flipDown .45s ease}
@@ -1593,16 +1601,16 @@ function newMemory(){
   const cs=pickPairs(6,'memory');if(cs.length<2){$('memcard').innerHTML=emptyMsg;return}
   const tiles=shuf(cs.flatMap(c=>[{c,part:true},{c,part:false}]));
   G={cs,tiles,up:[],got:new Set(),moves:0,lock:false,streak:0,best:0};
-  if(memPeek){G.peek=true;G.lock=true;renderMemory();const g=G;G.peekT=setTimeout(()=>{if(G!==g)return;G.peek=false;G.lock=false;G.flipping=true;renderMemory();setTimeout(()=>{if(G===g){G.flipping=false}},450)},1500)}
+  if(memPeek){G.peek=true;G.lock=true;renderMemory();const g=G;G.peekT=setTimeout(()=>{if(G!==g)return;G.peek=false;G.lock=false;G.flipping=true;renderMemory();setTimeout(()=>{if(G===g){G.flipping=false}},450)},3000)}
   else renderMemory();
 }
-/* Option: show every card for 1.5 seconds at the start of each round */
+/* Option: show every card for 3 seconds at the start of each round */
 let memPeek=store.get('rd-mem-peek',false)===true;
 function renderMemory(){
   const fin=G.got.size===G.cs.length;
   $('memcard').innerHTML=`<div class="gtop"><b>Find each word part and its meaning</b><span class="grp">${fin?'':streakPill(G.streak)}<span class="note">${G.got.size} of ${G.cs.length} pairs · ${G.moves} turn${G.moves===1?'':'s'}</span></span></div>
     ${fin?`<div class="winbox">${starRow(G.moves<=G.cs.length+3?3:G.moves<=G.cs.length*2?2:1)}<p class="whole" style="font-size:1.3rem;margin:0"><b>You found them all</b> in ${G.moves} turns!${G.best>=3?` Best streak: ${G.best} pairs in a row.`:''}</p><div class="controls" style="justify-content:center"><button class="btn primary" id="gAgain">Play again</button></div></div>`:''}
-    ${fin?'':`<div class="memopts"><label class="tog peektog" for="memPeek"><input type="checkbox" id="memPeek" ${memPeek?'checked':''}><span><b>Peek first</b><small>See every card for 1.5 seconds when a round starts</small></span></label>
+    ${fin?'':`<div class="memopts"><label class="switch peektog" for="memPeek"><input type="checkbox" role="switch" id="memPeek" ${memPeek?'checked':''}><span class="sw" aria-hidden="true"></span><span class="swtext"><b>Peek first</b><small>See every card for 3 seconds when a round starts</small></span></label>
       ${G.peek?`<span class="peeknote" role="status">👀 Memorize the cards!<i class="peekbar"></i></span>`:''}</div>`}
     <div class="mgrid ${G.peek?'peeking':''}">${G.tiles.map((t,i)=>{const open=G.peek||G.up.includes(i)||G.got.has(t.c.id);
       return`<button class="tile2 ${open?'up':'back'} ${open&&t.part?'part c-'+t.c.kind:''} ${G.got.has(t.c.id)?'got':''} ${G.flipping&&!G.got.has(t.c.id)?'flipdown':''}" data-i="${i}" aria-label="${open?esc(t.part?t.c.main:meanOf(t.c)):'Hidden tile'}" ${G.got.has(t.c.id)||G.peek?'disabled':''}>${open?esc(t.part?t.c.main:meanOf(t.c)):''}</button>`}).join('')}</div>`;
