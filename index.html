@@ -413,6 +413,68 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 @keyframes toastIn{0%{transform:translate(-50%,40px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
 @media (prefers-reduced-motion: reduce){.btoast.in,.btoast.in .medal{animation:none}}
 /* Home screen */
+/* Adventure map plan */
+.maphead{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 16px;margin-bottom:12px}
+.maphead h2{margin:0;font-size:1.45rem}
+.wmap{position:relative;margin:4px 0 14px;border-radius:24px;overflow:hidden;border:1.5px solid var(--line);
+  --z1:#DDF3D0;--z2:#C9E6C4;--z3:#F6E3BF;--z4:#DCE8F5;--trail:#C9A46A;--trail2:#FFF7E4}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--z1:#1E3324;--z2:#16291C;--z3:#3A2E1B;--z4:#1C2A3B;--trail:#8B6F45;--trail2:#3C3226}}
+:root[data-theme="dark"] .wmap{--z1:#1E3324;--z2:#16291C;--z3:#3A2E1B;--z4:#1C2A3B;--trail:#8B6F45;--trail2:#3C3226}
+.zband{position:absolute;left:0;right:0}
+.zband.z1{background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.35),transparent 40%),var(--z1)}
+.zband.z2{background:radial-gradient(circle at 80% 40%,rgba(255,255,255,.2),transparent 45%),var(--z2)}
+.zband.z3{background:repeating-linear-gradient(170deg,transparent 0 40px,rgba(180,120,60,.08) 40px 44px),var(--z3)}
+.zband.z4{background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.5),transparent 40%),var(--z4)}
+.zbanner{position:absolute;left:50%;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:8px;white-space:nowrap;
+  background:var(--card);color:var(--ink);font-family:var(--display);font-weight:800;font-size:1rem;letter-spacing:.02em;padding:6px 16px;border-radius:999px;
+  border:2px solid var(--line);box-shadow:0 3px 0 var(--line)}
+.zbanner span{font-size:1.2rem}
+.wtrail{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;overflow:visible}
+.wtrail path{fill:none;stroke-linecap:round}
+.tr-base{stroke:var(--trail);stroke-width:22;opacity:.55}
+.tr-dash{stroke:var(--trail2);stroke-width:4;stroke-dasharray:2 12}
+.tr-done{stroke:var(--hi);stroke-width:8;opacity:.9}
+.stage{position:absolute;z-index:2;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;border:0;padding:0;cursor:pointer;
+  display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.5rem;color:#fff;
+  background:radial-gradient(circle at 35% 30%,#7C93E8,var(--primary) 70%);box-shadow:0 6px 0 rgba(0,0,0,.25),0 0 0 4px var(--card);
+  transition:transform .15s}
+.stage:hover{transform:translate(-50%,-52%) scale(1.06)}
+.stage:active{transform:translate(-50%,-46%) scale(.97)}
+.stage.done{background:radial-gradient(circle at 35% 30%,#FFE37A,#F2A900 72%);color:#5A3B00}
+.stage.locked{background:radial-gradient(circle at 35% 30%,#D5DAE3,#9AA3B3 75%);font-size:1.3rem;cursor:pointer}
+.stage.boss{width:84px;height:84px;font-size:2.1rem;border-radius:22px}
+.stage.boss.done,.stage.boss.open{background:radial-gradient(circle at 35% 30%,#F7A6C0,#C2255C 75%)}
+.stage.boss.done{background:radial-gradient(circle at 35% 30%,#FFE37A,#F2A900 72%)}
+.stage.cur{width:78px;height:78px;font-size:1.8rem;box-shadow:0 6px 0 rgba(0,0,0,.25),0 0 0 5px var(--card),0 0 0 10px color-mix(in srgb,var(--hi) 70%,transparent);animation:stagePulse 1.8s ease-in-out infinite}
+.stage.boss.cur{width:90px;height:90px}
+@keyframes stagePulse{50%{box-shadow:0 6px 0 rgba(0,0,0,.25),0 0 0 5px var(--card),0 0 0 16px color-mix(in srgb,var(--hi) 25%,transparent)}}
+.stage.sel{outline:4px solid var(--ink);outline-offset:4px}
+.stage:focus-visible{outline:4px solid var(--ink);outline-offset:4px}
+.stage .snum{line-height:1;font-size:inherit;color:inherit;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.sstars{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);display:flex;gap:1px;font-size:1rem;text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.sstars i,.ss-stars i{font-style:normal;color:rgba(0,0,0,.25)}.sstars i.on,.ss-stars i.on{color:#FFC800}
+.slabel{position:absolute;top:-24px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.72rem;font-family:var(--body);background:var(--card);color:var(--ink);border-radius:99px;padding:1px 8px;border:1.5px solid var(--line)}
+.youhere{position:absolute;z-index:3;transform:translate(26px,-112px);display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.youhere .mascot{width:58px;height:58px;animation:bob 2.4s ease-in-out infinite}
+.youhere span{background:var(--ink);color:var(--card);font-size:.72rem;font-weight:800;border-radius:99px;padding:2px 8px;white-space:nowrap;margin-top:-4px}
+.deco{position:absolute;z-index:1;transform:translate(-50%,-50%);font-size:1.9rem;opacity:.9;filter:drop-shadow(0 2px 0 rgba(0,0,0,.1));pointer-events:none}
+.wflag{position:absolute;left:50%;transform:translateX(-50%);z-index:2;font-size:2.2rem}
+.routine-d{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:12px}
+.routine-d summary{cursor:pointer;font-weight:800}
+.routine-d .days{margin-top:10px}
+.stagesheet{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
+.stagesheet[hidden]{display:none}
+.ss-card{pointer-events:auto;position:relative;width:min(560px,100%);max-height:60vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:22px;padding:16px 18px;
+  border:2.5px solid var(--line);box-shadow:0 18px 44px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:10px;animation:rpIn .3s cubic-bezier(.3,1.4,.5,1)}
+.ss-card.z1{border-color:#8CCB6E}.ss-card.z2{border-color:#4E9A5C}.ss-card.z3{border-color:#D9A54B}.ss-card.z4{border-color:#7FA6D6}
+.ss-card h3{margin:0;font-family:var(--display);font-size:1.4rem}.ss-card .hkick{margin:0}
+.ss-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:1rem;cursor:pointer}
+.ss-status{margin:0;font-weight:700;display:flex;flex-wrap:wrap;align-items:center;gap:6px}.ss-status.ok{color:var(--good)}.ss-status.lock{color:var(--muted)}.ss-status small{font-weight:600;color:var(--muted)}
+.ss-stars{font-size:1.1rem}
+@media (hover:none) and (pointer:coarse) and (max-width:700px){.stagesheet{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:420px){.stage{width:58px;height:58px;font-size:1.3rem}.stage.cur{width:70px;height:70px}.stage.boss{width:76px;height:76px}.deco{font-size:1.6rem}}
+@media (prefers-reduced-motion: reduce){.stage.cur,.youhere .mascot,.ss-card{animation:none}}
+html.calm .stage.cur,html.calm .youhere .mascot{animation:none}
 /* Decluttered home */
 body.on-home #practiceNote,body.on-home #weekbar{display:none}
 @media (max-width:480px){h1{font-size:1.85rem}header{align-items:center}}
@@ -1310,7 +1372,7 @@ function results(){
 }
 
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
-function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
+function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
   centerTab(m);document.body.classList.toggle('on-home',m==='home');try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
@@ -15345,34 +15407,92 @@ const ROUTINE=[['Mon','Flashcards','Meet the new cards. Flip each one and say th
   ['Wed','Build it','Build words from part tiles. Try before using a hint.'],
   ['Thu','Quiz','Take one round. Study any missed cards.'],
   ['Fri','Context clues + games','Do a round of Context clues, then Match or Memory for review.']];
+/* ---------- Plan as an adventure map: 16 stages along a winding trail through four lands ---------- */
+const ZONES=[
+  {from:1,to:4,name:'Prefix Meadow',ico:'🌼',cls:'z1',deco:['🌳','🌼','🌷','🍀','🐇']},
+  {from:5,to:8,name:'Root Forest',ico:'🌲',cls:'z2',deco:['🌲','🍄','🌲','🦉','🪵']},
+  {from:9,to:12,name:'Greek Canyon',ico:'🏜️',cls:'z3',deco:['🌵','🏺','🪨','🦎','🌵']},
+  {from:13,to:16,name:'Summit Peaks',ico:'🏔️',cls:'z4',deco:['🏔️','❄️','🌨️','🦅','⛄']}];
+const zoneOf=w=>ZONES.find(z=>w>=z.from&&w<=z.to);
+const starsFor=best=>best>=10?3:best>=9?2:best>=PASS?1:0;
+let mapSel=null;
+function stageState(w){if(weekPassed(w))return'done';if(!isUnlocked(w))return'locked';return'open'}
 function renderPlan(){
-  let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a week:</b> add <code>#week-5</code> to the end of your share link (or <code>#weeks-3-4-5</code> for several). The link opens with those weeks ticked in the Study menu.</div>`:''}<div class="routine"><h2>Each week</h2><p class="note">About 15 minutes a day. Weeks 8 and 16 review everything learned so far.</p>
-    <div class="days">${ROUTINE.map(([d,m,t])=>`<div class="day"><b>${d}</b><span>${m}</span><small>${t}</small></div>`).join('')}</div></div><div class="weeks">`;
-  const uw=unlockedWeeks(),fw=frontierWeek();
-  h=nextStepHTML('plan')+`<div class="planprog"><div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div><p><b>🔓 ${uw.length} of ${WEEKS} weeks unlocked.</b> ${uw.length>=WEEKS?'You can study every week!':''}</p></div>`+h;
-  PLAN.forEach(p=>{
-    const now=curWeek===p.w;
-    if(!isUnlocked(p.w)){const next=isUnlocked(p.w-1);
-      h+=`<div class="wk locked ${p.review?'rev':''} ${next?'':'far'}"><div class="wkhead"><h3>🔒 Week ${p.w}${p.review?' · Review':''}</h3><span class="note">${p.ids.length} cards</span></div>
-        ${p.review?'':`<div class="chipset dim" aria-label="Word parts in week ${p.w}">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)">${esc(c.main)}</span>`}).join('')}</div>`}
-        <p class="note" style="margin:0">${next?`🔑 Score ${PASS}/10 or better on the week ${p.w-1} check-in to unlock.`:`Unlock week ${p.w-1} first.`}</p></div>`;return}
-    const chips=p.review?`<p class="note" style="margin:0">Review all ${p.ids.length} cards from weeks 1–${p.w-1}.</p>`
-      :`<div class="chipset">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
-    let counts='';
-    if(!p.review){const a=p.ids.filter(i=>i[0]==='a').length,l=p.ids.filter(i=>i[0]==='l').length,g=p.ids.filter(i=>i[0]==='g').length;
-      counts=[a&&`${a} affix${a>1?'es':''}`,l&&`${l} Latin`,g&&`${g} Greek`].filter(Boolean).join(' · ')}
-    const isNext=p.w===fw&&!weekPassed(p.w)&&uw.length<WEEKS,rdy=isNext&&checkReady(p.w);
-    h+=`<div class="wk ${now?'now':''} ${p.review?'rev':''} ${isNext?'nextwk':''}">${isNext?(rdy?`<span class="nextflag">🎯 Next step: pass this check-in to unlock week ${p.w+1}</span>`:`<span class="nextflag soft">🧩 Practice first: ${Math.min(actsFor(p.w).length,READY)} of ${READY} activities done</span>`):''}<div class="wkhead"><h3>Week ${p.w}${p.review?' · Review':''}</h3>${now?'<span class="pill">This week</span>':`<span class="note">${p.ids.length} cards</span>`}</div>
-      ${counts?`<span class="note">${counts}</span>`:''}${chips}
-      ${(()=>{const h=checkHistory(HIST.days)[p.w];return h?`<p class="note" style="margin:0">Check-in: first ${h.first}/10 · best ${h.best}/10</p>`:''})()}
-      ${weekPassed(p.w)?'<p class="note" style="margin:0;color:var(--good);font-weight:700">✓ Check-in passed</p>':''}
-      <div class="grp"><button class="btn small ${p.w===fw&&!weekPassed(p.w)&&checkReady(p.w)?'primary':''}" data-check="${p.w}">${p.review?'Review check-in':'Check-in quiz'}</button><button class="btn small ${studyWeeks.includes(p.w)?'primary':''}" data-study="${p.w}" aria-pressed="${studyWeeks.includes(p.w)}">${studyWeeks.includes(p.w)?'Studying (tap to remove)':studyWeeks.length?'Add to my study':'Study this week'}</button></div></div>`;
-  });
-  $('planBody').innerHTML=h+'</div>';
-  $('planBody').querySelectorAll('[data-check]').forEach(b=>b.onclick=()=>startCheckin(+b.dataset.check));
+  const uw=unlockedWeeks(),fw=frontierWeek(),all=uw.length>=WEEKS,ch=checkHistory(HIST.days);
+  const totalStars=PLAN.reduce((a,p)=>a+(ch[p.w]?starsFor(ch[p.w].best):0),0);
+  let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a week:</b> add <code>#week-5</code> to the end of your share link (or <code>#weeks-3-4-5</code> for several). The link opens with those weeks ticked in the Study menu.</div>`:''}
+  <div class="maphead"><div><p class="hkick">🗺️ Word Quest</p><h2>${all?'Every land unlocked!':`Stage ${fw} of ${WEEKS}`}</h2>
+    <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
+    <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
+  ${nextStepHTML('plan')}
+  <div class="wmap" id="wmap"><svg class="wtrail" id="wtrail" aria-hidden="true"></svg>`;
+  /* layout: a zone banner, then its stages snaking left and right */
+  let y=10,i=0;const pts=[];
+  for(const z of ZONES){
+    h+=`<div class="zband ${z.cls}" style="top:${y-10}px;height:${(z.to-z.from+1)*112+76}px"></div><div class="zbanner" style="top:${y}px"><span>${z.ico}</span>${z.name}</div>`;y+=66;
+    for(let w=z.from;w<=z.to;w++,i++){
+      const p=PLAN[w-1],boss=p.review,x=boss?50:Math.round(50+30*Math.sin(i*1.25+.3)),cy=y+44,st=stageState(w),cur=w===fw&&!all&&st!=='done';
+      pts.push({x,y:cy,w,st});
+      const best=ch[w]?ch[w].best:0,stars=starsFor(best);
+      h+=`<button class="stage ${st} ${boss?'boss':''} ${cur?'cur':''} ${mapSel===w?'sel':''}" data-stage="${w}" style="left:${x}%;top:${cy}px"
+          aria-label="Week ${w}${boss?' review castle':''}: ${st==='done'?`passed, ${stars} star${stars===1?'':'s'}`:st==='locked'?'locked':'open'}">
+          <span class="snum">${st==='locked'?'🔒':boss?'🏰':w}</span>
+          ${st==='done'?`<span class="sstars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>`:''}
+          ${boss&&st!=='locked'?`<span class="slabel">Week ${w}</span>`:''}</button>`;
+      if(cur)h+=`<div class="youhere" style="left:${x}%;top:${cy}px">${MASCOT}<span>You are here</span></div>`;
+      /* scenery on the far side of the trail */
+      const dx=x>50?x-32:x+32,dz=z.deco[(w*7)%z.deco.length];
+      h+=`<span class="deco" style="left:${Math.max(6,Math.min(94,dx))}%;top:${cy-6}px" aria-hidden="true">${dz}</span>`;
+      y+=112;
+    }
+    y+=10;
+  }
+  h+=`<div class="wflag" style="top:${y-30}px" aria-hidden="true">🏁</div></div>
+  <details class="routine-d"><summary>📅 How each week works</summary><p class="note">About 15 minutes a day. Weeks 8 and 16 are review castles that cover everything so far.</p>
+    <div class="days">${ROUTINE.map(([d,m,t])=>`<div class="day"><b>${d}</b><span>${m}</span><small>${t}</small></div>`).join('')}</div></details>
+  <div class="stagesheet" id="stageSheet" hidden></div>`;
+  $('planBody').innerHTML=h;
+  const map=$('wmap');map.style.height=(y+20)+'px';
+  const drawTrail=()=>{const W=map.clientWidth,svg=$('wtrail');if(!W||!svg)return;svg.setAttribute('viewBox',`0 0 ${W} ${y+20}`);
+    const P=pts.map(p=>[p.x/100*W,p.y]);let d=`M${P[0][0]},${P[0][1]}`,done='';
+    for(let k=1;k<P.length;k++){const [x0,y0]=P[k-1],[x1,y1]=P[k],m=(y0+y1)/2,seg=` C${x0},${m} ${x1},${m} ${x1},${y1}`;d+=seg;if(pts[k].st!=='locked')done+=(done?'':`M${x0},${y0}`)+seg}
+    svg.innerHTML=`<path class="tr-base" d="${d}"/><path class="tr-dash" d="${d}"/>${done?`<path class="tr-done" d="${done}"/>`:''}`};
+  drawTrail();window.__drawTrail=drawTrail;
+  if(!window.__trailRO&&window.ResizeObserver){window.__trailRO=new ResizeObserver(()=>{if(mode==='plan'&&window.__drawTrail)window.__drawTrail()});}
+  if(window.__trailRO){window.__trailRO.disconnect();window.__trailRO.observe(map)}
+  map.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>openStage(+b.dataset.stage));
   $('planBody').querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
-  $('planBody').querySelectorAll('[data-study]').forEach(b=>b.onclick=()=>{toggleStudyWeek(+b.dataset.study);renderPlan()});
+  if(mapSel)openStage(mapSel,true);
+  /* bring the current stage into view */
+  const cur=map.querySelector('.stage.cur')||map.querySelector('.stage.sel');
+  if(cur&&!renderPlan.__scrolled){renderPlan.__scrolled=true;setTimeout(()=>{try{const r=cur.getBoundingClientRect();if(r.top>innerHeight*.7||r.top<0)scrollTo({top:scrollY+r.top-innerHeight*.4,behavior:document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){}},60)}
 }
+function openStage(w,keep){
+  mapSel=w;const el=$('stageSheet');if(!el)return;const p=PLAN[w-1],z=zoneOf(w),st=stageState(w),ch=checkHistory(HIST.days)[w],stars=ch?starsFor(ch.best):0;
+  const fw=frontierWeek(),isNext=w===fw&&st==='open',ready=checkReady(w),got=actsFor(w),n=Math.min(got.length,READY);
+  document.querySelectorAll('.stage.sel').forEach(s=>s.classList.remove('sel'));const sb=document.querySelector(`.stage[data-stage="${w}"]`);if(sb)sb.classList.add('sel');
+  const chips=p.review?`<p class="note" style="margin:0">Review castle: all ${p.ids.length} word parts from weeks 1–${w-1}.</p>`
+    :`<div class="chipset ${st==='locked'?'dim':''}">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
+  let status='',btns='';
+  if(st==='locked'){status=`<p class="ss-status lock">🔒 ${isUnlocked(w-1)?`Pass the week ${w-1} check-in with ${PASS}/10 to open this stage.`:`Clear week ${w-1} first.`}</p>`}
+  else{
+    status=st==='done'?`<p class="ss-status ok">✓ Cleared · best ${ch.best}/10 <span class="ss-stars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>${stars<3?` <small>Score ${stars===1?9:10}/10 for another star</small>`:''}</p>`
+      :isNext&&!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${n} of ${READY} activities done, then the check-in</div>`
+      :`<p class="ss-status">${ch?`Best so far: ${ch.best}/10. `:''}Score ${PASS}/10 on the check-in to clear this stage.</p>`;
+    btns=`<button class="btn ${st!=='done'&&ready?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button><button class="btn ${st==='done'||!ready?'primary':''}" data-ss="study">Study week ${w} cards</button>`}
+  el.innerHTML=`<div class="ss-card ${z.cls}"><button class="ss-x" data-ss="close" aria-label="Close">✕</button>
+    <p class="hkick">${z.ico} ${z.name}${p.review?' · Review castle':''}</p><h3>Week ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
+  el.hidden=false;
+  el.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const a=b.dataset.ss;
+    if(a==='close'){el.hidden=true;mapSel=null;document.querySelectorAll('.stage.sel').forEach(s=>s.classList.remove('sel'));return}
+    if(a==='check'){el.hidden=true;mapSel=null;startCheckin(w);scrollTo({top:0});return}
+    if(a==='study'){el.hidden=true;mapSel=null;setStudyWeeks([w]);setMode('cards',true);deck=cardPool();idx=0;renderCard();scrollTo({top:0})}});
+  if(!keep)setTimeout(()=>{const f=el.querySelector('.btn');f&&f.focus({preventScroll:true})},30);
+  setTimeout(()=>{try{const card=el.querySelector('.ss-card'),sr=sb&&sb.getBoundingClientRect(),cr={top:el.getBoundingClientRect().bottom-card.offsetHeight};
+    if(sr&&sr.bottom+24>cr.top)scrollBy({top:sr.bottom+24-cr.top,behavior:'auto'});
+    else if(sr&&sr.top<70)scrollBy({top:sr.top-90,behavior:'smooth'})}catch(e){}},60);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const el=$('stageSheet');if(el&&!el.hidden){el.hidden=true;mapSel=null}}});
 
 function updateTeacherBtn(){}
 /* Title: tap to go home */
