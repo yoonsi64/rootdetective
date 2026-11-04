@@ -1002,6 +1002,113 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .status{font-size:.92rem;margin:0}
 .status.err{color:var(--bad)} .status.ok{color:var(--good)}
 .gh{font-size:.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;grid-column:1/-1;margin-top:6px}
+/* ===== Map: medallion stages, a sky layer, living animals ===== */
+.wmap{--plt:#DCD2BC;--pls:#ADA087;--cloudtop:#FFFFFF;--cloudbot:#DCE5F0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--plt:#6F675A;--pls:#4D473E;--cloudtop:#C9D3E2;--cloudbot:#8D9AB0}}
+:root[data-theme="dark"] .wmap{--plt:#6F675A;--pls:#4D473E;--cloudtop:#C9D3E2;--cloudbot:#8D9AB0}
+.wstatic .wtrail{z-index:0}
+.wsky{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none;will-change:transform}
+.sdefs{position:absolute;width:0;height:0;overflow:hidden}
+.wmap .stage{background:none!important;box-shadow:none!important;animation:none!important;border-radius:50%!important}
+.wmap .stage::before,.wmap .stage.cur::before{display:none!important;animation:none!important}
+.wmap .stage .sart{position:absolute;left:50%;top:50%;width:151.5%;height:151.5%;transform:translate(-50%,-46%);overflow:visible;pointer-events:none}
+.wmap .stage.boss .sart{width:142%;height:142%}
+.wmap .sart .k{stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.wmap .sart .sa-sh{fill:url(#sgSh)}
+.wmap .sart .sa-ptop{fill:var(--plt)}.wmap .sart .sa-pside{fill:var(--pls)}
+.wmap .sart .sa-pl{fill:none;stroke:var(--ink);stroke-width:1.1;opacity:.3;stroke-linecap:round}
+.wmap .sart .sa-moss{fill:#7FA65A;opacity:.85}
+.wmap .sart .sa-tuft{fill:none;stroke:#5E8F45;stroke-width:1.7;stroke-linecap:round}
+.wmap .sart.gold .sa-edge{fill:#B47414}.wmap .sart.gold .sa-face{fill:url(#sgGold)}.wmap .sart.gold .sa-in{fill:none;stroke:#C48A1F;stroke-width:1.6;opacity:.85}
+.wmap .sart.enamel .sa-edge{fill:#26407F}.wmap .sart.enamel .sa-face{fill:url(#sgBlue)}.wmap .sart.enamel .sa-in{fill:none;stroke:#F6C445;stroke-width:2.6}
+.wmap .sart.stone .sa-edge{fill:#8B8170}.wmap .sart.stone .sa-face{fill:url(#sgStone)}.wmap .sart.stone .sa-in{fill:none;stroke:#8B8170;stroke-width:1.2;opacity:.45}
+.wmap .sart .sa-hi{fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;opacity:.6}.wmap .sart .sa-glint{fill:#fff;opacity:.85}
+.wmap .sart.stone .sa-hi{opacity:.5}
+.wmap .sart text{font-family:var(--display);font-weight:800;text-anchor:middle}
+.wmap .sart.gold .sa-num{fill:#6A4310}.wmap .sart.gold .sa-numsh{fill:#FFF5C8}
+.wmap .sart.enamel .sa-num{fill:#FFFFFF}.wmap .sart.enamel .sa-numsh{fill:#1B2C66;opacity:.75}
+.wmap .sart .sa-lock{fill:#73695A}.wmap .sart .sa-lockhi{stroke:#F4EFE6;stroke-width:1.4;opacity:.55;stroke-linecap:round}.wmap .sart .sa-shackle{fill:none;stroke:#73695A;stroke-width:3.6;stroke-linecap:round}
+.wmap .sart .sa-key{fill:#D9D1C2}.wmap .sart .sa-key2{stroke:#D9D1C2;stroke-width:2;stroke-linecap:round}
+.wmap .sart .sa-crack{fill:none;stroke:#7A705F;stroke-width:1.1;stroke-linecap:round;opacity:.65}
+.wmap .sart .sa-ivy{fill:#6FA24E;stroke:#3F6B2C;stroke-width:.7}.wmap .sart .sa-vine{fill:none;stroke:#4E7A36;stroke-width:1.3;stroke-linecap:round}
+.wmap .sart .sa-tower{fill:#6A4310}.wmap .sart .sa-towersh{fill:#FFF5C8;opacity:.8}.wmap .sart.enamel .sa-tower{fill:#FFFFFF}.wmap .sart.enamel .sa-towersh{fill:#1B2C66;opacity:.6}
+.wmap .sart .sa-door{fill:#3B2A1A;opacity:.75}.wmap .sart.enamel .sa-door{fill:#26407F;opacity:1}
+.wmap .sart .sa-rib{fill:#D9534A}.wmap .sart .sa-ribd{fill:#A63B33}.wmap .sart .sa-ribhi{fill:none;stroke:#fff;stroke-width:1.2;opacity:.35}
+.wmap .sart .sa-star{fill:#F1E2C4;stroke:#6A4310;stroke-width:1.2;stroke-linejoin:round}.wmap .sart .sa-star.on{fill:#FFD23F}
+.wmap .sart .sa-glow{fill:rgba(246,196,69,.18);stroke:#F6C445;stroke-width:2.6;transform-box:fill-box;transform-origin:center;animation:saGlow 2.4s ease-out infinite}
+.wmap .sart .sa-glow.g2{animation-delay:-1.2s}
+@keyframes saGlow{0%{scale:.78;opacity:.95}100%{scale:1.3;opacity:0}}
+.wmap .sart.now .sa-coin{animation:saBob 2.6s ease-in-out infinite}
+@keyframes saBob{50%{translate:0 -3px}}
+.wmap .stage.locked:hover .sart .sa-lockg{animation:saJiggle .5s ease-in-out}
+@keyframes saJiggle{25%{rotate:-8deg}75%{rotate:8deg}}
+.wmap .sart .sa-lockg{transform-box:fill-box;transform-origin:50% 0%}
+/* sky: clouds with ground shadows, flocks, hawks */
+.wmap .cloud{opacity:.84;animation:skyDrift 64s ease-in-out infinite alternate}.wmap .cloud.c1{animation-duration:78s}.wmap .cloud.c2{animation-duration:90s;animation-direction:alternate-reverse}
+@keyframes skyDrift{from{translate:-28px 0}to{translate:28px 0}}
+.wmap .cloudo{fill:none;stroke:var(--ink);stroke-width:2.8;stroke-opacity:.32}
+.wmap .cloudf{fill:url(#gCloud)}
+.wmap .cloudlo{fill:none;stroke:var(--cloudbot);stroke-width:2;stroke-linecap:round;opacity:.9}
+.wmap .cloudhi2{fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;opacity:.9}
+.wmap .cloudgsh{fill:url(#gCloudSh)}
+.wmap .flock{animation:flock 52s linear infinite}.wmap .flock.fk1{animation-duration:64s}.wmap .flock.fk2{animation-duration:58s}
+@keyframes flock{0%{translate:-60px 0}50%{translate:calc(var(--fw) * .5) -8px}100%{translate:var(--fw) 4px}}
+.wmap .bird path{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.wmap .bird .bbod{fill:var(--ink)}
+.wmap .bird .bwl{transform-box:fill-box;transform-origin:100% 100%;animation:wingL .46s ease-in-out infinite alternate}
+.wmap .bird .bwr{transform-box:fill-box;transform-origin:0% 100%;animation:wingR .46s ease-in-out infinite alternate}
+@keyframes wingL{from{rotate:24deg}to{rotate:-18deg}}@keyframes wingR{from{rotate:-24deg}to{rotate:18deg}}
+.wmap .orbit{transform-box:fill-box;transform-origin:center;animation:orbit 30s linear infinite}.wmap .orbit.o1{animation-duration:38s}
+@keyframes orbit{to{rotate:360deg}}
+.wmap .hawkw{fill:#8A5A35}.wmap .hawkb{fill:#6E4527}.wmap .hawkt{fill:#C9783F}.wmap .hawksh{fill:#3A2414;opacity:.1}
+.wmap .hawk{transform-box:fill-box;transform-origin:center;animation:hawkFlex 3.6s ease-in-out infinite}
+@keyframes hawkFlex{50%{scale:.88 1}}
+/* animals */
+.wmap .ani.infog{opacity:.38}
+.wmap .woolc,.wmap .woolcap{fill:none;stroke:#D6D0C4;stroke-width:1.1;stroke-linecap:round}
+.wmap .graze{transform-box:fill-box;transform-origin:0% 60%;animation:graze 10s ease-in-out infinite}
+@keyframes graze{0%,26%,100%{rotate:0deg}34%{rotate:32deg}40%{rotate:29deg}46%{rotate:33deg}52%{rotate:29deg}58%,64%{rotate:32deg}72%{rotate:0deg}80%{rotate:-8deg}86%{rotate:0deg}}
+.wmap .swalk{transform-box:fill-box;transform-origin:center;animation:swalk 18s ease-in-out infinite}
+@keyframes swalk{0%,6%{translate:0 0;scale:1 1}42%{translate:18px 0;scale:1 1}48%{translate:18px 0;scale:1 1}50%,54%{translate:18px 0;scale:-1 1}90%{translate:0 0;scale:-1 1}94%,100%{translate:0 0;scale:1 1}}
+.wmap .sbob{animation:sbob .5s ease-in-out infinite alternate}@keyframes sbob{to{translate:0 -.7px}}
+.wmap .henA,.wmap .hen0{fill:#FFFDF7}.wmap .hen1{fill:#C9773C}.wmap .henw{fill:none;stroke:var(--ink);stroke-width:.8;opacity:.6}
+.wmap .comb,.wmap .wattle{fill:#E0453A}.wmap .hleg{stroke:#E8A23B;stroke-width:1.1;stroke-linecap:round}
+.wmap .peck{transform-box:fill-box;transform-origin:50% 100%;animation:peck 5.6s ease-in-out infinite}
+@keyframes peck{0%,46%,100%{rotate:0deg;translate:0 0}50%{rotate:36deg}54%{rotate:2deg}58%{rotate:36deg}62%{rotate:0deg}74%{translate:4px 0}86%{translate:4px 0}96%{translate:0 0}}
+.wmap .earin{fill:none;stroke:#F0B7BE;stroke-width:.9;stroke-linecap:round}
+.wmap .rhop{transform-box:fill-box;transform-origin:center bottom;animation:rhop 12s ease-in-out infinite}
+@keyframes rhop{0%,30%{translate:0 0;scale:1 1}33%{translate:5px -7px}36%{translate:10px 0}39%{translate:15px -7px}42%{translate:20px 0;scale:1 1}66%{translate:20px 0;scale:1 1}67%,70%{translate:20px 0;scale:-1 1}73%{translate:15px -7px;scale:-1 1}76%{translate:10px 0;scale:-1 1}79%{translate:5px -7px;scale:-1 1}82%,99%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+.wmap .rears{transform-box:fill-box;transform-origin:30% 100%;animation:rears 4.4s ease-in-out infinite}
+@keyframes rears{0%,70%,100%{rotate:0deg}74%{rotate:-12deg}78%{rotate:0deg}82%{rotate:-10deg}86%{rotate:0deg}}
+.wmap .duckhead{fill:#3E8E5A}.wmap .duckw{fill:none;stroke:var(--ink);stroke-width:.8;opacity:.5}
+.wmap .paddle{transform-box:fill-box;transform-origin:center;animation:paddle 26s ease-in-out infinite}
+@keyframes paddle{0%,4%{translate:-12px 0;scale:1 1}46%{translate:12px 0;scale:1 1}50%,54%{translate:12px 0;scale:-1 1}96%{translate:-12px 0;scale:-1 1}100%{translate:-12px 0;scale:1 1}}
+.wmap .dbob{animation:dbob 1.8s ease-in-out infinite}@keyframes dbob{50%{translate:0 .8px}}
+.wmap .deerb{fill:none;stroke:#F6E7D0;stroke-width:1.4;stroke-linecap:round;opacity:.8}
+.wmap .dhead{transform-box:fill-box;transform-origin:12% 95%;animation:dgraze 11s ease-in-out infinite}
+@keyframes dgraze{0%,34%,100%{rotate:0deg}42%{rotate:60deg}48%{rotate:57deg}54%{rotate:61deg}64%{rotate:60deg}72%{rotate:0deg}78%{rotate:-5deg}84%{rotate:0deg}}
+.wmap .dtail{transform-box:fill-box;transform-origin:100% 40%;animation:dtail 5.2s ease-in-out infinite}
+@keyframes dtail{0%,78%,100%{rotate:0deg}82%{rotate:-40deg}86%{rotate:0deg}90%{rotate:-34deg}94%{rotate:0deg}}
+.wmap .dear{transform-box:fill-box;transform-origin:80% 100%;animation:dear 3.8s ease-in-out infinite}
+@keyframes dear{0%,86%,100%{rotate:0deg}90%{rotate:-22deg}94%{rotate:0deg}}
+.wmap .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.6s ease-in-out infinite}@keyframes breathe{50%{scale:1 1.06}}
+.wmap .sq{fill:#B9673A}.wmap .sqb{fill:none;stroke:#F3D8B8;stroke-width:1;stroke-linecap:round}
+.wmap .scamper{transform-box:fill-box;transform-origin:center bottom;animation:scamper 10s ease-in-out infinite}
+@keyframes scamper{0%,22%{translate:0 0;scale:1 1}24%{translate:6px -3px}26%{translate:12px 0}28%{translate:18px -3px}30%{translate:24px 0;scale:1 1}58%{translate:24px 0;scale:1 1}59%,62%{translate:24px 0;scale:-1 1}64%{translate:18px -3px;scale:-1 1}66%{translate:12px 0;scale:-1 1}68%{translate:6px -3px;scale:-1 1}70%,99%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+.wmap .stail{transform-box:fill-box;transform-origin:100% 100%;animation:stail 2.4s ease-in-out infinite}@keyframes stail{50%{rotate:-9deg}}
+.wmap .rr{fill:#8C7A5E}.wmap .rrc{fill:#4F4434}.wmap .rrw{fill:none;stroke:#F2E6CF;stroke-width:1;stroke-linecap:round}.wmap .rleg{stroke:#5B8BC9;stroke-width:1.1;stroke-linecap:round}.wmap .rrstreak{stroke:#4F86C6;stroke-width:1.2;stroke-linecap:round}
+.wmap .rrun{transform-box:fill-box;transform-origin:center;animation:rrun 13s ease-in-out infinite}
+@keyframes rrun{0%,30%{translate:0 0;scale:1 1}37%{translate:110px 0;scale:1 1}40%{translate:110px 0;scale:1 1}41%,64%{translate:110px 0;scale:-1 1}71%{translate:0 0;scale:-1 1}74%,99%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+.wmap .marm{fill:#A9774C}.wmap .marmb{fill:#E2C39D}.wmap .burrow{fill:#4A3726}.wmap .mound{fill:#E7E9EE}
+.wmap .mpop{animation:mpop 10s ease-in-out infinite}@keyframes mpop{0%,14%{translate:0 17px}22%,72%{translate:0 0}80%,100%{translate:0 17px}}
+.wmap .mlook{transform-box:fill-box;transform-origin:center bottom;animation:mlook 10s ease-in-out infinite}@keyframes mlook{0%,30%{rotate:0deg}36%,44%{rotate:-12deg}50%,58%{rotate:12deg}64%,100%{rotate:0deg}}
+.wmap .catc{fill:#E39B4B}.wmap .cattail{fill:none;stroke:#E39B4B;stroke-width:2.4;stroke-linecap:round}.wmap .catst{stroke:#B86E2A;stroke-width:1;stroke-linecap:round}
+.wmap .ctail{transform-box:fill-box;transform-origin:0% 0%;animation:ctail 3s ease-in-out infinite}@keyframes ctail{0%,100%{rotate:-12deg}50%{rotate:16deg}}
+.wmap .chead{transform-box:fill-box;transform-origin:50% 100%;animation:chead 8s ease-in-out infinite}@keyframes chead{0%,40%,100%{rotate:0deg}46%,60%{rotate:-14deg}66%,80%{rotate:10deg}86%{rotate:0deg}}
+.wmap .bbob{transform-box:fill-box;transform-origin:center;animation:bbob 4.2s ease-in-out infinite}@keyframes bbob{0%,100%{rotate:-2.5deg;translate:0 0}50%{rotate:2.5deg;translate:0 .8px}}
+.wmap .waddle{transform-box:fill-box;transform-origin:50% 100%;animation:waddle .9s ease-in-out infinite alternate}.wmap .waddle.w2{animation-duration:1.1s;animation-delay:-.4s}@keyframes waddle{from{rotate:-7deg}to{rotate:7deg}}
+.wmap .pstep{transform-box:fill-box;transform-origin:center;animation:pstep 14s ease-in-out infinite}@keyframes pstep{0%,20%{translate:0 0}45%,60%{translate:-14px 2px}85%,100%{translate:0 0}}
+.wmap .gnod{transform-box:fill-box;transform-origin:50% 100%;animation:gnod 7s ease-in-out infinite}@keyframes gnod{0%,58%,100%{rotate:0deg}64%,70%{rotate:4deg}74%,80%{rotate:-2deg}}
 /* ---------- Phones: fit each activity on one screen ---------- */
 .lvtoggle{display:none}
 @media (max-width:700px){
@@ -15820,8 +15927,8 @@ let mapSel=null;
 function stageState(w){if(weekPassed(w))return'done';if(!isUnlocked(w))return'locked';return'open'}
 /* ---------- Storybook map: watercolor land, sepia ink, shaded volumes and little stories (same picture every visit) ---------- */
 function mapRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function drawMapScene(W,H,P,zys,fogFrom){
-  const R=mapRng(20261104),f=n=>Math.round(n*10)/10,wash=[],light=[],grd=[],back=[],objs=[],anim=[];
+function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
+  const R=mapRng(20261104),f=n=>Math.round(n*10)/10,wash=[],light=[],grd=[],back=[],objs=[],anim=[],sky=[];
   const trailX=y=>{if(y<=P[0][1])return P[0][0];for(let k=1;k<P.length;k++)if(y<=P[k][1]){const [x0,y0]=P[k-1],[x1,y1]=P[k],t=(y-y0)/(y1-y0||1),s=t*t*(3-2*t);return x0+(x1-x0)*s}return P[P.length-1][0]};
   const placed=[];
   const spot=(y0,y1,clear,tries=40)=>{for(let k=0;k<tries;k++){const y=y0+R()*(y1-y0),x=12+R()*(W-24),tx=trailX(y);
@@ -15943,33 +16050,74 @@ function drawMapScene(W,H,P,zys,fogFrom){
   const lake=(x,y,rx,ry,extra)=>G(x,y,1,`<path class="k shore" d="${blob(0,0,rx+5,9,.08,ry/rx+.08)}"/><path class="k" fill="url(#gWater)" d="${blob(0,0,rx,9,.08,ry/rx)}"/><path class="waterhi" d="M${f(-rx*.55)} ${f(-ry*.25)}q${f(rx*.2)} -${f(ry*.25)} ${f(rx*.42)} 0"/>
     <path class="ripple" d="M${f(-rx*.2)} ${f(ry*.35)}q5 -2 10 0M${f(rx*.25)} ${f(ry*.05)}q5 -2 10 0"/><circle class="k pad" cx="${f(rx*.55)}" cy="${f(ry*.3)}" r="3"/><circle class="k pad" cx="${f(rx*.42)}" cy="${f(ry*.5)}" r="2.2"/><circle class="lotus" cx="${f(rx*.55)}" cy="${f(ry*.3)}" r="1.2"/>
     <path class="reed" d="M${f(-rx*.95)} ${f(-ry*.1)}v-10M${f(-rx*.88)} ${f(ry*.15)}v-12M${f(-rx*.8)} ${f(-ry*.25)}v-8"/><ellipse class="cattail" cx="${f(-rx*.88)}" cy="${f(ry*.15-12)}" rx="1.4" ry="3"/>${extra||''}`);
-  const cloud=(x,y,s,k)=>`<g class="cloud c${k%3}" transform="translate(${f(x)},${f(y)}) scale(${f(s)})"><ellipse class="cloudsh" cx="20" cy="46" rx="22" ry="7"/><path class="k cloudb" d="${blob(0,0,20,8,.3,.5)}"/><path class="cloudhi" d="${blob(-4,-4,8,6,.2,.5)}"/></g>`;
-  const birds=(x,y,k)=>`<g class="birds b${k%2}" transform="translate(${f(x)},${f(y)})"><path d="M0 0q4-4 8 0q4-4 8 0"/><path d="M14 9q3-3 6 0q3-3 6 0"/></g>`;
+  /* cumulus: puffs on a flat base, outlined once (outline pass, then fill pass), with a soft shadow on the ground */
+  const cloud=(x,y,s,k)=>{const n=4+k%3,w=40+R()*14,pf=[];for(let i=0;i<n;i++){const t=i/(n-1),r=8+Math.sin(t*Math.PI)*(9+R()*4)+R()*2;pf.push([-w/2+t*w+(R()-.5)*4,-r*.5-1,r])}
+    const c=cls=>pf.map(([px,py,r])=>`<circle class="${cls}" cx="${f(px)}" cy="${f(py)}" r="${f(r)}"/>`).join('')+`<ellipse class="${cls}" cx="0" cy="1" rx="${f(w/2+9)}" ry="6.5"/>`;
+    return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})"><g class="cloud c${k%3}" style="animation-delay:${f(-R()*40)}s"><ellipse class="cloudgsh" cx="30" cy="66" rx="${f(w/2+16)}" ry="10"/>${c('cloudo')}${c('cloudf')}<path class="cloudlo" d="M${f(-w/2-4)} 3q${f(w/2+4)} 6 ${f(w+8)} 0"/><path class="cloudhi2" d="M${f(-w/4)} ${f(-pf[1][2]*.9)}q6-5 12-3"/></g></g>`};
+  /* a small flock that flies the width of the map, wings flapping */
+  const birds=(x,y,k)=>`<g transform="translate(0,${f(y)})"><g class="flock fk${k%3}" style="--fw:${f(W+120)}px;animation-delay:${f(-R()*40)}s">${[[0,0],[-12,7],[-23,13],[11,8]].slice(0,3+k%2).map(([dx,dy],i)=>`<g transform="translate(${dx},${dy}) scale(${f(.85+R()*.3)})"><g class="bird"><path class="bwl" style="animation-delay:${f(-i*.11)}s" d="M0 0Q-4-3.6-8.4-1.4"/><path class="bwr" style="animation-delay:${f(-i*.11)}s" d="M0 0Q4-3.6 8.4-1.4"/><circle class="bbod" r=".9"/></g></g>`).join('')}</g></g>`;
   const butterfly=(x,y,k)=>`<g transform="translate(${f(x)},${f(y)})"><g class="bfly f${k%3}"><g class="wing"><path class="k bw${k%3}" d="M0 0q-6-7-8-2q2 4 8 2Zm0 0q-5 5-6 3q1-4 6-3Z"/><path class="k bw${k%3}" d="M0 0q6-7 8-2q-2 4-8 2Zm0 0q5 5 6 3q-1-4-6-3Z"/></g><path class="bbody" d="M0-2.4v4.8"/></g></g>`;
+  /* ---------- living animals (animated layer; placed in open ground so nothing stands in front of them) ---------- */
+  const fogged=y=>{const k=zys.findIndex(z=>y>=z.y0&&y<z.y1);return k>=fogFrom};
+  const D=()=>`style="animation-delay:${f(-R()*14)}s"`;
+  const A=(x,y,s,flip,body)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)}) scale(${f(flip?-s:s)},${f(s)})">${body}</g>`;
+  const keep=(x,y,r)=>{put(x,y,r);put(x,y+20,r*.9)};/* also keep the ground just in front clear, so a tree can't hide the animal */
+  const sheepA=(x,y,flip,walk)=>A(x,y,1.05,flip,`<g class="${walk?'swalk':''}" ${D()}>${sh(1,1,11,2.6)}<g class="${walk?'sbob':''}">
+    <path class="k leg" d="M-5 0v-5M-2.2 0v-5M3 0v-5M5.6 0v-5"/><path class="k wool" d="${blob(0,-8.4,7.8,8,.18,.66)}"/><path class="woolsh" d="M-6-5.4q6 3.4 12 0"/><path class="woolc" d="M-3.4-11.2q1.6-1.6 3.2 0M.8-10.4q1.6-1.6 3.2 0"/>
+    <g class="shead${walk?'':' graze'}" ${D()}><path class="k face" d="M5.2-10.8q3.8-2.6 6.8.4q1.2 2.4-.4 3.8q-2.6 1.2-4.8-.2Z"/><path class="k face" d="M6.2-11l-2.4-1.8.7 2.7Z"/><circle class="eye" cx="9.7" cy="-9.4" r=".65"/><path class="woolcap" d="M4.8-11.6q2.2-2.2 4.4-1.2"/></g></g></g>`);
+  const hen=(x,y,flip,c)=>A(x,y,1,flip,`${sh(0,1,6.5,1.7)}<g class="peck" ${D()}><path class="hleg" d="M-1.2 0v-3.4M1.4 0v-3.4"/>
+    <path class="k hen${c}" d="M-6.6-6.2q-2.2-3.6-1-6q1.4 1.6 2.8 2.4q1.2-1.6 3.6-1.8q1.6-3.4 4.4-2.4q2.6 1 1.6 3.8l-.8 2.6q-.8 4.4-5.6 4.4q-3.6 0-5-3Z"/>
+    <path class="henw" d="M-3.6-7.2q2.8-1.6 5 .6q-2.2 2.4-5-.6Z"/><path class="k comb" d="M1.8-13.8q.6-2 1.7-.6q.9-1.5 1.7.2q.6 1.1-.7 1.7Z"/><path class="wattle" d="M5.4-9.6q.2 1.6-.8 1.8q-.6-1 .2-1.8Z"/>
+    <path class="beak" d="M5.6-11.2l2.2.7-2.2.7Z"/><circle class="eye" cx="4" cy="-11.4" r=".55"/></g>`);
+  const bunnyA=(x,y,flip)=>A(x,y,1,flip,`<g class="rhop" ${D()}>${sh(1,1,7,2)}<path class="k bunny" d="M-5 0q-2.4-7 3.6-8.4q2.4-.6 4.4.4q3 1.4 2.6 5q-.4 3-3.4 3Z"/>
+    <g class="rears" ${D()}><path class="k bunny" d="M2.4-8q-1.4-6.4.6-8.2q1.8 2 .8 8.2M4.4-7.4q.8-6.2 3-6.8q.6 2.2-1.6 7"/><path class="earin" d="M3.2-9.4q-.6-3.6.2-5M5.2-8.6q.6-3.4 1.6-4"/></g>
+    <circle class="tail" cx="-5.6" cy="-3.4" r="2"/><circle class="eye" cx="4.4" cy="-5.6" r=".7"/><circle class="nose" cx="7.2" cy="-4.2" r=".6"/></g>`);
+  const duckB=(x,y,s,baby)=>`<g transform="translate(${x},${y}) scale(${s})"><g class="dbob" ${D()}><path class="ripple" d="M-12 2.6q4 1.8 8 0M-11 4.4q4 1.4 8 0"/><path class="k ${baby?'duckling':'duck'}" d="M-6 0Q-7.4-5.2-1-5.2Q2-5.2 3-7.2a3 3 0 1 1 3.2 3Q4.4-3 5 0Z"/>${baby?'':'<path class="duckhead" d="M3-7.2a3 3 0 1 1 3.2 3Q4.6-4.2 3.6-5.2Z"/><path class="duckw" d="M-4.2-2.6q3-2.4 6.4-.6q-3 1.8-6.4.6Z"/>'}<path class="beak" d="M8.6-5.8l3 .8-3 .8Z"/><circle class="eye" cx="6" cy="-7" r=".6"/></g></g>`;
+  const ducksA=(x,y)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})"><g class="paddle" ${D()}>${duckB(0,0,1,false)}${duckB(-12,2.2,.62,true)}${duckB(-20,3,.62,true)}</g></g>`;
+  const deerA=(x,y,flip,buck)=>A(x,y,1,flip,`${sh(1,1,13,2.8)}<path class="k deerl" d="M-6-7v7M-3.4-7v7M3.6-7v7M6.2-7v7"/>
+    <g class="dtail" ${D()}><path class="k deertail" d="M-8.6-12q-2.8-.2-2.8 1.8q1.4 1.2 3 .2Z"/></g>
+    <path class="k deer" d="M-8.8-9.2q0-4.6 6-4.8h7.4q4.4.2 4.4 4.6q0 3.2-4 3.6h-10q-3.8-.2-3.8-3.4Z"/><path class="deerb" d="M-7-7.6q6 2 13 .2"/><circle class="spot" cx="-4" cy="-11.2" r=".8"/><circle class="spot" cx="-1" cy="-12" r=".8"/><circle class="spot" cx="2" cy="-11.2" r=".8"/>
+    <g class="dhead" ${D()}><path class="k deer" d="M4.6-12.4l3.6-7.6h3.4l-2 8.6Z"/><path class="k deer" d="M8.4-20.6q2.8-2.4 5.6-.6l3.2 3.4q.6 1.4-.8 1.8l-3.8-.6q-3.4-.6-4.2-4Z"/>
+      <g class="dear" ${D()}><path class="k deer" d="M9.6-21q-3-2.8-1.4-4.6q2 1 2.6 3.6Z"/></g><circle class="eye" cx="12.6" cy="-19.4" r=".65"/><circle class="nose" cx="16.8" cy="-16.4" r=".65"/>
+      ${buck?'<path class="antler" d="M11-22.4q-1-4 1.4-6.4M11.6-25.6l-2.4-1.6M12.4-28.2l2-1.2"/>':''}</g>`);
+  const squirrelA=(x,y,flip)=>A(x,y,1,flip,`<g class="scamper" ${D()}>${sh(0,1,6,1.6)}<g class="stail" ${D()}><path class="k sq" d="M-3.4-2.6q-7.6-.6-6.8-8.2q.8-5.2 5.4-4.2q-3.2 2.2-1.2 5.4q2 3.2 2.6 7Z"/></g>
+    <path class="k sq" d="M-3.8 0q-.8-5.2 3-6.2q3.8-.6 4.8 2.6q.6 2.4-1.4 3.6Z"/><path class="k sq" d="M1.4-5.6q.4-3.6 3.4-3.6q2.6.2 2.8 2.6q0 2-2.4 2.2Z"/><path class="k sq" d="M3-8.8l.4-2 1.4 1.6Z"/><circle class="eye" cx="5.4" cy="-7.2" r=".55"/><path class="sqb" d="M-1-4q2 1.6 3.6 0"/></g>`);
+  const roadrunner=(x,y,flip)=>A(x,y,1,flip,`<g class="rrun" ${D()}>${sh(0,1,9,1.8)}<path class="rleg" d="M-1.4 0l1.2-5.4M1.6 0l-.4-5.4"/>
+    <path class="k rr" d="M-13-10.4q5-.2 9 1.8q3-3.6 7.6-6.4q2.4-1.4 3.8.4l4.6.6-4.4 1.2q-1.4 4.6-5.2 7.6q-3.2 2.4-7.2 1.4q-3.4-.8-8.2-6.6Z"/><path class="rrw" d="M-5-8.6q4-2 8 .4"/>
+    <path class="k rrc" d="M5.6-15.4l-1.6-3.4 2.6 1.4.4-2.6 1.2 3Z"/><circle class="eye" cx="7.2" cy="-13.6" r=".6"/><path class="rrstreak" d="M5.6-12.2l2.6.4"/></g>`);
+  const marmot=(x,y,id)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})">${sh(1,2,13,3)}<ellipse class="k burrow" cx="0" cy="0" rx="8.4" ry="3"/>
+    <clipPath id="mclip${id}"><rect x="-12" y="-30" width="24" height="30.4"/></clipPath><g clip-path="url(#mclip${id})"><g class="mpop" ${D()}><g class="mlook"><path class="k marm" d="M-5.4 6V-5.6q0-6.2 5.4-6.2t5.4 6.2V6Z"/><path class="marmb" d="M-2.8 4v-6.4q0-2.2 2.8-2.2t2.8 2.2V4Z"/><circle class="k marm" cx="-4.2" cy="-10.6" r="1.4"/><circle class="k marm" cx="4.2" cy="-10.6" r="1.4"/><circle class="eye" cx="-1.9" cy="-7.6" r=".65"/><circle class="eye" cx="1.9" cy="-7.6" r=".65"/><ellipse class="nose" cx="0" cy="-5.6" rx="1.1" ry=".75"/><path class="k marm" d="M-5 -1.4q-1.6 1-.4 2.6M5-1.4q1.6 1 .4 2.6"/></g></g></g>
+    <path class="k mound" d="M-13.6 1.2q2.4-3.6 5.6-4q-1.2 2 .2 3.6q7.8 1.6 15.6 0q1.4-1.6.2-3.6q3.2.4 5.6 4q-6 3.6-13.6 3.6t-13.6-3.6Z"/></g>`;
+  const cat=(x,y)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})"><g class="ctail" ${D()}><path class="cattail" d="M2.6-1.4q5.4 2 4.4 7.6q-.6 3 1.2 4.4"/></g><path class="k catc" d="M-4.2 0q-1.2-7.4 4.2-8q5.4.6 4.2 8Z"/>
+    <g class="chead" ${D()}><path class="k catc" d="M-3.8-7.6q-.8-4.6 3.8-4.8q4.6.2 3.8 4.8q-1.4 1.8-3.8 1.8t-3.8-1.8Z"/><path class="k catc" d="M-3.4-10.6l-.6-3.4 2.6 1.8ZM3.4-10.6l.6-3.4-2.6 1.8Z"/><circle class="eye" cx="-1.5" cy="-9.2" r=".55"/><circle class="eye" cx="1.5" cy="-9.2" r=".55"/><path class="nose" d="M-.6-8h1.2l-.6.7Z"/></g><path class="catst" d="M-2.6-4.6h1.6M1-3h1.6"/></g>`;
+  const hawk=(cx,cy,r,k,cw)=>`<g transform="translate(${f(cx)},${f(cy)})"><g class="orbit o${k}" style="animation-direction:${cw?'normal':'reverse'};animation-delay:${f(-R()*30)}s"><circle r="${r}" fill="none"/><g transform="translate(${r},0) rotate(${cw?180:0})"><ellipse class="hawksh" cx="10" cy="40" rx="8" ry="2.6"/><g class="hawk"><path class="k hawkw" d="M-15 1.4q7.4-5.4 15-1.4q7.6-4 15 1.4q-6.6-.6-11 2.6l-4-.4-4 .4q-4.4-3.2-11-2.6Z"/><path class="k hawkb" d="M-2.2-4q2.2-2.4 4.4 0l.6 10.4-2.8 2.4-2.8-2.4Z"/><path class="hawkt" d="M-2.4 8.6 0 12.4 2.4 8.6Z"/></g></g></g></g>`;
+  /* keep the scenery clear where the 'You are here' mascot stands */
+  if(curI>=0&&P[curI]){const [cx,cy]=P[curI];put(cx+(cx>W/2?-88:88),cy+4,62)}
   /* ---------- MEADOW ---------- */
   {const cx=34,cy=m.y0+118;back.push(G(cx,cy,1,`<circle class="k compc" r="19"/><circle class="compr" r="14"/><path class="compt2" d="M0-14v28M-14 0h28"/><path class="k compn" d="M0-24 4.4-4.4 0 0Z"/><path class="k compn2" d="M0-24-4.4-4.4 0 0Z"/><path class="k comps" d="M0 24 4.4 4.4 0 0ZM24 0 4.4 4.4 0 0ZM-24 0-4.4-4.4 0 0Z"/><path class="k comps2" d="M0 24-4.4 4.4 0 0ZM24 0 4.4-4.4 0 0ZM-24 0-4.4 4.4 0 0Z"/><circle class="k hub" r="2"/><text class="compt" y="-27">N</text>`));put(cx,cy,48)}
-  {const s=spot(m.y0+90,m.y0+250,110);if(s){back.push(house(s[0],s[1]));put(s[0],s[1],72);anim.push(`<path class="smoke" d="M${f(s[0]+9.5)} ${f(s[1]-27)}c-4-6 4-8 0-14s4-8 0-12"/>`);
+  {const s=spot(m.y0+90,m.y0+250,110);if(s){back.push(house(s[0],s[1]));put(s[0],s[1],72);anim.push(cat(s[0]+33,s[1]-7));[[-30,15,0],[-15,23,1],[6,19,0]].forEach(([dx,dy,c])=>{const hx=s[0]+dx,hy=s[1]+dy;if(hx>10&&hx<W-10&&Math.abs(hx-trailX(hy))>34){anim.push(hen(hx,hy,dx>-20,c));put(hx,hy,12)}});put(s[0]-12,s[1]+40,30);anim.push(`<path class="smoke" d="M${f(s[0]+9.5)} ${f(s[1]-27)}c-4-6 4-8 0-14s4-8 0-12"/>`);
     const g=near(s[0],s[1]+46,40,70);if(g){back.push(garden(g[0],g[1]));put(g[0],g[1],40);objs.push([g[1]+1,scarecrow(g[0]+(g[0]>W/2?-30:30),g[1]+4)])}
     const wl=near(s[0],s[1],52,70);if(wl){objs.push([wl[1],well(wl[0],wl[1])]);put(wl[0],wl[1],22)}
     const w2=spot(s[1]-40,s[1]+80,90);if(w2){back.push(windmill(w2[0],w2[1]));put(w2[0],w2[1],58)}}}
-  {const s=spot(m.y0+250,m.y1-70,105);if(s){const ex=`${duck(-8,-2,false)}${duckling(5,3)}${duckling(10,5)}`;back.push(lake(s[0],s[1],38,16,ex));put(s[0],s[1],74)}}
+  {const s=spot(m.y0+250,m.y1-70,105);if(s){back.push(lake(s[0],s[1],38,16,''));anim.push(ducksA(s[0]+6,s[1]+1));put(s[0],s[1],74)}}
   {const s=spot(m.y0+120,m.y1-60,70);if(s){objs.push([s[1],hive(s[0],s[1])]);put(s[0],s[1],26)}}
   {const s=spot(m.y0+140,m.y1-60,70);if(s){objs.push([s[1],laundry(s[0],s[1])]);put(s[0],s[1],30)}}
   for(let k=0;k<3;k++){const s=spot(m.y0+80,m.y1-30,64,30);if(s){objs.push([s[1],hay(s[0],s[1])]);put(s[0],s[1],20)}}
-  for(let k=0;k<4;k++){const s=spot(m.y0+80,m.y1-30,64,30);if(s){objs.push([s[1],sheep(s[0],s[1],1.05,R()<.5)]);put(s[0],s[1],24)}}
-  for(let k=0;k<2;k++){const s=spot(m.y0+80,m.y1-20,60,25);if(s){objs.push([s[1],rabbit(s[0],s[1],R()<.5)]);put(s[0],s[1],16)}}
+  for(let k=0;k<5;k++){const s=spot(m.y0+80,m.y1-30,70,30);if(s){anim.push(sheepA(s[0],s[1],R()<.5,k===1||k===3));keep(s[0],s[1],k===1||k===3?34:24)}}
+  for(let k=0;k<2;k++){const s=spot(m.y0+80,m.y1-20,66,25);if(s){anim.push(bunnyA(s[0]-10,s[1],R()<.5));keep(s[0],s[1],30)}}
   for(let k=0;k<11;k++){const s=spot(m.y0+60,m.y1-12,68,20);if(s){objs.push([s[1],R()<.65?tree(s[0],s[1],.85+R()*.45,k%3===0):bush(s[0],s[1],.9+R()*.5)]);put(s[0],s[1],28)}}
   for(let k=0;k<22;k++){const s=spot(m.y0+40,m.y1,46,10);if(s)grd.push(grass(s[0],s[1]))}
   for(let k=0;k<11;k++){const s=spot(m.y0+60,m.y1,52,14);if(s)grd.push(flowers(s[0],s[1]))}
   for(let k=0;k<4;k++)anim.push(butterfly(30+R()*(W-60),m.y0+90+R()*(m.y1-m.y0-140),k));
-  {const kx=W*.72,ky=m.y0+70;anim.push(`<g transform="translate(${f(kx)},${f(ky)})"><g class="kite"><path class="k kitef" d="M0-11 8 0 0 13-8 0Z"/><path class="kitef2" d="M0-11 8 0H0Z"/><path class="kl" d="M0-11v24M-8 0h16"/><path class="kitetail" d="M0 13q-4 6 0 10t0 10"/><path class="bow" d="M-2.4 18l4.8 1.2M-2.4 27l4.8 1.2"/></g><path class="kstring" d="M0 13q-14 30-30 60"/></g>`)}
+  {const kx=W*.72,ky=m.y0+70;sky.push(`<g transform="translate(${f(kx)},${f(ky)})"><g class="kite"><path class="k kitef" d="M0-11 8 0 0 13-8 0Z"/><path class="kitef2" d="M0-11 8 0H0Z"/><path class="kl" d="M0-11v24M-8 0h16"/><path class="kitetail" d="M0 13q-4 6 0 10t0 10"/><path class="bow" d="M-2.4 18l4.8 1.2M-2.4 27l4.8 1.2"/></g><path class="kstring" d="M0 13q-14 30-30 60"/></g>`)}
   back.push(stonewall(m.y1-16));
   /* ---------- FOREST ---------- */
-  {const s=spot(fo.y0+120,fo.y1-150,115);if(s){const cx=s[0]+(s[0]>W/2?-40:40);back.push(lake(s[0],s[1]+18,48,19,boat(8,2)),cabin(cx,s[1]-4));put(s[0],s[1]+10,100)}}
+  {const s=spot(fo.y0+120,fo.y1-150,115);if(s){const cx=s[0]+(s[0]>W/2?-40:40);back.push(lake(s[0],s[1]+18,48,19,''),cabin(cx,s[1]-4));anim.push(`<g class="ani${fogged(s[1])?' infog':''}"><g class="bbob">${boat(s[0]+8,s[1]+20)}</g></g>`);put(s[0],s[1]+10,100)}}
   {const s=spot(fo.y0+80,fo.y1-80,80);if(s){objs.push([s[1],shroomHouse(s[0],s[1])]);put(s[0],s[1],34)}}
   {const s=spot(fo.y0+60,fo.y1-60,75);if(s){objs.push([s[1],owlTree(s[0],s[1],1.15)]);put(s[0],s[1],30)}}
-  for(let k=0;k<2;k++){const s=spot(fo.y0+70,fo.y1-40,66,25);if(s){objs.push([s[1],deer(s[0],s[1],R()<.5)]);put(s[0],s[1],24)}}
-  {const s=spot(fo.y0+80,fo.y1-40,66,25);if(s){objs.push([s[1],fox(s[0],s[1])]);put(s[0],s[1],20)}}
+  for(let k=0;k<3;k++){const s=spot(fo.y0+70,fo.y1-40,70,25);if(s){anim.push(deerA(s[0],s[1],R()<.5,k===0));keep(s[0],s[1],28)}}
+  {const s=spot(fo.y0+80,fo.y1-40,66,25);if(s){anim.push(`<g class="ani${fogged(s[1])?' infog':''}"><g class="breathe">${fox(s[0],s[1])}</g></g>`);keep(s[0],s[1],22)}}
+  for(let k=0;k<2;k++){const s=spot(fo.y0+70,fo.y1-40,70,25);if(s){anim.push(squirrelA(s[0]-12,s[1],R()<.5));keep(s[0],s[1],30)}}
   for(let k=0;k<2;k++){const s=spot(fo.y0+60,fo.y1-30,62,25);if(s){objs.push([s[1],flog(s[0],s[1],(R()-.5)*30)]);put(s[0],s[1],22)}}
   for(let k=0;k<3;k++){const s=spot(fo.y0+60,fo.y1-30,58,20);if(s){objs.push([s[1],stump(s[0],s[1])]);put(s[0],s[1],14)}}
   for(let k=0;k<34;k++){const s=spot(fo.y0+50,fo.y1-14,58,12);if(s){objs.push([s[1],pine(s[0],s[1],.75+R()*.6)]);put(s[0],s[1],16)}}
@@ -15993,10 +16141,14 @@ function drawMapScene(W,H,P,zys,fogFrom){
     const c=near(s[0],s[1]+16,52,55);if(c){objs.push([c[1],column(c[0],c[1])]);put(c[0],c[1],14)}}
   {const s=spot(ca.y0+80,ca.y1-80,95,40);if(s){const ex='';back.push(lake(s[0],s[1],24,10,ex));put(s[0],s[1],46);
     objs.push([s[1]-6,palm(s[0]-20,s[1]-4,1.15,false)]);objs.push([s[1]-2,palm(s[0]+22,s[1]-1,1,true)]);objs.push([s[1]+10,palm(s[0]+4,s[1]+12,.9,false)])}}
+  /* the roadrunner needs a clear strip of open ground to dash along */
+  for(let t=0;t<40;t++){const yy=ca.y0+110+R()*(ca.y1-ca.y0-240),tx=trailX(yy),x0=tx>W/2?16:W-136;const pts=[0,1,2,3,4].map(k=>[x0+k*28,yy]);
+    if(pts.some(([x,y])=>Math.abs(x-trailX(y))<30||P.some(p=>Math.hypot(p[0]-x,p[1]-y)<56)||placed.some(q=>Math.hypot(q[0]-x,q[1]-y)<q[2]+14)))continue;
+    anim.push(roadrunner(x0+(tx>W/2?0:110),yy,tx<=W/2));pts.forEach(([x,y])=>{put(x,y,22);put(x,y+22,20)});break}
   for(let k=0;k<11;k++){const s=spot(ca.y0+50,ca.y1-12,58,15);if(s){const r=R();objs.push([s[1],r<.5?cactus(s[0],s[1],.85+R()*.45):rock(s[0],s[1],.9+R()*.6)+(r>.85?lizard(s[0],s[1]-7):'')]);put(s[0],s[1],24)}}
   for(let k=0;k<12;k++){const s=spot(ca.y0+40,ca.y1,40,8);if(s)grd.push(`<path class="dots" d="M${f(s[0])} ${f(s[1])}h.1M${f(s[0]+5)} ${f(s[1]+2)}h.1M${f(s[0]+9)} ${f(s[1]-1)}h.1M${f(s[0]+3)} ${f(s[1]+5)}h.1"/>`)}
   for(let k=0;k<6;k++){const s=spot(ca.y0+40,ca.y1,46,10);if(s)grd.push(flowers(s[0],s[1],3))}
-  {const s=[W*.68,ca.y0+250];anim.push(`<g transform="translate(${f(s[0])},${f(s[1])})"><ellipse class="balsh" cx="20" cy="80" rx="12" ry="3.6"/><g class="balloon"><path class="k bal1" d="M0-30c-11 0-17 9-17 17 0 9 9 15 13 22h8c4-7 13-13 13-22 0-8-6-17-17-17Z"/><path class="bal2" d="M0-30c-6 2-8.5 10-7.5 19 .6 7 2.5 14 3.5 20h8c1-6 2.9-13 3.5-20 1-9-1.5-17-7.5-19Z"/><path class="bal3" d="M0-30c-2.4 2-3 10-3 19 0 7 .6 14 1 20h4c.4-6 1-13 1-20 0-9-.6-17-3-19Z"/><path class="kline" d="M0-30c-11 0-17 9-17 17 0 9 9 15 13 22h8c4-7 13-13 13-22 0-8-6-17-17-17Z"/><path fill="url(#gShine)" d="M0-30c-11 0-17 9-17 17 0 9 9 15 13 22h8c4-7 13-13 13-22 0-8-6-17-17-17Z"/><path class="ropes" d="M-4 9l-1 6M4 9l1 6"/><rect class="k basket" x="-5.4" y="14.6" width="10.8" height="6.4" rx="1.2"/><path class="basketl" d="M-5.4 17.6h10.8M-2 14.6v6.4M2 14.6v6.4"/></g></g>`)}
+  {const s=[W*.68,ca.y0+250];anim.push(`<g transform="translate(${f(s[0])},${f(s[1])})"><g class="balloon"><ellipse class="balsh" cx="20" cy="80" rx="12" ry="3.6"/></g></g>`);sky.push(`<g transform="translate(${f(s[0])},${f(s[1])})"><g class="balloon"><path class="k bal1" d="M0-30c-11 0-17 9-17 17 0 9 9 15 13 22h8c4-7 13-13 13-22 0-8-6-17-17-17Z"/><path class="bal2" d="M0-30c-6 2-8.5 10-7.5 19 .6 7 2.5 14 3.5 20h8c1-6 2.9-13 3.5-20 1-9-1.5-17-7.5-19Z"/><path class="bal3" d="M0-30c-2.4 2-3 10-3 19 0 7 .6 14 1 20h4c.4-6 1-13 1-20 0-9-.6-17-3-19Z"/><path class="kline" d="M0-30c-11 0-17 9-17 17 0 9 9 15 13 22h8c4-7 13-13 13-22 0-8-6-17-17-17Z"/><path fill="url(#gShine)" d="M0-30c-11 0-17 9-17 17 0 9 9 15 13 22h8c4-7 13-13 13-22 0-8-6-17-17-17Z"/><path class="ropes" d="M-4 9l-1 6M4 9l1 6"/><rect class="k basket" x="-5.4" y="14.6" width="10.8" height="6.4" rx="1.2"/><path class="basketl" d="M-5.4 17.6h10.8M-2 14.6v6.4M2 14.6v6.4"/></g></g>`)}
   {const ty=ca.y1-150;anim.push(`<g transform="translate(0,${f(ty)})"><g class="tumble"><g class="tspin"><circle class="k tw" r="5.6"/><path class="twl" d="M-4.4-2q4.4 4.4 8.8 0M-3.4 3.4q3.4-5.6 6.8 0M-1-5.6q2.4 5.6 0 11.2M-5 1q5-1 10 1"/></g></g></g>`)}
   /* crevasse with a rope bridge between canyon and peaks */
   {const cy=ca.y1-4,tx=trailX(cy);let d=`M-10 ${cy}`;for(let x=0;x<=W+20;x+=30)d+=` L${x+10} ${f(cy+(R()-.5)*7)} L${x+30} ${f(cy+(R()-.5)*7)}`;
@@ -16005,13 +16157,14 @@ function drawMapScene(W,H,P,zys,fogFrom){
   /* ---------- PEAKS ---------- */
   for(let k=0;k<7;k++){const left=k%2===0,yy=pk.y0+100+k*((pk.y1-pk.y0-150)/6);objs.push([yy-1,mountain(left?-4+R()*40:W+4-R()*40,yy,150+R()*60,105+R()*45)])}
   {const s=spot(pk.y0+100,pk.y1-140,90);if(s){objs.push([s[1],igloo(s[0],s[1])]);put(s[0],s[1],34)}}
-  {const s=spot(pk.y0+150,pk.y1-120,95);if(s){back.push(G(s[0],s[1],1,`<path class="k" fill="url(#gIce)" d="${blob(0,0,30,9,.1,.42)}"/><path class="skate" d="M-18 2q8-8 16-2t14-3M-10-4q6 6 12 0"/>`));objs.push([s[1]+2,penguin(s[0]-6,s[1]+2,false)]);objs.push([s[1]-2,penguin(s[0]+12,s[1]-2,true)]);put(s[0],s[1],52)}}
-  {const s=spot(pk.y0+80,pk.y1-80,70);if(s){objs.push([s[1],rock(s[0],s[1],1.4)+goat(s[0]-1,s[1]-8,R()<.5)]);put(s[0],s[1],28)}}
+  {const s=spot(pk.y0+150,pk.y1-120,95);if(s){back.push(G(s[0],s[1],1,`<path class="k" fill="url(#gIce)" d="${blob(0,0,30,9,.1,.42)}"/><path class="skate" d="M-18 2q8-8 16-2t14-3M-10-4q6 6 12 0"/>`));anim.push(`<g class="ani${fogged(s[1])?' infog':''}"><g class="pstep"><g class="waddle">${penguin(s[0]-6,s[1]+2,false)}</g></g></g><g class="ani${fogged(s[1])?' infog':''}"><g class="waddle w2">${penguin(s[0]+12,s[1]-2,true)}</g></g>`);put(s[0],s[1],52);put(s[0],s[1]+22,40)}}
+  {const s=spot(pk.y0+80,pk.y1-80,70);if(s){objs.push([s[1],rock(s[0],s[1],1.4)]);anim.push(`<g class="ani${fogged(s[1])?' infog':''}"><g class="gnod">${goat(s[0]-1,s[1]-8,R()<.5)}</g></g>`);put(s[0],s[1],28);put(s[0],s[1]+22,26)}}
+  {const s=spot(pk.y0+120,pk.y1-80,72);if(s){anim.push(marmot(s[0],s[1],1));keep(s[0],s[1],24)}}
   {const s=spot(pk.y0+120,pk.y1-120,70);if(s){objs.push([s[1],snowman(s[0],s[1])]);put(s[0],s[1],26)}}
   for(let k=0;k<12;k++){const s=spot(pk.y0+60,pk.y1-20,60,15);if(s){objs.push([s[1],pine(s[0],s[1],.7+R()*.45,true)]);put(s[0],s[1],18)}}
   for(let k=0;k<8;k++){const s=spot(pk.y0+60,pk.y1,50,12);if(s)grd.push(`<path class="drift" d="M${f(s[0]-14)} ${f(s[1])}q7-5 14-1q7-4 14 1Z"/>`)}
   for(let k=0;k<12;k++)anim.push(`<circle class="flake fall" cx="${f(R()*W)}" cy="${f(pk.y0+20+R()*(pk.y1-pk.y0-40))}" r="${f(1.3+R()*1.5)}" style="animation-delay:${f(-R()*6)}s"/>`);
-  anim.push(`<g transform="translate(${f(W*.3)},${f(pk.y0+170)})"><g class="eagle"><path class="k eaglew" d="M-16 0q8-7 16 0q8-7 16 0q-8-2-16 2.4q-8-4.4-16-2.4Z"/><path class="eagleh" d="M-1.6.6h3.2l-1.6 2.4Z"/></g></g>`);
+  sky.push(`<g transform="translate(${f(W*.3)},${f(pk.y0+170)})"><g class="eagle"><path class="k eaglew" d="M-16 0q8-7 16 0q8-7 16 0q-8-2-16 2.4q-8-4.4-16-2.4Z"/><path class="eagleh" d="M-1.6.6h3.2l-1.6 2.4Z"/></g></g>`);
   /* castles, finale dragon and treasure */
   P.forEach((p,k)=>{if(PLAN[k].review)objs.push([p[1]+30,castle(p[0],p[1]+30,1.15)])});
   {const p=P[P.length-1],dx=p[0]>W/2?Math.max(46,p[0]-112):Math.min(W-46,p[0]+112),dy=p[1]+22;
@@ -16021,15 +16174,51 @@ function drawMapScene(W,H,P,zys,fogFrom){
     const cx=p[0],cy=p[1]+74;back.push(G(cx,cy,1.1,`${sh(5,2,20,4)}<path class="k chestb" d="M-14 2v-12h28v12Z"/><path class="chestsh" d="M8-10h6V2H8Z"/><path class="gold" d="M-12-11q3-4.4 6-1q3-4.4 6-1q3-4.4 6 0q2-2 4 0"/><path class="k chestl" d="M-14-10q0-10 14-10t14 10Z"/><path class="band" d="M-8-20v22M8-20v22M-14-10h28"/><rect class="k lock" x="-2.6" y="-12.4" width="5.2" height="5.2" rx="1"/><circle class="coin" cx="-18" cy="1" r="2"/><circle class="coin" cx="19" cy="0" r="2"/><circle class="coin" cx="16" cy="3" r="1.6"/>`));
     anim.push(`<g transform="translate(${f(cx)},${f(cy-14)})"><path class="sparkle s1" d="M-16-8l1.2-3.6 1.2 3.6 3.6 1.2-3.6 1.2-1.2 3.6-1.2-3.6-3.6-1.2Z"/><path class="sparkle s2" d="M14-14l1-3 1 3 3 1-3 1-1 3-1-3-3-1Z"/><path class="sparkle s3" d="M4 4l.8-2.4.8 2.4 2.4.8-2.4.8-.8 2.4-.8-2.4-2.4-.8Z"/></g>`)}
   /* stage shadows and trail-side pebbles */
-  P.forEach(p=>back.unshift(`<ellipse class="shade" cx="${f(p[0]+6)}" cy="${f(p[1]+30)}" rx="27" ry="6.5"/>`));
   for(let k=0;k<70;k++){const y=zys[0].y0+40+R()*(H-80),side=R()<.5?-1:1,x=trailX(y)+side*(16+R()*5);if(P.some(p=>Math.hypot(p[0]-x,p[1]-y)<40))continue;grd.push(`<ellipse class="k pebble" cx="${f(x)}" cy="${f(y)}" rx="${f(1.6+R()*1.8)}" ry="${f(1.2+R()*1.2)}"/>`)}
   /* sky life */
-  for(let k=0;k<7;k++)anim.push(cloud(R()*W,60+k*(H-120)/7+R()*60,.85+R()*.6,k));
-  for(let k=0;k<3;k++)anim.push(birds(R()*W*.8,m.y0+200+k*(H/3.5),k));
+  /* sky lanes: the gaps halfway between stages, away from the zone signs. Clouds, flocks and hawks keep to them so they never sit on a stage */
+  const lanes=[];for(let k=0;k+1<P.length;k++){const y=(P[k][1]+P[k+1][1])/2;if(zys.some(z=>Math.abs(y-(z.y0+36))<58))continue;const tx=trailX(y);lanes.push({k,y,side:tx>W/2?-1:1})}
+  const laneX=(l,fr)=>l.side<0?W*fr:W*(1-fr);
+  lanes.forEach((l,i)=>{if(i%3!==0)return;const x=laneX(l,.2)+(R()-.5)*16,y=l.y+(R()-.5)*10;/* never park a cloud over a house, pond or windmill */
+    if(placed.some(q=>q[2]>=50&&Math.abs(q[0]-x)<q[2]+40&&Math.abs(q[1]-y)<q[2]*.6+30))return;sky.push(cloud(x,y,Math.min(1,W/520)*(.85+R()*.3),i))});
+  lanes.filter((l,i)=>i%2===1).filter((l,i)=>i%2===0).slice(0,4).forEach((l,i)=>sky.push(birds(0,l.y-6,i)));
+  lanes.filter(l=>l.y>ca.y0+60&&l.y<ca.y1-40).slice(0,2).forEach((l,i)=>sky.push(hawk(laneX(l,.16),l.y,Math.min(24,W*.07),i,i===0)));
   const fog=zys.map((z,k)=>k>=fogFrom?`<rect class="fog" x="-30" y="${z.y0+34}" width="${W+60}" height="${(k===3?H+20:z.y1)-z.y0-30}" filter="url(#fMist)"/><path class="fogswirl" d="M${f(W*.15)} ${f(z.y0+150)}q20-12 40 0t40 0M${f(W*.55)} ${f(z.y0+260)}q20-12 40 0t40 0M${f(W*.25)} ${f(z.y0+380)}q20-12 40 0t40 0"/>`:'').join('');
   objs.sort((a,b)=>a[0]-b[0]);
   return{ground:wash[0]+`<g filter="url(#fWC)">${wash.slice(1).join('')}</g>`+light.join('')+`<g filter="url(#fWob)">${grd.join('')}</g>`,
-    scene:`<g filter="url(#fWob)">${back.join('')}${objs.map(o=>o[1]).join('')}</g>${fog}`,anim:anim.join('')};
+    scene:`<g filter="url(#fWob)">${back.join('')}${objs.map(o=>o[1]).join('')}</g>${fog}`,anim:anim.join(''),sky:sky.join('')};
+}
+/* ---------- Map stages: a medallion standing on a stepping stone ---------- */
+const STAGE_DEFS=`<svg class="sdefs" aria-hidden="true" focusable="false"><defs>
+  <radialGradient id="sgGold" cx=".36" cy=".28" r=".85"><stop offset="0" stop-color="#FFF4B8"/><stop offset=".42" stop-color="#F9D04E"/><stop offset="1" stop-color="#DB9A22"/></radialGradient>
+  <radialGradient id="sgBlue" cx=".36" cy=".28" r=".85"><stop offset="0" stop-color="#A9C0F5"/><stop offset=".48" stop-color="#5E7FD8"/><stop offset="1" stop-color="#34509F"/></radialGradient>
+  <radialGradient id="sgStone" cx=".36" cy=".28" r=".85"><stop offset="0" stop-color="#F1ECE2"/><stop offset=".55" stop-color="#D3CAB8"/><stop offset="1" stop-color="#AEA392"/></radialGradient>
+  <radialGradient id="sgSh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#2A1C10" stop-opacity=".42"/><stop offset=".6" stop-color="#2A1C10" stop-opacity=".18"/><stop offset="1" stop-color="#2A1C10" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gCloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--cloudtop)"/><stop offset=".6" style="stop-color:var(--cloudtop)"/><stop offset="1" style="stop-color:var(--cloudbot)"/></linearGradient>
+  <radialGradient id="gCloudSh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#1E2A14" stop-opacity=".24"/><stop offset="1" stop-color="#1E2A14" stop-opacity="0"/></radialGradient>
+</defs></svg>`;
+function stageArt(st,boss,cur,w,stars){
+  const kind=st==='done'?'gold':st==='locked'?'stone':'enamel';
+  const SH='M0-34C11-34 22-31 29-27V-5C29 13 16 25 0 34C-16 25-29 13-29-5V-27C-22-31-11-34 0-34Z';
+  const edge=boss?`<path class="k sa-edge" d="${SH}" transform="translate(0,4)"/>`:'<circle class="k sa-edge" cy="4" r="32"/>';
+  const face=boss?`<path class="k sa-face" d="${SH}"/><path class="sa-in" d="${SH}" transform="scale(.8)"/>`:'<circle class="k sa-face" r="32"/><circle class="sa-in" r="25.5"/>';
+  const hi=boss?'<path class="sa-hi" d="M-21-24Q-8-29 6-28"/>':'<path class="sa-hi" d="M-23-12A25 25 0 0 1-8-24"/><circle class="sa-glint" cx="-21" cy="-19" r="1.6"/>';
+  let mid='';
+  if(st==='locked')mid=`<g class="sa-lockg" transform="translate(0,${boss?-1:1})"><path class="sa-shackle" d="M-6.5-4V-9a6.5 6.5 0 0 1 13 0v5"/><rect class="sa-lock" x="-10" y="-4.5" width="20" height="16" rx="3.2"/><path class="sa-lockhi" d="M-7.6-2.2h15.2"/><circle class="sa-key" cy="2.4" r="2.3"/><path class="sa-key2" d="M0 3.6v4.4"/></g>
+    <path class="sa-crack" d="M17-22l-4 6 3 3-3 5M-24 9l6 2 2 5"/><g class="sa-ivyg"><path class="sa-vine" d="M27-14q-6-10-16-15M30-2q2-6-3-12"/><ellipse class="sa-ivy" cx="21" cy="-24" rx="3.2" ry="2" transform="rotate(-30 21 -24)"/><ellipse class="sa-ivy" cx="14" cy="-28" rx="2.8" ry="1.8" transform="rotate(-10 14 -28)"/><ellipse class="sa-ivy" cx="28" cy="-12" rx="3" ry="1.9" transform="rotate(70 28 -12)"/><ellipse class="sa-ivy" cx="29" cy="-4" rx="2.6" ry="1.7" transform="rotate(95 29 -4)"/></g>`;
+  else if(boss)mid=`<g class="sa-towerg"><path class="sa-towersh" d="M-11 15.5V-4h-3v-9h5.6v4h3v-4h5.2v4h3v-4H14v9h-3v19.5Z" transform="translate(0,1.4)"/><path class="sa-tower" d="M-11 15.5V-4h-3v-9h5.6v4h3v-4h5.2v4h3v-4H14v9h-3v19.5Z"/><path class="sa-door" d="M-3.6 15.5v-6a3.6 3.6 0 0 1 7.2 0v6Z"/><rect class="sa-door" x="-1.4" y="-1" width="2.8" height="4.2" rx="1.2"/></g>`;
+  else{const fs=w>9?27:31;mid=`<text class="sa-numsh" y="${fs*.36+1.8}" style="font-size:${fs}px">${w}</text><text class="sa-num" y="${fs*.36}" style="font-size:${fs}px">${w}</text>`}
+  const star=(x,y,on)=>`<path class="sa-star${on?' on':''}" d="M${x} ${y-6.4}l1.9 3.9 4.3.6-3.1 3 .7 4.3-3.8-2-3.8 2 .7-4.3-3.1-3 4.3-.6Z"/>`;
+  const rib=st==='done'?`<g class="sa-ribg"><path class="k sa-ribd" d="M-29 27H-43l5 6.2-5 6.2h15Z"/><path class="k sa-ribd" d="M29 27H43l-5 6.2 5 6.2H28Z"/><path class="k sa-rib" d="M-32 25.5Q0 33 32 25.5V38Q0 45.5-32 38Z"/><path class="sa-ribhi" d="M-29 28.6Q0 35 29 28.6"/>${star(-14,34.4,stars>=1)}${star(0,36,stars>=2)}${star(14,34.4,stars>=3)}</g>`:'';
+  const tuft=(x,m)=>`<path class="sa-tuft" d="M${x} 48q${-2*m}-6 ${-5*m}-8M${x+2*m} 48q0-7 ${2*m}-10M${x+4*m} 48q${2*m}-5 ${5*m}-7"/>`;
+  return`<svg class="sart ${kind}${cur?' now':''}${boss?' crest':''}" viewBox="-50 -46 100 100" aria-hidden="true" focusable="false">
+    <ellipse class="sa-sh" cx="4" cy="44" rx="47" ry="9.5"/>
+    ${cur?'<ellipse class="sa-glow" cx="0" cy="40" rx="45" ry="11"/><ellipse class="sa-glow g2" cx="0" cy="40" rx="45" ry="11"/>':''}
+    <path class="k sa-pside" d="M-40 36.5v4.6c0 5.6 18 9.4 40 9.4s40-3.8 40-9.4v-4.6Z"/><ellipse class="k sa-ptop" cx="0" cy="36.5" rx="40" ry="9.6"/>
+    <path class="sa-pl" d="M-31 37.5l7 2.4M20 40l9-2.2M-6 44.5h7"/><path class="sa-moss" d="M26 43.5q6-1 10-4.5q2 3-1 5.5q-5 1.4-9-1Z"/>
+    ${tuft(-45,1)}${tuft(41,-1)}
+    <g class="sa-coin">${edge}${face}${hi}${mid}</g>${rib}
+  </svg>`;
 }
 function renderPlan(){
   const uw=unlockedWeeks(),fw=frontierWeek(),all=questDone(),ch=checkHistory(HIST.days);
@@ -16039,7 +16228,7 @@ function renderPlan(){
     <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
     <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
   ${nextStepHTML('plan')}
-  <div class="wmap" id="wmap"><div class="wstatic"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg></div><svg class="wanim" id="wanim" aria-hidden="true"></svg><svg class="wpaper" id="wpaper" aria-hidden="true"></svg>`;
+  <div class="wmap" id="wmap"><div class="wstatic"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg></div><svg class="wanim" id="wanim" aria-hidden="true"></svg><svg class="wpaper" id="wpaper" aria-hidden="true"></svg><svg class="wsky" id="wsky" aria-hidden="true"></svg>${STAGE_DEFS}`;
   /* layout: a zone banner, then its stages snaking left and right */
   let y=10,i=0;const pts=[],zys=[];
   const fzi=all?ZONES.length:ZONES.findIndex(z=>fw>=z.from&&fw<=z.to);
@@ -16049,12 +16238,11 @@ function renderPlan(){
     y+=66;
     for(let w=z.from;w<=z.to;w++,i++){
       const p=PLAN[w-1],boss=p.review,x=boss?50:Math.round(50+30*Math.sin(i*1.25+.3)),cy=y+44,st=stageState(w),cur=w===fw&&!all&&st!=='done';
-      pts.push({x,y:cy,w,st});
+      pts.push({x,y:cy,w,st,cur});
       const best=ch[w]?ch[w].best:0,stars=starsFor(best);
       h+=`<button class="stage ${st} ${boss?'boss':''} ${cur?'cur':''} ${mapSel===w?'sel':''}" data-stage="${w}" style="left:${x}%;top:${cy}px"
           aria-label="Week ${w}${boss?' review castle':''}: ${st==='done'?`passed, ${stars} star${stars===1?'':'s'}`:st==='locked'?'locked':'open'}">
-          <span class="snum">${st==='locked'?'🔒':boss?'🏰':w}</span>
-          ${st==='done'?`<span class="sstars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>`:''}
+          ${stageArt(st,boss,cur,w,stars)}
           ${boss&&st!=='locked'?`<span class="slabel">Week ${w}</span>`:''}</button>`;
       if(cur)h+=`<div class="youhere" data-x="${x}" data-y="${cy}" style="left:${x}%;top:${cy}px">${MASCOT}<span>You are here</span></div>`;
       y+=112;
@@ -16072,7 +16260,7 @@ function renderPlan(){
     const P=pts.map(p=>[p.x/100*W,p.y]);let d=`M${P[0][0]},${P[0][1]}`,done='';
     for(let k=1;k<P.length;k++){const [x0,y0]=P[k-1],[x1,y1]=P[k],m=(y0+y1)/2,seg=` C${x0},${m} ${x1},${m} ${x1},${y1}`;d+=seg;if(pts[k].st!=='locked')done+=(done?'':`M${x0},${y0}`)+seg}
     const gr=$('wground'),sc=$('wscene');
-    if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1);const an=$('wanim');[gr,sc,an].forEach(e=>e&&e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene;if(an)an.innerHTML=r.anim;
+    if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1,pts.findIndex(p=>p.cur));const an=$('wanim'),sk=$('wsky');[gr,sc,an,sk].forEach(e=>e&&e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene;if(an)an.innerHTML=r.anim;if(sk)sk.innerHTML=r.sky;
       const pp=$('wpaper');if(pp){pp.setAttribute('viewBox',`0 0 ${W} ${y+20}`);pp.innerHTML=`<defs><filter id="fPaper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" values="0 0 0 0 .55  0 0 0 0 .45  0 0 0 0 .32  0 0 0 -1.4 .9" result="speck"/><feTurbulence type="fractalNoise" baseFrequency=".012 .2" numOctaves="2" seed="3" result="fib"/><feColorMatrix in="fib" values="0 0 0 0 .6  0 0 0 0 .5  0 0 0 0 .38  0 0 0 1.4 -.85" result="fibers"/><feMerge><feMergeNode in="speck"/><feMergeNode in="fibers"/></feMerge></filter><radialGradient id="gPage" cx=".5" cy=".5" r=".72"><stop offset=".72" stop-color="#8A6A45" stop-opacity="0"/><stop offset="1" stop-color="#8A6A45" stop-opacity=".28"/></radialGradient></defs><rect width="${W}" height="${y+20}" filter="url(#fPaper)" opacity=".5"/><rect width="${W}" height="${y+20}" fill="url(#gPage)"/>`}}catch(e){gr.innerHTML='';sc.innerHTML=''}}
     svg.innerHTML=`<path class="tr-edge" d="${d}"/><path class="tr-base" d="${d}"/><path class="tr-rut" d="${d}" transform="translate(-4,0)"/><path class="tr-dash" d="${d}"/>${done?`<path class="tr-done" d="${done}"/>`:''}`};
   const placeYou=()=>{const yh=map.querySelector('.youhere'),W=map.clientWidth;if(!yh||!W)return;const sx=+yh.dataset.x/100*W,w=yh.offsetWidth,gap=46;
