@@ -206,7 +206,7 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 .mbtn.done{opacity:.35;cursor:default}
 .mbtn.done.part{opacity:.45}
 .mbtn.ok{border-color:var(--good);background:var(--good-bg);color:var(--good)}
-.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .mwrap{position:relative}
 .mwrap.waiting .mgrid{filter:saturate(.75);opacity:.55}
 .memstart{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px;text-align:center;cursor:pointer;border-radius:14px;background:color-mix(in srgb,var(--bg) 40%,transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
@@ -217,7 +217,9 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 @media (prefers-reduced-motion: reduce){.memgo{animation:none}}
 html.calm .memgo{animation:none}
 
-@media (max-width:520px){.mgrid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.mgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* Cards keep one fixed size, face up or face down; long text shrinks to fit (fitMemTiles) */
+.mgrid .tile2{min-width:0;min-height:0;overflow:hidden;overflow-wrap:normal;word-break:normal}
 .tile2{aspect-ratio:1/1;max-width:100%;border:0;border-radius:12px;padding:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(.82rem,2.6vw,1rem);line-height:1.2;overflow-wrap:anywhere;background:var(--primary);color:var(--primary-ink);font-weight:700;box-shadow:0 2px 0 rgba(0,0,0,.18);transition:transform .25s}
 .tile2.up{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
 .tile2.up.part{background:var(--fc);color:var(--paper-ink);box-shadow:none;font-size:clamp(1rem,3.6vw,1.35rem)}
@@ -2114,7 +2116,13 @@ function renderMemory(){
     else{FX.play('flip');renderMemory()}
   });
   if(fin)$('gAgain').onclick=()=>newMemory(true);
+  fitMemTiles();
 }
+function fitMemTiles(){const ts=document.querySelectorAll('#memcard .tile2.up');
+  ts.forEach(t=>{t.style.fontSize='';t.style.overflowWrap='';let f=parseFloat(getComputedStyle(t).fontSize),n=0;const over=()=>t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1;
+    while(over()&&f>9&&n++<30){f-=.5;t.style.fontSize=f+'px'}
+    if(over())t.style.overflowWrap='anywhere'})}
+addEventListener('resize',()=>{if(mode==='memory')fitMemTiles()});
 
 /* ---------- Word-part breakdowns for explanations ---------- */
 const MRAW=`
