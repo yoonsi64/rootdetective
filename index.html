@@ -523,7 +523,8 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--leafd:#2A5527;--pined:#1E4429;--mesahi:#B87B4F;--mesad:#7A4526;--mtnhi:#62738F;--mtnd:#36435A;--waterd:#1E4E75;--soil:#6E5238;--hay:#9C8346}}
 :root[data-theme="dark"] .wmap{--leafd:#2A5527;--pined:#1E4429;--mesahi:#B87B4F;--mesad:#7A4526;--mtnhi:#62738F;--mtnd:#36435A;--waterd:#1E4E75;--soil:#6E5238;--hay:#9C8346}
 .wstatic{position:absolute;inset:0;z-index:0;will-change:transform}
-.wanim{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none;will-change:transform}
+.wanim{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.wanim .wband,.wsky .wband{position:absolute;left:0;width:100%;overflow:visible;pointer-events:none}
 .wmap .wflag{display:none}
 .wmap .bark,.wmap .crease{fill:none;stroke:var(--ink);stroke-width:.9;opacity:.4;stroke-linecap:round}
 .wmap .apple{fill:#E5534B}.wmap .berry{fill:#C0392B}
@@ -16259,6 +16260,18 @@ function stageArt(st,boss,cur,w,stars){
     <g class="sa-coin">${edge}${face}${hi}${mid}</g>${rib}
   </svg>`;
 }
+/* Animated map layers are split into short horizontal strips (one small SVG each).
+   Phones (Safari especially) repaint a whole SVG when anything inside it moves; a map-tall SVG
+   repainting every frame flickers, so each moving thing should only repaint its own strip. */
+function bandLayer(host,html,W,H){const BH=260,ns='http://www.w3.org/2000/svg';
+  const tmp=document.createElementNS(ns,'svg');tmp.setAttribute('viewBox',`0 0 ${W} ${H}`);tmp.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;visibility:hidden`;
+  tmp.innerHTML=html;host.innerHTML='';host.appendChild(tmp);
+  const top=tmp.getBoundingClientRect().top,bands=new Map();
+  [...tmp.children].forEach(el=>{const r=el.getBoundingClientRect();const cy=r.height||r.width?(r.top+r.bottom)/2-top:0;const k=Math.max(0,Math.min(Math.floor(H/BH),Math.floor(cy/BH)));if(!bands.has(k))bands.set(k,[]);bands.get(k).push(el)});
+  const frag=document.createDocumentFragment();
+  [...bands.keys()].sort((a,b)=>a-b).forEach(k=>{const b=document.createElementNS(ns,'svg');b.setAttribute('class','wband');b.setAttribute('viewBox',`0 ${k*BH} ${W} ${BH}`);b.setAttribute('aria-hidden','true');b.setAttribute('focusable','false');
+    b.style.top=k*BH+'px';b.style.height=BH+'px';bands.get(k).forEach(e=>b.appendChild(e));frag.appendChild(b)});
+  host.removeChild(tmp);host.appendChild(frag)}
 function renderPlan(){
   const uw=unlockedWeeks(),fw=frontierWeek(),all=questDone(),ch=checkHistory(HIST.days);
   const totalStars=PLAN.reduce((a,p)=>a+(ch[p.w]?starsFor(ch[p.w].best):0),0);
@@ -16267,7 +16280,7 @@ function renderPlan(){
     <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
     <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
   ${nextStepHTML('plan')}
-  <div class="wmap" id="wmap"><div class="wstatic"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg></div><svg class="wanim" id="wanim" aria-hidden="true"></svg><svg class="wpaper" id="wpaper" aria-hidden="true"></svg><svg class="wsky" id="wsky" aria-hidden="true"></svg>${STAGE_DEFS}`;
+  <div class="wmap" id="wmap"><div class="wstatic"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg></div><div class="wanim" id="wanim" aria-hidden="true"></div><svg class="wpaper" id="wpaper" aria-hidden="true"></svg><div class="wsky" id="wsky" aria-hidden="true"></div>${STAGE_DEFS}`;
   /* layout: a zone banner, then its stages snaking left and right */
   let y=10,i=0;const pts=[],zys=[];
   const fzi=all?ZONES.length:ZONES.findIndex(z=>fw>=z.from&&fw<=z.to);
@@ -16299,7 +16312,7 @@ function renderPlan(){
     const P=pts.map(p=>[p.x/100*W,p.y]);let d=`M${P[0][0]},${P[0][1]}`,done='';
     for(let k=1;k<P.length;k++){const [x0,y0]=P[k-1],[x1,y1]=P[k],m=(y0+y1)/2,seg=` C${x0},${m} ${x1},${m} ${x1},${y1}`;d+=seg;if(pts[k].st!=='locked')done+=(done?'':`M${x0},${y0}`)+seg}
     const gr=$('wground'),sc=$('wscene');
-    if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1,pts.findIndex(p=>p.cur));const an=$('wanim'),sk=$('wsky');[gr,sc,an,sk].forEach(e=>e&&e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene;if(an)an.innerHTML=r.anim;if(sk)sk.innerHTML=r.sky;
+    if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1,pts.findIndex(p=>p.cur));const an=$('wanim'),sk=$('wsky');[gr,sc].forEach(e=>e&&e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene;if(an)bandLayer(an,r.anim,W,y+20);if(sk)bandLayer(sk,r.sky,W,y+20);
       const pp=$('wpaper');if(pp){pp.setAttribute('viewBox',`0 0 ${W} ${y+20}`);pp.innerHTML=`<defs><filter id="fPaper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" values="0 0 0 0 .55  0 0 0 0 .45  0 0 0 0 .32  0 0 0 -1.4 .9" result="speck"/><feTurbulence type="fractalNoise" baseFrequency=".012 .2" numOctaves="2" seed="3" result="fib"/><feColorMatrix in="fib" values="0 0 0 0 .6  0 0 0 0 .5  0 0 0 0 .38  0 0 0 1.4 -.85" result="fibers"/><feMerge><feMergeNode in="speck"/><feMergeNode in="fibers"/></feMerge></filter><radialGradient id="gPage" cx=".5" cy=".5" r=".72"><stop offset=".72" stop-color="#8A6A45" stop-opacity="0"/><stop offset="1" stop-color="#8A6A45" stop-opacity=".28"/></radialGradient></defs><rect width="${W}" height="${y+20}" filter="url(#fPaper)" opacity=".5"/><rect width="${W}" height="${y+20}" fill="url(#gPage)"/>`}}catch(e){gr.innerHTML='';sc.innerHTML=''}}
     svg.innerHTML=`<path class="tr-edge" d="${d}"/><path class="tr-base" d="${d}"/><path class="tr-rut" d="${d}" transform="translate(-4,0)"/><path class="tr-dash" d="${d}"/>${done?`<path class="tr-done" d="${done}"/>`:''}`};
   const placeYou=()=>{const yh=map.querySelector('.youhere'),W=map.clientWidth;if(!yh||!W)return;const sx=+yh.dataset.x/100*W,w=yh.offsetWidth,gap=46;
