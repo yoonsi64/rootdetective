@@ -1008,7 +1008,8 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--plt:#6F675A;--pls:#4D473E;--cloudtop:#C9D3E2;--cloudbot:#8D9AB0}}
 :root[data-theme="dark"] .wmap{--plt:#6F675A;--pls:#4D473E;--cloudtop:#C9D3E2;--cloudbot:#8D9AB0}
 .wstatic .wtrail{z-index:0}
-.wsky{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none}
+/* the sky shares the animals' stacking level (under the paper texture, signs and stage buttons): phones flicker anything animated above the blended paper layer */
+.wsky{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none}
 .sdefs{position:absolute;width:0;height:0;overflow:hidden}
 .wmap .stage{background:none!important;box-shadow:none!important;animation:none!important;border-radius:50%!important}
 .wmap .stage::before,.wmap .stage.cur::before{display:none!important;animation:none!important}
@@ -16280,7 +16281,7 @@ function renderPlan(){
     <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
     <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
   ${nextStepHTML('plan')}
-  <div class="wmap" id="wmap"><div class="wstatic"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg></div><div class="wanim" id="wanim" aria-hidden="true"></div><svg class="wpaper" id="wpaper" aria-hidden="true"></svg><div class="wsky" id="wsky" aria-hidden="true"></div>${STAGE_DEFS}`;
+  <div class="wmap" id="wmap"><div class="wstatic"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg></div><div class="wanim" id="wanim" aria-hidden="true"></div><div class="wsky" id="wsky" aria-hidden="true"></div><svg class="wpaper" id="wpaper" aria-hidden="true"></svg>${STAGE_DEFS}`;
   /* layout: a zone banner, then its stages snaking left and right */
   let y=10,i=0;const pts=[],zys=[];
   const fzi=all?ZONES.length:ZONES.findIndex(z=>fw>=z.from&&fw<=z.to);
