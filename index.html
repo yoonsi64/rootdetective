@@ -207,6 +207,16 @@ mark{background:var(--hi);color:var(--hi-ink);border-radius:3px;padding:0 1px;fo
 .mbtn.done.part{opacity:.45}
 .mbtn.ok{border-color:var(--good);background:var(--good-bg);color:var(--good)}
 .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mwrap{position:relative}
+.mwrap.waiting .mgrid{filter:saturate(.75);opacity:.55}
+.memstart{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;padding:clamp(28px,12%,96px) 16px 16px;text-align:center;cursor:pointer;border-radius:14px;background:color-mix(in srgb,var(--bg) 40%,transparent);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.memstart p{margin:0;font-weight:700;color:var(--ink);font-size:.98rem;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:5px 14px;max-width:100%}
+.memgo{font-size:1.5rem;font-family:var(--display);font-weight:800;padding:16px 38px 16px 30px;min-height:64px;border-radius:999px;display:inline-flex;align-items:center;gap:10px;box-shadow:0 8px 22px color-mix(in srgb,var(--primary) 40%,transparent);animation:memGo 1.8s ease-in-out infinite}
+.memgo svg{width:26px;height:26px;fill:currentColor}
+@keyframes memGo{50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion: reduce){.memgo{animation:none}}
+html.calm .memgo{animation:none}
+
 @media (max-width:520px){.mgrid{grid-template-columns:repeat(3,1fr)}}
 .tile2{aspect-ratio:1/1;max-width:100%;border:0;border-radius:12px;padding:8px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(.82rem,2.6vw,1rem);line-height:1.2;overflow-wrap:anywhere;background:var(--primary);color:var(--primary-ink);font-weight:700;box-shadow:0 2px 0 rgba(0,0,0,.18);transition:transform .25s}
 .tile2.up{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
@@ -1965,12 +1975,17 @@ function renderMatch(){
   if(fin)$('mAgain').onclick=newMatch;
 }
 let G=null;
-function newMemory(){
+function newMemory(go){
   const cs=pickPairs(6,'memory');if(cs.length<2){$('memcard').innerHTML=emptyMsg;return}
   const tiles=shuf(cs.flatMap(c=>[{c,part:true},{c,part:false}]));
-  G={cs,tiles,up:[],got:new Set(),moves:0,lock:false,streak:0,best:0};
-  if(memPeek){G.peek=true;G.lock=true;renderMemory();const g=G;G.peekT=setTimeout(()=>{if(G!==g)return;G.peek=false;G.lock=false;G.flipping=true;renderMemory();setTimeout(()=>{if(G===g){G.flipping=false}},450)},3000)}
-  else renderMemory();
+  G={cs,tiles,up:[],got:new Set(),moves:0,lock:true,streak:0,best:0,wait:true};
+  if(go===true)startMemory();else renderMemory();
+}
+/* Press to start: the board waits, face down, until the student is ready */
+function startMemory(){const g=G;if(!g||!g.wait)return;g.wait=false;
+  if(memPeek){g.peek=true;g.lock=true;renderMemory();g.peekT=setTimeout(()=>{if(G!==g)return;g.peek=false;g.lock=false;g.flipping=true;renderMemory();setTimeout(()=>{if(G===g){g.flipping=false}},450)},3000)}
+  else{g.lock=false;renderMemory();const t=$('memcard').querySelector('[data-i]');if(t)t.focus({preventScroll:true})}
+  try{FX.play('flip')}catch(e){}
 }
 /* Option: show every card for 3 seconds at the start of each round */
 let memPeek=store.get('rd-mem-peek',false)===true;
@@ -1980,9 +1995,10 @@ function renderMemory(){
     ${fin?`<div class="winbox">${starRow(G.moves<=G.cs.length+3?3:G.moves<=G.cs.length*2?2:1)}<p class="whole" style="font-size:1.3rem;margin:0"><b>You found them all</b> in ${G.moves} turns!${G.best>=3?` Best streak: ${G.best} pairs in a row.`:''}</p><div class="controls" style="justify-content:center"><button class="btn primary" id="gAgain">Play again</button></div></div>`:''}
     ${fin?'':`<div class="memopts"><label class="switch peektog" for="memPeek"><input type="checkbox" role="switch" id="memPeek" ${memPeek?'checked':''}><span class="sw" aria-hidden="true"></span><span class="swtext"><b>Peek first</b><small>See every card for 3 seconds when a round starts</small></span></label>
       ${G.peek?`<span class="peeknote" role="status">👀 Memorize the cards!<i class="peekbar"></i></span>`:''}</div>`}
-    <div class="mgrid ${G.peek?'peeking':''}">${G.tiles.map((t,i)=>{const open=G.peek||G.up.includes(i)||G.got.has(t.c.id);
-      return`<button class="tile2 ${open?'up':'back'} ${open&&t.part?'part c-'+t.c.kind:''} ${G.got.has(t.c.id)?'got':''} ${G.flipping&&!G.got.has(t.c.id)?'flipdown':''}" data-i="${i}" aria-label="${open?esc(t.part?t.c.main:meanOf(t.c)):'Hidden tile'}" ${G.got.has(t.c.id)||G.peek?'disabled':''}>${open?esc(t.part?t.c.main:meanOf(t.c)):''}</button>`}).join('')}</div>`;
-  const pk=$('memPeek');if(pk)pk.onchange=()=>{memPeek=pk.checked;store.set('rd-mem-peek',memPeek);if(!G.moves&&!G.got.size){clearTimeout(G.peekT);newMemory()}};
+    <div class="mwrap ${G.wait?'waiting':''}"><div class="mgrid ${G.peek?'peeking':''}" ${G.wait?'aria-hidden="true"':''}>${G.tiles.map((t,i)=>{const open=G.peek||G.up.includes(i)||G.got.has(t.c.id);
+      return`<button class="tile2 ${open?'up':'back'} ${open&&t.part?'part c-'+t.c.kind:''} ${G.got.has(t.c.id)?'got':''} ${G.flipping&&!G.got.has(t.c.id)?'flipdown':''}" data-i="${i}" aria-label="${open?esc(t.part?t.c.main:meanOf(t.c)):'Hidden tile'}" ${G.got.has(t.c.id)||G.peek||G.wait?'disabled':''}>${open?esc(t.part?t.c.main:meanOf(t.c)):''}</button>`}).join('')}</div>${G.wait&&!fin?`<div class="memstart" id="memStart"><button type="button" class="btn primary memgo" id="memGo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>Start</button><p>${G.cs.length} pairs${memPeek?' · 3-second peek':' to find'}</p></div>`:''}</div>`;
+  const pk=$('memPeek');if(pk)pk.onchange=()=>{memPeek=pk.checked;store.set('rd-mem-peek',memPeek);if(G.wait){renderMemory();return}if(!G.moves&&!G.got.size){clearTimeout(G.peekT);newMemory(true)}};
+  const go=$('memGo'),ms=$('memStart');if(go)go.onclick=e=>{e.stopPropagation();startMemory()};if(ms)ms.onclick=startMemory;
   $('memcard').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{
     const i=+b.dataset.i;if(G.lock||G.up.includes(i))return;
     G.up.push(i);
@@ -1995,7 +2011,7 @@ function renderMemory(){
       else{G.lock=true;G.streak=0;renderMemory();setTimeout(()=>{FX.play('bad')},250);setTimeout(()=>{G.up=[];G.lock=false;renderMemory()},1100)}}
     else{FX.play('flip');renderMemory()}
   });
-  if(fin)$('gAgain').onclick=newMemory;
+  if(fin)$('gAgain').onclick=()=>newMemory(true);
 }
 
 /* ---------- Word-part breakdowns for explanations ---------- */
