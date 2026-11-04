@@ -440,64 +440,95 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 .stage.boss{border-radius:50%!important;width:62px!important;height:62px!important;font-size:1.6rem!important}
 .stage.boss.cur{width:72px!important;height:72px!important}
 .deco{display:none}
-/* Painted map: palette and materials */
-.wmap{--g1a:#CFE8B4;--g1m:#B5D98F;--g1b:#9CCB78;--g2a:#86BB6A;--g2m:#6FA458;--g2b:#5D9149;--g3a:#E8CD97;--g3m:#DDB677;--g3b:#D3A866;--g4a:#D6E2EE;--g4m:#E7EEF6;--g4b:#F4F7FB;
-  --water:#3F8FCF;--water2:#8FCDF5;--water3:#2B6EA6;--shore:#E8D9A8;--pine:#2E7444;--pine2:#3F8C55;--pine3:#245E37;--pine4:#1B4A2B;--leaf:#4F9A3E;--leaf2:#8BCB64;--leaf3:#357A2D;
-  --trunk:#6B4529;--rock:#9C928A;--rock2:#C7BEB5;--rock3:#7C726B;--mesa:#D68A50;--mesa2:#A9592F;--cactus:#4A8F55;
-  --mtn:#A3AFC3;--mtn2:#7A889F;--mtn3:#BCC6D6;--mtn4:#64728A;--snow:#FFFFFF;--wall:#F4E9D6;--walld:#D9C9AE;--roof:#C75A3E;--roofd:#9C3F2A;--log:#8E5F38;
-  --stone:#F1E9D8;--stone2:#CDBF9F;--ctower:#D9D2C6;--cwall2:#A79E90;--cloud:#FFFFFF;--fog:#F4F6F8;--bird:#2C3343}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--g1a:#24402A;--g1m:#1E3823;--g1b:#1A311F;--g2a:#17311F;--g2m:#132A1A;--g2b:#102416;--g3a:#47361F;--g3m:#3E2F1B;--g3b:#362917;--g4a:#26364A;--g4m:#2B3D53;--g4b:#31445C;
-  --water:#1D5A8A;--water2:#3A82BC;--water3:#123F63;--shore:#5A5034;--pine:#1E5232;--pine2:#2A6740;--pine3:#174228;--pine4:#10331E;--leaf:#356E2C;--leaf2:#4F8F3F;--leaf3:#24521F;
-  --rock:#6B645E;--rock2:#89817A;--rock3:#504A45;--mesa:#9A5E36;--mesa2:#6E3E20;--cactus:#3A7646;--mtn:#5B6A84;--mtn2:#434F66;--mtn3:#6E7C95;--mtn4:#333D50;--snow:#D9E3EF;
-  --wall:#B9AE9B;--walld:#968B79;--stone:#B5AC9B;--stone2:#8E8574;--ctower:#9C968B;--cwall2:#757066;--cloud:#BAC5D6;--fog:#1A2333;--bird:#C9D3E3}}
-:root[data-theme="dark"] .wmap{--g1a:#24402A;--g1m:#1E3823;--g1b:#1A311F;--g2a:#17311F;--g2m:#132A1A;--g2b:#102416;--g3a:#47361F;--g3m:#3E2F1B;--g3b:#362917;--g4a:#26364A;--g4m:#2B3D53;--g4b:#31445C;
-  --water:#1D5A8A;--water2:#3A82BC;--water3:#123F63;--shore:#5A5034;--pine:#1E5232;--pine2:#2A6740;--pine3:#174228;--pine4:#10331E;--leaf:#356E2C;--leaf2:#4F8F3F;--leaf3:#24521F;
-  --rock:#6B645E;--rock2:#89817A;--rock3:#504A45;--mesa:#9A5E36;--mesa2:#6E3E20;--cactus:#3A7646;--mtn:#5B6A84;--mtn2:#434F66;--mtn3:#6E7C95;--mtn4:#333D50;--snow:#D9E3EF;
-  --wall:#B9AE9B;--walld:#968B79;--stone:#B5AC9B;--stone2:#8E8574;--ctower:#9C968B;--cwall2:#757066;--cloud:#BAC5D6;--fog:#1A2333;--bird:#C9D3E3}
+/* Storybook map: palette, ink and paper */
+.wmap{--paper:#F7EFDD;--ink:#4E3828;--m1:#C9DFA0;--m2:#B4D388;--m3:#DCEBB9;--f1:#97C07F;--f2:#86B472;--f3:#A9CC8E;--c1:#F2D199;--c2:#ECBF80;--c3:#F7DFB3;--p1:#DCE7F1;--p2:#C9D9EA;--p3:#EEF3F8;
+  --leaf:#7DB565;--leafhi:#B5DB8C;--pine:#4F8D5C;--pinehi:#7DB27E;--trunk:#9A6A45;--grass:#5F9B4B;
+  --water:#8CC6E6;--waterhi:#D9F0FB;--shore:#EEDDB0;--rock:#C3B8AA;--mesa:#E8A06A;--mesash:#C97C4A;--cactus:#7CB36A;--mtn:#B6C5D9;--mtnsh:#94A7C1;--snow:#FFFFFF;
+  --wall:#FBEBD0;--roof:#E07A5F;--roof2:#B36A45;--log:#B9824F;--stone:#F4EAD6;--stone2:#DCCDAE;--cwall:#EADFCD;--ctower:#F1E8D8;--croof:#6C8CD5;--cloud:#FFFFFF;--shade:#6B5A8E;--fog:#F7EFDD}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--paper:#1F2433;--ink:#E9DCC4;--m1:#33503A;--m2:#2C4733;--m3:#3B5A40;--f1:#22402C;--f2:#1D3826;--f3:#284A31;--c1:#5A4428;--c2:#4F3B22;--c3:#644C2E;--p1:#2E3F57;--p2:#283850;--p3:#34475F;
+  --leaf:#3F7A3A;--leafhi:#5D9A4E;--pine:#2C5E3A;--pinehi:#43774D;--trunk:#7A5236;--grass:#6FAF5A;--water:#2F6E9C;--waterhi:#5C9BC7;--shore:#5E5338;--rock:#7D766E;--mesa:#A8663C;--mesash:#83492A;--cactus:#4E8A4B;
+  --mtn:#4F607C;--mtnsh:#3E4D66;--snow:#DCE6F2;--wall:#C9B796;--roof:#A8513D;--roof2:#86553A;--log:#8E6440;--stone:#BDB29D;--stone2:#9C9178;--cwall:#A9A090;--ctower:#B7AE9E;--croof:#4C66A8;--cloud:#C8D2E2;--shade:#000;--fog:#1F2433}}
+:root[data-theme="dark"] .wmap{--paper:#1F2433;--ink:#E9DCC4;--m1:#33503A;--m2:#2C4733;--m3:#3B5A40;--f1:#22402C;--f2:#1D3826;--f3:#284A31;--c1:#5A4428;--c2:#4F3B22;--c3:#644C2E;--p1:#2E3F57;--p2:#283850;--p3:#34475F;
+  --leaf:#3F7A3A;--leafhi:#5D9A4E;--pine:#2C5E3A;--pinehi:#43774D;--trunk:#7A5236;--grass:#6FAF5A;--water:#2F6E9C;--waterhi:#5C9BC7;--shore:#5E5338;--rock:#7D766E;--mesa:#A8663C;--mesash:#83492A;--cactus:#4E8A4B;
+  --mtn:#4F607C;--mtnsh:#3E4D66;--snow:#DCE6F2;--wall:#C9B796;--roof:#A8513D;--roof2:#86553A;--log:#8E6440;--stone:#BDB29D;--stone2:#9C9178;--cwall:#A9A090;--ctower:#B7AE9E;--croof:#4C66A8;--cloud:#C8D2E2;--shade:#000;--fog:#1F2433}
+.wmap{background:var(--paper)}
 .wground{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0}
-.wscene{z-index:0}
-.wground .tuft path,.wscene .tuft path{stroke:var(--leaf3);stroke-width:1.2;stroke-linecap:round;fill:none;opacity:.7}
-.wground .fl0{fill:#FF8FB1}.wground .fl1{fill:#FFE066}.wground .fl2{fill:#FFFFFF}
-.wground .shroom{fill:#D9452D}.wground .dot{fill:#fff}.wground .trunk{fill:var(--trunk)}
-.wground .crack{fill:none;stroke:#A87F4E;stroke-width:1.2;opacity:.55;stroke-linecap:round}
-.wground .drift{fill:#fff;opacity:.55}
-.wscene .gshadow{fill:#0B1A0A;opacity:.22;filter:url(#fBlur3)}
-.wscene .trunk{fill:var(--trunk)}.wscene .snowcap{fill:var(--snow)}.wscene .leafhi{fill:#fff;opacity:.18}
-.wscene .rock{fill:var(--rock)}.wscene .rock2{fill:var(--rock2)}.wscene .rock3{fill:var(--rock3)}
-.wscene .cactus{fill:var(--cactus)}.wscene .cactus2{stroke:#2F6B3B;stroke-width:.8;fill:none;opacity:.6}
-.wscene .mesaside{fill:#000;opacity:.18}.wscene .mesaline{fill:none;stroke:#7E3F1E;stroke-width:2;opacity:.35}.wscene .mesatop{fill:#F0B07A;opacity:.7}
-.wscene .snow{fill:var(--snow)}.wscene .snowsh{fill:#B8C6D8;opacity:.6}.wscene .ridge{fill:none;stroke:#000;stroke-width:1.2;opacity:.12}
-.wscene .roofline{fill:none;stroke:#7E2E1E;stroke-width:1.2}.wscene .door{fill:#5C3B22}.wscene .win{fill:#FFD95A}.wscene .chimney{fill:#8E6B55}
-.wscene .fence{fill:none;stroke:#8A6440;stroke-width:1.6;stroke-linecap:round}
-.wscene .log{fill:var(--log)}.wscene .log2{stroke:#5E3C1F;stroke-width:1}
-.wscene .smoke{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;opacity:.6;animation:smoke 3s ease-in-out infinite}
-.wscene .blade{fill:#F7F2E8;stroke:#9C8B70;stroke-width:1}.wscene .hub{fill:#5C3B22}
+.wpaper{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1;pointer-events:none;mix-blend-mode:multiply}
+.wground .paper{fill:var(--paper)}
+.wground .w{opacity:.9}.wground .m1{fill:var(--m1)}.wground .m2{fill:var(--m2);opacity:.55}.wground .m3{fill:var(--m3);opacity:.6}
+.wground .f1{fill:var(--f1)}.wground .f2{fill:var(--f2);opacity:.55}.wground .f3{fill:var(--f3);opacity:.6}
+.wground .c1{fill:var(--c1)}.wground .c2{fill:var(--c2);opacity:.55}.wground .c3{fill:var(--c3);opacity:.6}
+.wground .p1{fill:var(--p1)}.wground .p2{fill:var(--p2);opacity:.55}.wground .p3{fill:var(--p3);opacity:.7}
+.wground .gr{fill:none;stroke:var(--grass);stroke-width:1.1;stroke-linecap:round;opacity:.8}
+.wground .stem{stroke:var(--grass);stroke-width:1}.wground .fl0{fill:#F28DAE}.wground .fl1{fill:#FFD95C}.wground .fl2{fill:#FFFFFF}.wground .flc{fill:#E9A23B}
+.wground .k,.wscene .k{stroke:var(--ink);stroke-width:1.35;stroke-linejoin:round;stroke-linecap:round}
+.wground .shroom{fill:#E5674F}.wground .stalk{fill:#F6E9D2}.wground .dot{fill:#fff}
+.wground .dots{stroke:#B0814E;stroke-width:2.2;stroke-linecap:round;opacity:.6}
+.wscene .shade{fill:var(--shade);opacity:.16}
+.wscene .trunk{fill:var(--trunk)}.wscene .leaf{fill:var(--leaf)}.wscene .leafhi{fill:var(--leafhi);opacity:.75}.wscene .kl{fill:none;stroke:var(--ink);stroke-width:1;stroke-linecap:round;opacity:.6}
+.wscene .pine{fill:var(--pine)}.wscene .pinehi{fill:none;stroke:var(--pinehi);stroke-width:1.4;stroke-linecap:round;opacity:.8}.wscene .snowcap{fill:var(--snow)}
+.wscene .rock{fill:var(--rock)}.wscene .rockhi{fill:none;stroke:#fff;stroke-width:1.2;opacity:.6;stroke-linecap:round}
+.wscene .cactus{fill:var(--cactus)}.wscene .cachi{stroke:#B6DA92;stroke-width:1.2;opacity:.8}.wscene .spine{stroke:var(--ink);stroke-width:1;stroke-linecap:round}
+.wscene .mesa{fill:var(--mesa)}.wscene .mesash{fill:var(--mesash);opacity:.8}.wscene .mesaline{fill:none;stroke:var(--ink);stroke-width:1;opacity:.45}
+.wscene .mtn{fill:var(--mtn)}.wscene .mtnsh{fill:var(--mtnsh);opacity:.85}.wscene .snow{fill:var(--snow)}.wscene .hatch{fill:none;stroke:var(--ink);stroke-width:1;opacity:.4;stroke-linecap:round}
+.wscene .wall{fill:var(--wall)}.wscene .roof{fill:var(--roof)}.wscene .roof2{fill:var(--roof2)}.wscene .rooft{fill:none;stroke:var(--ink);stroke-width:1;opacity:.45}.wscene .chimney{fill:#C98F6B}
+.wscene .door{fill:#8B5A3C}.wscene .win{fill:#FFE38A}.wscene .fence{fill:none}
+.wscene .log{fill:var(--log)}.wscene .logl{stroke:var(--ink);stroke-width:.9;opacity:.5}
+.wscene .stone{fill:var(--stone)}.wscene .stone2{fill:var(--stone2)}.wscene .colline{stroke:var(--ink);stroke-width:.8;opacity:.35}
+.wscene .cwall{fill:var(--cwall)}.wscene .ctower{fill:var(--ctower)}.wscene .croof{fill:var(--croof)}.wscene .cgate{fill:#7A4F33}.wscene .gatel{stroke:var(--ink);stroke-width:1;opacity:.5}.wscene .stonel{stroke:var(--ink);stroke-width:1;opacity:.35;stroke-linecap:round}.wscene .pole{fill:none}
+.wscene .cflag{fill:#E5534B}.wscene .cflag2{fill:#F2C14E}
+.wscene .cflag.wave,.wscene .cflag2.wave{animation:flag 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:left center}.wscene .wave2{animation:flag 1.9s ease-in-out infinite;transform-box:fill-box;transform-origin:left center}
+.wscene .shore{fill:var(--shore)}.wscene .water{fill:var(--water)}.wscene .waterhi{fill:none;stroke:var(--waterhi);stroke-width:2.2;stroke-linecap:round}
+.wscene .ripple{fill:none;stroke:#fff;stroke-width:1.1;opacity:.75;stroke-linecap:round}.wscene .pad{fill:#7FB86A}.wscene .reed{stroke:#6E8F3E;stroke-width:1.4;stroke-linecap:round}.wscene .cattail{fill:#8B5A3C}
+.wscene .duck{fill:#FFFFFF}.wscene .beak{fill:#F0A23B}.wscene .eye{fill:var(--ink)}
+.wscene .wool{fill:#FFFFFF}.wscene .face{fill:#5B4A44}.wscene .leg{fill:none;stroke-width:1.6}
+.wscene .snowb{fill:#FFFFFF}.wscene .scarf{fill:#E5534B}.wscene .carrot{fill:#F0903B}.wscene .arm{fill:none}.wscene .hat{fill:#3A3A4A}
+.wscene .riverink{fill:none;stroke:var(--ink);stroke-width:30;stroke-linecap:round}
+.wscene .riverw{fill:none;stroke:var(--water);stroke-width:27;stroke-linecap:round}
+.wscene .river2{fill:none;stroke:#fff;stroke-width:1.6;stroke-dasharray:8 22;opacity:.8;stroke-linecap:round;animation:flow 3s linear infinite}
+.wscene .plank{fill:#C99766}.wscene .plankl{stroke:var(--ink);stroke-width:.9;opacity:.6}.wscene .rail,.wscene .post{fill:none;stroke-width:2.2}
+.wscene .blade{fill:#FFF8EA}.wscene .hub{fill:#8B5A3C}
 .wscene .spin{animation:spin 9s linear infinite;transform-origin:0 0}
-.wscene .stone{fill:var(--stone)}.wscene .stone2{fill:var(--stone2)}.wscene .colline{stroke:#000;stroke-width:.5;opacity:.12}.wscene .colbroken{fill:var(--stone2)}.wscene .rubble{fill:var(--stone2)}
-.wscene .cwall2{fill:none;stroke:var(--cwall2);stroke-width:4}.wscene .brick{fill:none;stroke:#000;stroke-width:.6;opacity:.12}.wscene .cgate{fill:#3B2A1A}
-.wscene .pole{stroke:#5C3A1A;stroke-width:2}.wscene .cflag{fill:#D92B2B}.wscene .cflag.wave{animation:flag 1.6s ease-in-out infinite;transform-origin:0 -95px}
-.wscene .shore{fill:var(--shore);opacity:.85}.wscene .shine{fill:#fff;opacity:.5}.wscene .ripple{fill:none;stroke:#fff;stroke-width:1;opacity:.5}.wscene .reed{stroke:#5E7F3A;stroke-width:1.4;stroke-linecap:round}
-.wscene .riverbank{fill:none;stroke:var(--shore);stroke-width:36;stroke-linecap:round;opacity:.8}
-.wscene .riverw{fill:none;stroke-width:28;stroke-linecap:round}
-.wscene .river2{fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:10 26;opacity:.55;animation:flow 3s linear infinite}
-.wscene .river3{fill:none;stroke:#fff;stroke-width:1.2;stroke-dasharray:4 30;opacity:.4;animation:flow 2.2s linear infinite;transform:translateY(6px)}
-.wscene .plank{fill:#A9764A}.wscene .plank2{stroke:#7A5230;stroke-width:1.3}.wscene .rail{stroke:#5C3B22;stroke-width:3;stroke-linecap:round}.wscene .post{stroke:#4A2F1A;stroke-width:3.5;stroke-linecap:round}
-.wscene .cloudbody ellipse{fill:var(--cloud);opacity:.82}.wscene .cloudbody .cloudhi{fill:#fff;opacity:.6}
-.wscene .cloudsh ellipse{fill:#0B1A0A;opacity:.10;filter:url(#fSoft)}
+.wscene .smoke{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;opacity:.7;animation:smoke 3s ease-in-out infinite}
+.wscene .cloudb{fill:var(--cloud);stroke-opacity:.45}.wscene .cloudhi{fill:#fff;opacity:.7}
 .wscene .cloud{animation:drift 40s ease-in-out infinite alternate}.wscene .cloud.c1{animation-duration:55s}.wscene .cloud.c2{animation-duration:47s;animation-direction:alternate-reverse}
-.wscene .birds path{fill:none;stroke:var(--bird);stroke-width:1.8;stroke-linecap:round}
+.wscene .birds path{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
 .wscene .birds{animation:fly 26s linear infinite}.wscene .birds.b1{animation-duration:34s;animation-delay:-12s}
-.wscene .flake{fill:#fff;opacity:.85}.wscene .flake.fall{animation:fall 6s linear infinite}
-.wscene .fog{fill:var(--fog);opacity:.66}
-@keyframes fall{0%{translate:0 -20px;opacity:0}15%{opacity:.85}100%{translate:8px 60px;opacity:0}}
-/* trail: worn dirt road with rough edges and wheel ruts */
-.tr-edge{fill:none;stroke:#7E5C35;stroke-width:30;stroke-linecap:round;opacity:.5;filter:url(#fRough)}
-.tr-base{stroke:#B48D5E!important;opacity:1!important;stroke-width:24!important;filter:url(#fRough)}
-.tr-rut{fill:none;stroke:#8F6B42;stroke-width:14;stroke-linecap:round;stroke-dasharray:1 0;opacity:.35}
-.tr-dash{stroke:#E6D1A6!important;opacity:.85}
-.tr-done{stroke:#FFD24A!important;stroke-width:8!important;filter:drop-shadow(0 0 5px rgba(255,210,74,.85))}
+.wscene .flake{fill:#fff;opacity:.9;stroke:var(--ink);stroke-width:.4}.wscene .flake.fall{animation:fall 6s linear infinite}
+.wscene .fog{fill:var(--fog);opacity:.72}.wscene .fogswirl{fill:none;stroke:var(--ink);stroke-width:1.4;opacity:.25;stroke-linecap:round}
+@keyframes fall{0%{translate:0 -20px;opacity:0}15%{opacity:.9}100%{translate:8px 60px;opacity:0}}
+/* trail: a sandy storybook path with an ink edge */
+.tr-edge{fill:none;stroke:var(--ink)!important;stroke-width:27!important;stroke-linecap:round;opacity:.85!important;filter:url(#fWob)}
+.tr-base{stroke:#EED9AE!important;opacity:1!important;stroke-width:24!important;filter:url(#fWob)}
+.tr-rut{display:none}
+.tr-dash{stroke:#C8A26A!important;stroke-width:2.6!important;stroke-dasharray:1 9!important;opacity:.9}
+.tr-done{stroke:#F6B93B!important;stroke-width:7!important;filter:none!important;opacity:.95}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tr-base{stroke:#6E5B40!important}:root:not([data-theme="light"]) .wpaper{mix-blend-mode:soft-light;opacity:.6}}
+:root[data-theme="dark"] .tr-base{stroke:#6E5B40!important}:root[data-theme="dark"] .wpaper{mix-blend-mode:soft-light;opacity:.6}
 @media (prefers-reduced-motion: reduce){.wscene *{animation:none!important}}
 html.calm .wscene *{animation:none!important}
+/* Storybook stage badges, signs and labels */
+.wmap .stage{background:#5F7FCB!important;color:#FFF9EC!important;box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink),inset 0 -6px 0 rgba(0,0,0,.12),inset 0 5px 0 rgba(255,255,255,.28)!important;font-family:var(--display)}
+.wmap .stage.done{background:#F6C445!important;color:#4E3828!important}
+.wmap .stage.locked{background:#E3DACA!important;color:#4E3828!important}
+.wmap .stage.boss{background:#F2EADB!important;color:#4E3828!important}
+.wmap .stage.boss.done{background:#F6C445!important}
+.wmap .stage.cur{animation:none!important;box-shadow:0 0 0 2.5px var(--ink),0 4px 0 2.5px var(--ink),0 0 0 9px rgba(246,196,69,.55),inset 0 -6px 0 rgba(0,0,0,.12),inset 0 5px 0 rgba(255,255,255,.28)!important}
+.wmap .stage.cur::before{content:"";position:absolute;inset:-14px;border-radius:50%;border:2.5px dashed var(--ink);opacity:.55;animation:curSpin 14s linear infinite}
+@keyframes curSpin{to{transform:rotate(360deg)}}
+.wmap .stage .snum{text-shadow:none}
+.wmap .stage.sel,.wmap .stage:focus-visible{outline:3px dashed var(--ink);outline-offset:8px}
+.wmap .sstars{bottom:-16px;gap:0}
+.wmap .sstars i{color:#E8DCC4;-webkit-text-stroke:1.2px var(--ink);font-size:1.15rem}.wmap .sstars i.on{color:#F6C445}
+.wmap .zbanner{background:#C98E5A;color:#3B2617;box-shadow:0 0 0 2px var(--ink),0 4px 0 2px var(--ink);border-radius:8px;font-weight:800}
+.wmap .zbanner::before,.wmap .zbanner::after{background:#8B5E34;box-shadow:0 0 0 1.5px var(--ink)}
+.wmap .youhere span{background:#FFF9EC;color:#4E3828;box-shadow:0 0 0 2px var(--ink);font-weight:800}
+.wmap .slabel{background:#FFF9EC;color:#4E3828;border:0;box-shadow:0 0 0 1.5px var(--ink)}
+.wmap .wflag{filter:drop-shadow(0 2px 0 rgba(0,0,0,.15))}
+@media (prefers-reduced-motion: reduce){.wmap .stage.cur::before{animation:none}}
+html.calm .wmap .stage.cur::before{animation:none}
+
+
 
 /* Adventure map plan */
 .maphead{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 16px;margin-bottom:12px}
@@ -15503,119 +15534,114 @@ const zoneOf=w=>ZONES.find(z=>w>=z.from&&w<=z.to);
 const starsFor=best=>best>=10?3:best>=9?2:best>=PASS?1:0;
 let mapSel=null;
 function stageState(w){if(weekPassed(w))return'done';if(!isUnlocked(w))return'locked';return'open'}
-/* ---------- Painted map scenery: textured ground, shaded objects, soft shadows (same picture every visit) ---------- */
+/* ---------- Storybook map: watercolor washes, sepia ink lines, paper texture (same picture every visit) ---------- */
 function mapRng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function drawMapScene(W,H,P,zys,fogFrom){
-  const R=mapRng(20261104),f=n=>Math.round(n*10)/10,ground=[],back=[],objs=[],sky=[];
+  const R=mapRng(20261104),f=n=>Math.round(n*10)/10,wash=[],grd=[],back=[],objs=[],anim=[];
   const trailX=y=>{if(y<=P[0][1])return P[0][0];for(let k=1;k<P.length;k++)if(y<=P[k][1]){const [x0,y0]=P[k-1],[x1,y1]=P[k],t=(y-y0)/(y1-y0||1),s=t*t*(3-2*t);return x0+(x1-x0)*s}return P[P.length-1][0]};
   const placed=[];
   const spot=(y0,y1,clear,tries=40)=>{for(let k=0;k<tries;k++){const y=y0+R()*(y1-y0),x=10+R()*(W-20),tx=trailX(y);
       if(Math.abs(x-tx)<clear)continue;if(P.some(p=>Math.hypot(p[0]-x,p[1]-y)<clear+8))continue;if(placed.some(q=>Math.hypot(q[0]-x,q[1]-y)<q[2]))continue;return[x,y]}return null};
   const put=(x,y,r)=>placed.push([x,y,r]);
   const [m,fo,ca,pk]=zys;
-  /* ---------- defs: textures, lighting, gradients ---------- */
-  const stops=[];zys.forEach((z,k)=>{stops.push([z.y0/H,`var(--g${k+1}a)`],[(z.y0+z.y1)/2/H,`var(--g${k+1}m)`],[z.y1/H,`var(--g${k+1}b)`])});
-  ground.push(`<defs>
-    <linearGradient id="gGround" x1="0" y1="0" x2="0" y2="1">${stops.map(([o,c])=>`<stop offset="${Math.max(0,Math.min(1,o)).toFixed(4)}" stop-color="${c}"/>`).join('')}</linearGradient>
-    <filter id="fGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.3 .78"/></filter>
-    <filter id="fPatch" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".008 .011" numOctaves="3" seed="8"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.5 -.72"/></filter>
-    <filter id="fRelief" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".014" numOctaves="4" seed="21" result="n"/>
-      <feDiffuseLighting in="n" surfaceScale="5" lighting-color="#fff" result="l"><feDistantLight azimuth="225" elevation="48"/></feDiffuseLighting>
-      <feColorMatrix in="l" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 .95  -1 0 0 0 .62" result="hi"/>
-      <feColorMatrix in="l" values="0 0 0 0 .05  0 0 0 0 .1  0 0 0 0 .05  1.25 0 0 0 -.88" result="lo"/><feMerge><feMergeNode in="lo"/><feMergeNode in="hi"/></feMerge></filter>
-    <filter id="fSoft"><feGaussianBlur stdDeviation="7"/></filter>
-    <filter id="fBlur3"><feGaussianBlur stdDeviation="3"/></filter>
-    <filter id="fShadow" x="-30%" y="-30%" width="170%" height="170%"><feDropShadow dx="4" dy="5" stdDeviation="2.6" flood-color="#10220E" flood-opacity=".32"/></filter>
-    <filter id="fRidge" x="-5%" y="-10%" width="110%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="3" seed="5" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="9" xChannelSelector="R" yChannelSelector="G"/></filter>
-    <filter id="fRough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="2" seed="11" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="7" xChannelSelector="R" yChannelSelector="G"/></filter>
-    <radialGradient id="gSun" cx=".12" cy=".02" r="1"><stop offset="0" stop-color="#FFF6D8" stop-opacity=".38"/><stop offset=".5" stop-color="#FFF6D8" stop-opacity="0"/></radialGradient>
-    <radialGradient id="gVig" cx=".5" cy=".5" r=".75"><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient>
-    <radialGradient id="gLake" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="var(--water2)"/><stop offset=".6" stop-color="var(--water)"/><stop offset="1" stop-color="var(--water3)"/></radialGradient>
-    <linearGradient id="gRiver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--water3)"/><stop offset=".35" stop-color="var(--water)"/><stop offset=".65" stop-color="var(--water2)"/><stop offset="1" stop-color="var(--water3)"/></linearGradient>
-    <linearGradient id="gPine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--pine2)"/><stop offset=".5" stop-color="var(--pine)"/><stop offset=".5" stop-color="var(--pine3)"/><stop offset="1" stop-color="var(--pine4)"/></linearGradient>
-    <radialGradient id="gOak" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="var(--leaf2)"/><stop offset=".55" stop-color="var(--leaf)"/><stop offset="1" stop-color="var(--leaf3)"/></radialGradient>
-    <linearGradient id="gMtn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--mtn3)"/><stop offset=".5" stop-color="var(--mtn)"/><stop offset=".5" stop-color="var(--mtn2)"/><stop offset="1" stop-color="var(--mtn4)"/></linearGradient>
-    <linearGradient id="gMesa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--mesa)"/><stop offset="1" stop-color="var(--mesa2)"/></linearGradient>
-    <linearGradient id="gStone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--stone)"/><stop offset="1" stop-color="var(--stone2)"/></linearGradient>
-    <linearGradient id="gRoof" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--roof)"/><stop offset=".5" stop-color="var(--roof)"/><stop offset=".5" stop-color="var(--roofd)"/><stop offset="1" stop-color="var(--roofd)"/></linearGradient>
-    <linearGradient id="gWall" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--wall)"/><stop offset="1" stop-color="var(--walld)"/></linearGradient>
-    <linearGradient id="gCast" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--ctower)"/><stop offset="1" stop-color="var(--cwall2)"/></linearGradient>
-  </defs>
-  <rect width="${W}" height="${H}" fill="url(#gGround)"/>
-  <rect width="${W}" height="${H}" filter="url(#fPatch)" opacity=".55"/>
-  <rect width="${W}" height="${H}" filter="url(#fRelief)" opacity=".85"/>
-  <rect width="${W}" height="${H}" filter="url(#fGrain)" opacity=".38"/>`);
-  /* ---------- shapes ---------- */
-  const shadow=(x,y,rx,ry)=>`<ellipse class="gshadow" cx="${f(x+rx*.25)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`;
-  const pine=(x,y,s,snow)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(3,1,13,4)}<rect class="trunk" x="-1.8" y="-3" width="3.6" height="7"/>
-    <path fill="url(#gPine)" d="M0-36 10-23H5L13-12H7L16 0H-16L-7-12H-13L-5-23H-10Z"/>${snow?'<path class="snowcap" d="M0-36 6-27 2-28 0-25-2-28-6-27ZM-12-12-6-14-2-12-7-11ZM4-13 9-14 12-12 7-11Z"/>':''}</g>`;
-  const oak=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(4,2,15,5)}<path class="trunk" d="M-2 3-1.5-8h3L2 3Z"/>
-    <circle fill="url(#gOak)" cx="-6" cy="-12" r="8"/><circle fill="url(#gOak)" cx="6" cy="-13" r="8.5"/><circle fill="url(#gOak)" cx="0" cy="-19" r="10"/><circle class="leafhi" cx="-3" cy="-23" r="3"/></g>`;
-  const bush=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(2,2,10,3)}<circle fill="url(#gOak)" cx="-5" cy="-3" r="6"/><circle fill="url(#gOak)" cx="4" cy="-4" r="7"/></g>`;
-  const tufts=(x,y)=>{let o='<g class="tuft">';for(let k=0;k<4;k++){const dx=(R()-.5)*16,dy=(R()-.5)*6;o+=`<path d="M${f(x+dx)} ${f(y+dy)}l-2-6M${f(x+dx)} ${f(y+dy)}l0-7M${f(x+dx)} ${f(y+dy)}l2-6"/>`}return o+'</g>'};
-  const flowers=(x,y)=>{let o='';for(let k=0;k<6;k++)o+=`<circle class="fl${k%3}" cx="${f(x+(R()-.5)*24)}" cy="${f(y+(R()-.5)*12)}" r="${f(1.6+R()*.8)}"/>`;return o};
-  const rock=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(2,3,11,3)}<path class="rock" d="M-11 4-8-5-1-10 7-7 11 4Z"/><path class="rock2" d="M-8-5-1-10 1-3-5-1Z"/><path class="rock3" d="M7-7 11 4H3Z"/></g>`;
-  const cactus=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(5,2,9,3)}<rect class="cactus" x="-3" y="-24" width="6" height="26" rx="3"/><path class="cactus" d="M-3-10h-5a2 2 0 0 1-2-2v-7a2.5 2.5 0 0 1 5 0v5h2zM3-15h5a2 2 0 0 0 2-2v-5a2.5 2.5 0 0 0-5 0v3h-2z"/><path class="cactus2" d="M1-23v24M-8-18v5M8-21v4"/></g>`;
-  const mesa=(x,y,w,h)=>{const top=-h,l=-w/2,r=w/2;return`<g transform="translate(${f(x)},${f(y)})">${shadow(10,2,w*.55,7)}<g filter="url(#fRough)">
-    <path fill="url(#gMesa)" d="M${f(l)} 0 ${f(l+10)} ${f(top*.55)} ${f(l+15)} ${f(top)}H${f(r-14)}L${f(r-8)} ${f(top*.5)} ${f(r)} 0Z"/>
-    <path class="mesaside" d="M${f(r-14)} ${f(top)}L${f(r-8)} ${f(top*.5)} ${f(r)} 0H${f(r-20)}L${f(r-18)} ${f(top*.5)}Z"/>
-    <path class="mesaline" d="M${f(l+12)} ${f(top*.72)}H${f(r-12)}M${f(l+8)} ${f(top*.42)}H${f(r-9)}M${f(l+5)} ${f(top*.18)}H${f(r-5)}"/>
-    <path class="mesatop" d="M${f(l+15)} ${f(top)}H${f(r-14)}l-3 3H${f(l+17)}Z"/></g></g>`};
-  const mountain=(x,y,w,h)=>`<g transform="translate(${f(x)},${f(y)})">${shadow(w*.12,1,w*.55,9)}<g filter="url(#fRidge)">
-    <path fill="url(#gMtn)" d="M${f(-w/2)} 0 ${f(-w*.18)} ${f(-h*.62)} 0 ${f(-h)} ${f(w*.2)} ${f(-h*.58)} ${f(w/2)} 0Z"/>
-    <path class="snow" d="M0 ${f(-h)} ${f(w*.13)} ${f(-h*.76)} ${f(w*.06)} ${f(-h*.79)} ${f(w*.02)} ${f(-h*.69)} ${f(-w*.05)} ${f(-h*.77)} ${f(-w*.12)} ${f(-h*.72)}Z"/>
-    <path class="snowsh" d="M0 ${f(-h)} ${f(w*.13)} ${f(-h*.76)} ${f(w*.06)} ${f(-h*.79)} ${f(w*.02)} ${f(-h*.69)}Z"/>
-    <path class="ridge" d="M0 ${f(-h)} ${f(w*.04)} ${f(-h*.5)} ${f(-w*.02)} ${f(-h*.2)}"/></g></g>`;
-  const house=(x,y)=>`<g transform="translate(${f(x)},${f(y)})">${shadow(6,3,22,5)}<rect fill="url(#gWall)" x="-14" y="-16" width="28" height="18"/><path fill="url(#gRoof)" d="M-18-15 0-31 18-15Z"/><path class="roofline" d="M-18-15 0-31 18-15"/><rect class="door" x="-4" y="-9" width="8" height="11"/><rect class="win" x="6" y="-12" width="5" height="5"/><rect class="chimney" x="8" y="-29" width="4" height="8"/><path class="fence" d="M20 2h22M20-3h22M23 3v-8M30 3v-8M37 3v-8"/></g>`;
-  const windmill=(x,y)=>`<g transform="translate(${f(x)},${f(y)})">${shadow(5,2,13,4)}<path fill="url(#gWall)" d="M-9 2-6-34H6L9 2Z"/><path fill="url(#gRoof)" d="M-8-33 0-43 8-33Z"/><rect class="door" x="-3" y="-8" width="6" height="10"/><g transform="translate(0,-34)"><g class="spin"><path class="blade" d="M0 0-3-26H3Z"/><path class="blade" d="M0 0 26-3V3Z"/><path class="blade" d="M0 0 3 26H-3Z"/><path class="blade" d="M0 0-26 3V-3Z"/><circle class="hub" r="3"/></g></g></g>`;
-  const cabin=(x,y)=>`<g transform="translate(${f(x)},${f(y)})">${shadow(6,3,20,5)}<rect class="log" x="-14" y="-14" width="28" height="16"/><path class="log2" d="M-14-10H14M-14-6H14M-14-2H14"/><path fill="url(#gRoof)" class="cabroof" d="M-18-13 0-27 18-13Z"/><rect class="door" x="-4" y="-8" width="8" height="10"/><rect class="win" x="6" y="-10" width="5" height="4"/><rect class="chimney" x="7" y="-27" width="4" height="8"/><path class="smoke" d="M9-28c-4-6 4-8 0-14s4-8 0-12"/></g>`;
-  const temple=(x,y,s)=>{let c='';for(let k=0;k<5;k++)c+=(k===3?`<rect class="colbroken" x="${-22+k*10}" y="-14" width="5" height="12"/>`:`<rect fill="url(#gStone)" x="${-22+k*10}" y="-26" width="5" height="24"/><path class="colline" d="M${-20.5+k*10} -25v22M${-18.5+k*10} -25v22"/>`);
-    return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(8,3,38,6)}<rect class="stone2" x="-31" y="-2" width="62" height="5"/><rect class="stone" x="-28" y="-5" width="56" height="4"/>${c}<path class="stone" d="M-28-31H14v5H-28Z"/><path class="stone" d="M-30-31 -8-42 6-36Z"/><path class="stone2" d="M-22-33-8-39 0-35Z"/><path class="rubble" d="M20 3l4-5 5 5zM28 4l3-3 3 3zM-38 4l3-4 4 4z"/></g>`};
-  const castle=(x,y,s,flag)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${shadow(14,6,62,10)}<rect fill="url(#gCast)" x="-38" y="-30" width="76" height="34"/><path class="cwall2" d="M-38-30h8v-6h8v6h8v-6h8v6h8v-6h8v6h8v-6h8v6h8"/>
-    <path class="brick" d="M-36-20h72M-36-10h72M-28-30v10M-12-30v10M4-30v10M20-30v10M-20-20v10M-4-20v10M12-20v10M28-20v10"/>
-    <rect fill="url(#gCast)" x="-50" y="-52" width="20" height="56"/><rect fill="url(#gCast)" x="30" y="-52" width="20" height="56"/><path fill="url(#gRoof)" class="croof" d="M-53-52-40-74-27-52Z"/><path fill="url(#gRoof)" class="croof" d="M27-52 40-74 53-52Z"/>
-    <rect fill="url(#gCast)" x="-12" y="-58" width="24" height="30"/><path fill="url(#gRoof)" class="croof" d="M-15-58 0-84 15-58Z"/><path class="cgate" d="M-11 4V-12a11 11 0 0 1 22 0V4Z"/>
-    <rect class="win" x="-44" y="-42" width="7" height="9" rx="3.5"/><rect class="win" x="37" y="-42" width="7" height="9" rx="3.5"/><rect class="win" x="-3" y="-50" width="6" height="8" rx="3"/>
-    <path class="pole" d="M0-84v-16"/><path class="cflag ${flag?'wave':''}" d="M0-100h16l-4 5 4 5H0Z"/></g>`;
-  const cloud=(x,y,s,k)=>`<g class="cloud c${k%3}" transform="translate(${f(x)},${f(y)}) scale(${f(s)})"><g class="cloudsh" transform="translate(26,60)"><ellipse rx="34" ry="12"/></g><g class="cloudbody"><ellipse cx="0" cy="0" rx="28" ry="10"/><ellipse cx="-12" cy="-6" rx="13" ry="10"/><ellipse cx="9" cy="-9" rx="15" ry="12"/><ellipse class="cloudhi" cx="4" cy="-14" rx="9" ry="5"/></g></g>`;
-  const birds=(x,y,k)=>`<g class="birds b${k%2}" transform="translate(${f(x)},${f(y)})"><path d="M0 0q4-4 8 0q4-4 8 0"/><path d="M14 8q3-3 6 0q3-3 6 0"/></g>`;
-  const lake=(x,y,rx,ry)=>`<g transform="translate(${f(x)},${f(y)})"><ellipse class="shore" rx="${rx+5}" ry="${ry+4}"/><ellipse rx="${rx}" ry="${ry}" fill="url(#gLake)"/><ellipse class="shine" cx="${-rx*.3}" cy="${-ry*.35}" rx="${rx*.3}" ry="${ry*.17}"/><path class="ripple" d="M${-rx*.5} ${ry*.2}q${rx*.12} -3 ${rx*.25} 0M${rx*.1} ${ry*.4}q${rx*.12} -3 ${rx*.25} 0"/><path class="reed" d="M${rx*.85} ${-ry*.2}v-9M${rx*.92} ${-ry*.05}v-11M${rx*.78} ${ry*.1}v-7"/></g>`;
+  /* scalloped blob: trees, bushes, clouds, sheep */
+  const blob=(cx,cy,r,n,j=.12,sq=1)=>{const pts=[];const a0=R()*6.28;for(let k=0;k<n;k++){const a=a0+k*6.283/n,rr=r*(1+(R()-.5)*j);pts.push([cx+Math.cos(a)*rr,cy+Math.sin(a)*rr*sq])}
+    let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;for(let k=1;k<=n;k++){const p=pts[k%n],q=pts[k-1],c=Math.hypot(p[0]-q[0],p[1]-q[1])*.56;d+=` A${f(c)} ${f(c)} 0 0 1 ${f(p[0])} ${f(p[1])}`}return d+'Z'};
+  /* ---------- watercolor ground ---------- */
+  wash.push(`<defs>
+    <filter id="fWC" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".018" numOctaves="3" seed="2" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="22" xChannelSelector="R" yChannelSelector="G" result="d"/><feGaussianBlur in="d" stdDeviation="1.1" result="b"/>
+      <feMorphology in="b" operator="erode" radius="2.5" result="e"/><feComposite in="b" in2="e" operator="out" result="edge"/>
+      <feColorMatrix in="edge" values=".72 0 0 0 0  0 .72 0 0 0  0 0 .72 0 0  0 0 0 .55 0" result="dark"/>
+      <feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="9" result="g"/><feColorMatrix in="g" values="0 0 0 0 .2  0 0 0 0 .15  0 0 0 0 .1  0 0 0 -1 .55" result="ga"/>
+      <feComposite in="ga" in2="b" operator="in" result="gran"/><feMerge><feMergeNode in="b"/><feMergeNode in="gran"/><feMergeNode in="dark"/></feMerge></filter>
+    <filter id="fWob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="4" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="fMist"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs><rect width="${W}" height="${H}" class="paper"/>`);
+  const tints=[['m1','m2','m3'],['f1','f2','f3'],['c1','c2','c3'],['p1','p2','p3']];
+  zys.forEach((z,k)=>{const y0=z.y0-(k?18:0),y1=z.y1+(k<3?18:0);
+    wash.push(`<rect class="w ${tints[k][0]}" x="-30" y="${f(y0)}" width="${W+60}" height="${f(y1-y0)}"/>`);
+    for(let n=0;n<7;n++){const cx=R()*W,cy=y0+40+R()*(y1-y0-80),rr=60+R()*90;wash.push(`<ellipse class="w ${tints[k][1+n%2]}" cx="${f(cx)}" cy="${f(cy)}" rx="${f(rr)}" ry="${f(rr*.55)}"/>`)}});
+  /* ---------- shapes (fills + sepia ink lines) ---------- */
+  const sh=(x,y,rx,ry)=>`<ellipse class="shade" cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}"/>`;
+  const tree=(x,y,s)=>{const r=11;return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(5,1,14,4)}<path class="k trunk" d="M-2.2 2C-1.6-6-2.6-12-1-17h2c1.4 5 .6 11 1.2 19Z"/>
+    <path class="k leaf" d="${blob(0,-22,r,7,.18)}"/><path class="leafhi" d="${blob(-3.5,-26,r*.45,5,.2)}"/><path class="kl" d="M-5-18l2 2M4-24l2 1M2-15l1 2"/></g>`};
+  const bush=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(3,1,11,3)}<path class="k leaf" d="${blob(0,-5,8,6,.2,.75)}"/><path class="leafhi" d="${blob(-2,-8,3,5,.2)}"/></g>`;
+  const pine=(x,y,s,snow)=>{const tier=(t,b,w)=>`M0 ${t}L${w/2} ${b}Q${w/4} ${b-3.5} 0 ${b}Q${-w/4} ${b-3.5} ${-w/2} ${b}Z`;
+    return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(4,1,12,3.5)}<rect class="k trunk" x="-1.8" y="-4" width="3.6" height="6"/>
+    <path class="k pine" d="${tier(-17,-2,26)}"/><path class="k pine" d="${tier(-28,-12,21)}"/><path class="k pine" d="${tier(-38,-22,15)}"/>
+    <path class="pinehi" d="M0-36-5-24M0-26-7-13M0-15-9-3"/>${snow?`<path class="k snowcap" d="M0-38 4.5-31Q2-32 0-30Q-2-32-4.5-31Z"/><path class="snowcap" d="M-8-13q4-2 8 0q4-2 8 0l-2-2H-6Z"/>`:''}</g>`};
+  const grass=(x,y)=>{let o='';for(let k=0;k<3;k++){const dx=(R()-.5)*14,dy=(R()-.5)*5;o+=`<path class="gr" d="M${f(x+dx-3)} ${f(y+dy)}q1-4 1-6M${f(x+dx)} ${f(y+dy)}q0-5 0-7M${f(x+dx+3)} ${f(y+dy)}q-1-4-1-6"/>`}return o};
+  const flowers=(x,y)=>{let o='';for(let k=0;k<5;k++){const fx=x+(R()-.5)*22,fy=y+(R()-.5)*10;o+=`<path class="stem" d="M${f(fx)} ${f(fy)}v5"/><circle class="fl${k%3}" cx="${f(fx)}" cy="${f(fy)}" r="2.3"/><circle class="flc" cx="${f(fx)}" cy="${f(fy)}" r=".8"/>`}return o};
+  const rock=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(2,1,11,3)}<path class="k rock" d="${blob(0,-4,8,6,.25,.7)}"/><path class="rockhi" d="M-4-8q3-2 6-1"/></g>`;
+  const cactus=(x,y,s)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(4,1,8,2.5)}<path class="k cactus" d="M-3.5 1V-22a3.5 3.5 0 0 1 7 0V1ZM-3.5-9H-7a3 3 0 0 1-3-3v-6a2.4 2.4 0 0 1 4.8 0v4.5h1.7M3.5-13H7a3 3 0 0 0 3-3v-5a2.4 2.4 0 0 0-4.8 0v3.5H3.5"/><path class="cachi" d="M-1-21v20"/><path class="spine" d="M2-18h1M-3-12h-1M2-7h1M-3-3h-1"/></g>`;
+  const mesa=(x,y,w,h)=>{const l=-w/2,r=w/2,t=-h;return`<g transform="translate(${f(x)},${f(y)})">${sh(8,1,w*.55,6)}
+    <path class="k mesa" d="M${f(l)} 0C${f(l+3)} ${f(t*.4)} ${f(l+8)} ${f(t)} ${f(l+20)} ${f(t)}H${f(r-20)}C${f(r-8)} ${f(t)} ${f(r-3)} ${f(t*.4)} ${f(r)} 0Z"/>
+    <path class="mesash" d="M${f(r-26)} ${f(t)}H${f(r-20)}C${f(r-8)} ${f(t)} ${f(r-3)} ${f(t*.4)} ${f(r)} 0H${f(r-24)}C${f(r-20)} ${f(t*.4)} ${f(r-22)} ${f(t*.8)} ${f(r-26)} ${f(t)}Z"/>
+    <path class="mesaline" d="M${f(l+7)} ${f(t*.68)}q${f(w*.25)} 4 ${f(w*.5)} 0t${f(w*.4)} 0M${f(l+4)} ${f(t*.38)}q${f(w*.25)} -4 ${f(w*.5)} 0t${f(w*.45)} 0"/></g>`};
+  const mountain=(x,y,w,h)=>`<g transform="translate(${f(x)},${f(y)})">${sh(w*.1,1,w*.5,7)}
+    <path class="k mtn" d="M${f(-w/2)} 0Q${f(-w*.22)} ${f(-h*.55)} 0 ${f(-h)}Q${f(w*.24)} ${f(-h*.52)} ${f(w/2)} 0Z"/>
+    <path class="mtnsh" d="M0 ${f(-h)}Q${f(w*.24)} ${f(-h*.52)} ${f(w/2)} 0H${f(w*.06)}Q${f(w*.1)} ${f(-h*.5)} 0 ${f(-h)}Z"/>
+    <path class="k snow" d="M0 ${f(-h)}Q${f(w*.08)} ${f(-h*.84)} ${f(w*.15)} ${f(-h*.7)}Q${f(w*.1)} ${f(-h*.62)} ${f(w*.05)} ${f(-h*.69)}Q${f(0)} ${f(-h*.6)} ${f(-w*.05)} ${f(-h*.68)}Q${f(-w*.1)} ${f(-h*.61)} ${f(-w*.15)} ${f(-h*.7)}Q${f(-w*.08)} ${f(-h*.84)} 0 ${f(-h)}Z"/>
+    <path class="hatch" d="M${f(w*.2)} ${f(-h*.4)}l6 3M${f(w*.24)} ${f(-h*.3)}l7 3M${f(w*.3)} ${f(-h*.2)}l7 3M${f(w*.34)} ${f(-h*.1)}l7 3"/></g>`;
+  const house=(x,y)=>`<g transform="translate(${f(x)},${f(y)})">${sh(7,2,24,5)}<path class="k wall" d="M-14 2-13.5-16H13.5L14 2Z"/><path class="k chimney" d="M7-25h5v9H7Z"/>
+    <path class="k roof" d="M-19-14Q-9-27 0-33Q9-27 19-14Z"/><path class="rooft" d="M-12-19h24M-7-25h14"/><path class="k door" d="M-4.5 2v-8a4.5 4.5 0 0 1 9 0v8Z"/><circle class="k win" cx="8" cy="-8" r="3"/><circle class="k win" cx="-8.5" cy="-8" r="3"/>
+    <path class="k fence" d="M20 1h24M20-4h24M23 2v-9M30 2v-9M37 2v-9M44 2v-9"/></g>`;
+  const windmill=(x,y)=>{anim.push(`<g transform="translate(${f(x)},${f(y-34)})"><g class="spin"><path class="k blade" d="M0 0-3.5-26H3.5Z"/><path class="k blade" d="M0 0 26-3.5V3.5Z"/><path class="k blade" d="M0 0 3.5 26H-3.5Z"/><path class="k blade" d="M0 0-26 3.5V-3.5Z"/><circle class="k hub" r="3"/></g></g>`);
+    return`<g transform="translate(${f(x)},${f(y)})">${sh(5,2,14,4)}<path class="k wall" d="M-9 2Q-8-16-6-34H6Q8-16 9 2Z"/><path class="k roof" d="M-8-33Q-3-40 0-44Q3-40 8-33Z"/><path class="k door" d="M-3 2v-6a3 3 0 0 1 6 0v6Z"/></g>`};
+  const cabin=(x,y)=>{anim.push(`<path class="smoke" d="M${f(x+9)} ${f(y-30)}c-4-6 4-8 0-14s4-8 0-12"/>`);
+    return`<g transform="translate(${f(x)},${f(y)})">${sh(6,2,21,5)}<rect class="k log" x="-14" y="-14" width="28" height="16" rx="2"/><path class="logl" d="M-14-10H14M-14-6H14M-14-2H14"/><path class="k chimney" d="M7-27h4v9H7Z"/><path class="k roof2" d="M-18-12Q-8-22 0-28Q8-22 18-12Z"/><path class="k door" d="M-4 2v-7a4 4 0 0 1 8 0v7Z"/><rect class="k win" x="6" y="-10" width="5" height="4"/></g>`};
+  const sheep=(x,y,s,flip)=>`<g transform="translate(${f(x)},${f(y)}) scale(${f(flip?-s:s)},${f(s)})">${sh(1,2,10,2.5)}<path class="k leg" d="M-4 0v-4M-1 0v-4M3 0v-4M5 0v-4"/><path class="k wool" d="${blob(0,-8,7.5,7,.2,.7)}"/><ellipse class="k face" cx="8.5" cy="-9" rx="3" ry="2.6"/><circle class="eye" cx="9.4" cy="-9.6" r=".7"/></g>`;
+  const duck=(x,y,flip)=>`<g transform="translate(${f(x)},${f(y)}) scale(${flip?-1:1},1)"><path class="k duck" d="M-6 0Q-7-5-1-5Q2-5 3-7a3 3 0 1 1 3 3Q4-3 5 0Z"/><path class="beak" d="M8.5-5.5l3 .8-3 .8Z"/><circle class="eye" cx="6" cy="-7" r=".6"/><path class="ripple" d="M-9 2q4 2 8 0q4 2 8 0"/></g>`;
+  const snowman=(x,y)=>`<g transform="translate(${f(x)},${f(y)})">${sh(3,2,11,3)}<circle class="k snowb" cx="0" cy="-7" r="8"/><circle class="k snowb" cx="0" cy="-19" r="5.5"/><path class="k scarf" d="M-5-15h10l-1 3h-2v5h-3v-5h-4Z"/><path class="carrot" d="M0-19l6 1-6 1Z"/><circle class="eye" cx="-2" cy="-21" r=".8"/><circle class="eye" cx="1.5" cy="-21" r=".8"/><path class="k arm" d="M-7-9-13-14M7-9 13-13"/><path class="k hat" d="M-4-24h8v-6h-8ZM-6-24h12"/></g>`;
+  const temple=(x,y,s)=>{let c='';for(let k=0;k<5;k++)c+=k===3?`<rect class="k stone2" x="${-22+k*10}" y="-13" width="5" height="11"/>`:`<rect class="k stone" x="${-22+k*10}" y="-26" width="5" height="24"/><path class="colline" d="M${-19.5+k*10} -24v20"/>`;
+    return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(6,3,38,5)}<rect class="k stone2" x="-31" y="-2" width="62" height="5"/><rect class="k stone" x="-28" y="-5" width="56" height="4"/>${c}<path class="k stone" d="M-28-31H12v5H-28Z"/><path class="k stone" d="M-30-31-9-42 5-37Z"/><path class="k stone2" d="M22 3l4-5 5 5zM-38 3l3-4 4 4z"/></g>`};
+  const castle=(x,y,s)=>{const sx=v=>f(x+v*s),sy=v=>f(y+v*s);
+    anim.push(`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})"><path class="k cflag wave" d="M0-100h17l-4 5 4 5H0Z"/><path class="k cflag2 wave2" d="M-40-74h11l-3 3.5 3 3.5h-11Z"/><path class="k cflag2 wave" d="M40-74h11l-3 3.5 3 3.5h-11Z"/></g>`);
+    return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})">${sh(10,4,62,9)}<path class="k cwall" d="M-38 4V-30h76V4Z"/><path class="k cwall" d="M-38-30v-6h8v6h8v-6h8v6h8v-6h8v6h8v-6h8v6h8v-6h8v6"/>
+    <path class="k ctower" d="M-51 4Q-52-24-50-52H-30Q-28-24-29 4Z"/><path class="k ctower" d="M29 4Q28-24 30-52H50Q52-24 51 4Z"/><path class="k croof" d="M-54-51Q-46-60-40-76Q-34-60-26-51Z"/><path class="k croof" d="M26-51Q34-60 40-76Q46-60 54-51Z"/>
+    <path class="k ctower" d="M-12-28V-58H12V-28Z"/><path class="k croof" d="M-15-57Q-6-68 0-86Q6-68 15-57Z"/><path class="k cgate" d="M-11 4V-11a11 11 0 0 1 22 0V4Z"/><path class="gatel" d="M-6 4v-14M0 4v-16M6 4v-14"/>
+    <path class="k win" d="M-43-34v-6a3.5 3.5 0 0 1 7 0v6ZM36-34v-6a3.5 3.5 0 0 1 7 0v6ZM-3-42v-6a3 3 0 0 1 6 0v6Z"/><path class="stonel" d="M-30-20h6M-12-16h6M14-22h6M24-10h6M-24-6h6"/><path class="k pole" d="M0-86v-14M-40-76v-6M40-76v-6"/></g>`};
+  const lake=(x,y,rx,ry,ducks)=>`<g transform="translate(${f(x)},${f(y)})"><path class="k shore" d="${blob(0,0,rx+5,9,.08,ry/rx+.08)}"/><path class="k water" d="${blob(0,0,rx,9,.08,ry/rx)}"/><path class="waterhi" d="M${f(-rx*.55)} ${f(-ry*.25)}q${f(rx*.2)} -${f(ry*.25)} ${f(rx*.42)} 0"/>
+    <path class="ripple" d="M${f(-rx*.2)} ${f(ry*.35)}q5 -2 10 0M${f(rx*.25)} ${f(ry*.05)}q5 -2 10 0"/><circle class="k pad" cx="${f(rx*.55)}" cy="${f(ry*.3)}" r="3"/><circle class="k pad" cx="${f(rx*.42)}" cy="${f(ry*.5)}" r="2.2"/>
+    <path class="reed" d="M${f(-rx*.95)} ${f(-ry*.1)}v-10M${f(-rx*.88)} ${f(ry*.15)}v-12M${f(-rx*.8)} ${f(-ry*.25)}v-8"/><ellipse class="cattail" cx="${f(-rx*.88)}" cy="${f(ry*.15-12)}" rx="1.4" ry="3"/>${ducks?duck(-rx*.1,-ry*.1,false)+duck(rx*.25,ry*.25,true):''}</g>`;
+  const cloud=(x,y,s,k)=>`<g class="cloud c${k%3}" transform="translate(${f(x)},${f(y)}) scale(${f(s)})"><path class="k cloudb" d="${blob(0,0,20,8,.3,.5)}"/><path class="cloudhi" d="${blob(-4,-4,8,6,.2,.5)}"/></g>`;
+  const birds=(x,y,k)=>`<g class="birds b${k%2}" transform="translate(${f(x)},${f(y)})"><path d="M0 0q4-4 8 0q4-4 8 0"/><path d="M14 9q3-3 6 0q3-3 6 0"/></g>`;
   /* ---------- meadow ---------- */
-  {const s=spot(m.y0+90,m.y0+260,110);if(s){back.push(house(s[0],s[1]));put(s[0],s[1],70);const w2=spot(s[1]-30,s[1]+60,90);if(w2){back.push(windmill(w2[0],w2[1]));put(w2[0],w2[1],60)}}}
-  {const s=spot(m.y0+250,m.y1-60,105);if(s){back.push(lake(s[0],s[1],34,14));put(s[0],s[1],70)}}
-  for(let k=0;k<26;k++){const s=spot(m.y0+40,m.y1,48,10);if(s)ground.push(tufts(s[0],s[1]))}
-  for(let k=0;k<11;k++){const s=spot(m.y0+60,m.y1-10,70,20);if(s){objs.push([s[1],R()<.6?oak(s[0],s[1],.8+R()*.5):bush(s[0],s[1],.9+R()*.5)]);put(s[0],s[1],30)}}
-  for(let k=0;k<10;k++){const s=spot(m.y0+60,m.y1,55,15);if(s)ground.push(flowers(s[0],s[1]))}
+  {const s=spot(m.y0+90,m.y0+260,110);if(s){back.push(house(s[0],s[1]));put(s[0],s[1],70);anim.push(`<path class="smoke" d="M${f(s[0]+9.5)} ${f(s[1]-27)}c-4-6 4-8 0-14s4-8 0-12"/>`);
+    const w2=spot(s[1]-30,s[1]+60,90);if(w2){back.push(windmill(w2[0],w2[1]));put(w2[0],w2[1],60)}}}
+  {const s=spot(m.y0+250,m.y1-60,105);if(s){back.push(lake(s[0],s[1],36,15,true));put(s[0],s[1],72)}}
+  for(let k=0;k<3;k++){const s=spot(m.y0+80,m.y1-30,70,30);if(s){objs.push([s[1],sheep(s[0],s[1],1.05,R()<.5)]);put(s[0],s[1],26)}}
+  for(let k=0;k<11;k++){const s=spot(m.y0+60,m.y1-10,70,20);if(s){objs.push([s[1],R()<.62?tree(s[0],s[1],.85+R()*.45):bush(s[0],s[1],.9+R()*.5)]);put(s[0],s[1],30)}}
+  for(let k=0;k<22;k++){const s=spot(m.y0+40,m.y1,48,10);if(s)grd.push(grass(s[0],s[1]))}
+  for(let k=0;k<10;k++){const s=spot(m.y0+60,m.y1,55,15);if(s)grd.push(flowers(s[0],s[1]))}
   /* ---------- forest ---------- */
-  {const s=spot(fo.y0+120,fo.y1-140,115);if(s){back.push(lake(s[0],s[1]+18,46,18),cabin(s[0]+(s[0]>W/2?-36:36),s[1]-2));put(s[0],s[1],95)}}
-  for(let k=0;k<40;k++){const s=spot(fo.y0+50,fo.y1-10,58,12);if(s){objs.push([s[1],pine(s[0],s[1],.75+R()*.65)]);put(s[0],s[1],16)}}
-  for(let k=0;k<5;k++){const s=spot(fo.y0+60,fo.y1,55,15);if(s)ground.push(`<g transform="translate(${f(s[0])},${f(s[1])})"><rect class="trunk" x="-1" y="-6" width="2" height="6"/><path class="shroom" d="M-6-5a6 5 0 0 1 12 0Z"/><circle class="dot" cx="-2" cy="-7" r="1"/><circle class="dot" cx="2" cy="-8" r="1"/></g>`)}
-  for(let k=0;k<14;k++){const s=spot(fo.y0+40,fo.y1,48,10);if(s)ground.push(tufts(s[0],s[1]))}
-  /* ---------- river and bridge ---------- */
+  {const s=spot(fo.y0+120,fo.y1-140,115);if(s){back.push(lake(s[0],s[1]+18,46,18,false),cabin(s[0]+(s[0]>W/2?-38:38),s[1]-2));put(s[0],s[1],95)}}
+  for(let k=0;k<38;k++){const s=spot(fo.y0+50,fo.y1-10,58,12);if(s){objs.push([s[1],pine(s[0],s[1],.75+R()*.6)]);put(s[0],s[1],16)}}
+  for(let k=0;k<5;k++){const s=spot(fo.y0+60,fo.y1,55,15);if(s)grd.push(`<g transform="translate(${f(s[0])},${f(s[1])})"><path class="k stalk" d="M-1.5 0v-5h3V0Z"/><path class="k shroom" d="M-6-4a6 5 0 0 1 12 0Z"/><circle class="dot" cx="-2" cy="-6" r="1"/><circle class="dot" cx="2" cy="-7" r="1"/></g>`)}
+  for(let k=0;k<12;k++){const s=spot(fo.y0+40,fo.y1,48,10);if(s)grd.push(grass(s[0],s[1]))}
+  /* ---------- river and arched bridge ---------- */
   {const ry=fo.y1-4,tx=trailX(ry);let d=`M-10 ${ry}`;for(let x=0;x<=W+20;x+=40)d+=` Q${x+20} ${ry+(x/40%2?-9:9)} ${x+40} ${ry}`;
-    back.push(`<path class="riverbank" d="${d}"/><path class="riverw" d="${d}" stroke="url(#gRiver)"/><path class="river2" d="${d}"/><path class="river3" d="${d}"/>
-      <g transform="translate(${f(tx)},${ry})">${shadow(4,14,28,4)}<rect class="plank" x="-24" y="-12" width="48" height="24" rx="2"/><path class="plank2" d="M-16-12v24M-8-12v24M0-12v24M8-12v24M16-12v24"/><path class="rail" d="M-26-13h52M-26 13h52"/><path class="post" d="M-24-15v5M24-15v5M-24 11v5M24 11v5"/></g>`)}
+    back.push(`<path class="riverink" d="${d}"/><path class="riverw" d="${d}"/>`);
+    anim.push(`<path class="river2" d="${d}"/><g transform="translate(${f(tx)},${ry})"><path class="k plank" d="M-27 8Q0-6 27 8V-8Q0-22-27-8Z"/><path class="plankl" d="M-18-12v16M-9-15v16M0-16v16M9-15v16M18-12v16"/><path class="k rail" d="M-27-10Q0-24 27-10M-27 10Q0-4 27 10"/><path class="k post" d="M-25-16v8M25-16v8M0-24v8"/></g>`)}
   /* ---------- canyon ---------- */
   [[ca.y0+170,100,52],[ca.y0+330,116,62],[ca.y1-80,104,50]].forEach(([yy,mw,mh])=>{const tx=trailX(yy-mh/2),x=tx>W/2?mw/2+8:W-mw/2-8;objs.push([yy,mesa(x,yy,mw,mh)]);put(x,yy-mh/2,mw*.6)});
   {let s=spot(ca.y0+120,ca.y1-60,85,80);if(!s){const yy=(ca.y0+ca.y1)/2,tx=trailX(yy);s=[tx>W/2?W*.22:W*.78,yy]}
     s[0]=Math.max(42,Math.min(W-42,s[0]));objs.push([s[1],temple(s[0],s[1],1.05)]);put(s[0],s[1],80)}
-  for(let k=0;k<12;k++){const s=spot(ca.y0+50,ca.y1-10,60,15);if(s){objs.push([s[1],R()<.5?cactus(s[0],s[1],.8+R()*.5):rock(s[0],s[1],.9+R()*.6)]);put(s[0],s[1],26)}}
-  for(let k=0;k<12;k++){const s=spot(ca.y0+40,ca.y1,40,8);if(s)ground.push(`<path class="crack" d="M${f(s[0])} ${f(s[1])}l${f(6+R()*8)} ${f(2-R()*4)}l${f(5+R()*6)} ${f(3-R()*6)}"/>`)}
+  for(let k=0;k<12;k++){const s=spot(ca.y0+50,ca.y1-10,60,15);if(s){objs.push([s[1],R()<.5?cactus(s[0],s[1],.85+R()*.45):rock(s[0],s[1],.9+R()*.6)]);put(s[0],s[1],26)}}
+  for(let k=0;k<12;k++){const s=spot(ca.y0+40,ca.y1,40,8);if(s)grd.push(`<path class="dots" d="M${f(s[0])} ${f(s[1])}h.1M${f(s[0]+5)} ${f(s[1]+2)}h.1M${f(s[0]+9)} ${f(s[1]-1)}h.1M${f(s[0]+3)} ${f(s[1]+5)}h.1"/>`)}
   /* ---------- peaks ---------- */
-  for(let k=0;k<7;k++){const left=k%2===0,yy=pk.y0+100+k*((pk.y1-pk.y0-150)/6);objs.push([yy-1,mountain(left?-6+R()*44:W+6-R()*44,yy,150+R()*70,105+R()*55)])}
-  for(let k=0;k<14;k++){const s=spot(pk.y0+60,pk.y1-20,60,15);if(s){objs.push([s[1],pine(s[0],s[1],.7+R()*.5,true)]);put(s[0],s[1],18)}}
-  for(let k=0;k<10;k++){const s=spot(pk.y0+60,pk.y1,50,12);if(s)ground.push(`<ellipse class="drift" cx="${f(s[0])}" cy="${f(s[1])}" rx="${f(10+R()*14)}" ry="${f(3+R()*2)}"/>`)}
-  /* castles behind the review stages */
-  P.forEach((p,k)=>{if(PLAN[k].review)objs.push([p[1]+30,castle(p[0],p[1]+30,1.15,true)])});
-  /* sky: clouds (with shadows on the ground) and birds */
-  for(let k=0;k<7;k++)sky.push(cloud(R()*W,60+k*(H-120)/7+R()*60,.8+R()*.7,k));
-  for(let k=0;k<3;k++)sky.push(birds(R()*W*.8,m.y0+200+k*(H/3.5),k));
-  for(let k=0;k<14;k++)sky.push(`<circle class="flake fall" cx="${f(R()*W)}" cy="${f(pk.y0+20+R()*(pk.y1-pk.y0-40))}" r="${f(1.2+R()*1.6)}" style="animation-delay:${f(-R()*6)}s"/>`);
-  /* fog over lands not reached yet */
-  const fog=zys.map((z,k)=>k>=fogFrom?`<rect class="fog" x="-30" y="${z.y0+34}" width="${W+60}" height="${z.y1-z.y0-30}" filter="url(#fSoft)"/>`:'').join('');
+  for(let k=0;k<7;k++){const left=k%2===0,yy=pk.y0+100+k*((pk.y1-pk.y0-150)/6);objs.push([yy-1,mountain(left?-4+R()*40:W+4-R()*40,yy,150+R()*60,105+R()*45)])}
+  for(let k=0;k<13;k++){const s=spot(pk.y0+60,pk.y1-20,60,15);if(s){objs.push([s[1],pine(s[0],s[1],.7+R()*.45,true)]);put(s[0],s[1],18)}}
+  {const s=spot(pk.y0+120,pk.y1-120,70);if(s){objs.push([s[1],snowman(s[0],s[1])]);put(s[0],s[1],26)}}
+  for(let k=0;k<12;k++)anim.push(`<circle class="flake fall" cx="${f(R()*W)}" cy="${f(pk.y0+20+R()*(pk.y1-pk.y0-40))}" r="${f(1.3+R()*1.5)}" style="animation-delay:${f(-R()*6)}s"/>`);
+  P.forEach((p,k)=>{if(PLAN[k].review)objs.push([p[1]+30,castle(p[0],p[1]+30,1.15)])});
+  for(let k=0;k<7;k++)anim.push(cloud(R()*W,60+k*(H-120)/7+R()*60,.85+R()*.6,k));
+  for(let k=0;k<3;k++)anim.push(birds(R()*W*.8,m.y0+200+k*(H/3.5),k));
+  const fog=zys.map((z,k)=>k>=fogFrom?`<rect class="fog" x="-30" y="${z.y0+34}" width="${W+60}" height="${z.y1-z.y0-30}" filter="url(#fMist)"/><path class="fogswirl" d="M${f(W*.15)} ${f(z.y0+150)}q20-12 40 0t40 0M${f(W*.55)} ${f(z.y0+260)}q20-12 40 0t40 0M${f(W*.25)} ${f(z.y0+380)}q20-12 40 0t40 0"/>`:'').join('');
   objs.sort((a,b)=>a[0]-b[0]);
-  return{ground:ground.join('')+`<rect width="${W}" height="${H}" fill="url(#gSun)"/><rect width="${W}" height="${H}" fill="url(#gVig)"/>`,
-    scene:back.join('')+objs.map(o=>o[1]).join('')+sky.join('')+fog};
+  return{ground:wash[0]+`<g filter="url(#fWC)">${wash.slice(1).join('')}</g>`+`<g filter="url(#fWob)">${grd.join('')}</g>`,
+    scene:`<g filter="url(#fWob)">${back.join('')}${objs.map(o=>o[1]).join('')}</g>${anim.join('')}${fog}`};
 }
 function renderPlan(){
   const uw=unlockedWeeks(),fw=frontierWeek(),all=uw.length>=WEEKS,ch=checkHistory(HIST.days);
@@ -15625,7 +15651,7 @@ function renderPlan(){
     <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
     <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
   ${nextStepHTML('plan')}
-  <div class="wmap" id="wmap"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg>`;
+  <div class="wmap" id="wmap"><svg class="wground" id="wground" aria-hidden="true"></svg><svg class="wscene" id="wscene" aria-hidden="true"></svg><svg class="wtrail" id="wtrail" aria-hidden="true"></svg><svg class="wpaper" id="wpaper" aria-hidden="true"></svg>`;
   /* layout: a zone banner, then its stages snaking left and right */
   let y=10,i=0;const pts=[],zys=[];
   const fzi=all?ZONES.length:ZONES.findIndex(z=>fw>=z.from&&fw<=z.to);
@@ -15657,7 +15683,8 @@ function renderPlan(){
     const P=pts.map(p=>[p.x/100*W,p.y]);let d=`M${P[0][0]},${P[0][1]}`,done='';
     for(let k=1;k<P.length;k++){const [x0,y0]=P[k-1],[x1,y1]=P[k],m=(y0+y1)/2,seg=` C${x0},${m} ${x1},${m} ${x1},${y1}`;d+=seg;if(pts[k].st!=='locked')done+=(done?'':`M${x0},${y0}`)+seg}
     const gr=$('wground'),sc=$('wscene');
-    if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1);[gr,sc].forEach(e=>e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene}catch(e){gr.innerHTML='';sc.innerHTML=''}}
+    if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1);[gr,sc].forEach(e=>e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene;
+      const pp=$('wpaper');if(pp){pp.setAttribute('viewBox',`0 0 ${W} ${y+20}`);pp.innerHTML=`<defs><filter id="fPaper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" values="0 0 0 0 .55  0 0 0 0 .45  0 0 0 0 .32  0 0 0 -1.4 .9" result="speck"/><feTurbulence type="fractalNoise" baseFrequency=".012 .2" numOctaves="2" seed="3" result="fib"/><feColorMatrix in="fib" values="0 0 0 0 .6  0 0 0 0 .5  0 0 0 0 .38  0 0 0 1.4 -.85" result="fibers"/><feMerge><feMergeNode in="speck"/><feMergeNode in="fibers"/></feMerge></filter><radialGradient id="gPage" cx=".5" cy=".5" r=".72"><stop offset=".72" stop-color="#8A6A45" stop-opacity="0"/><stop offset="1" stop-color="#8A6A45" stop-opacity=".28"/></radialGradient></defs><rect width="${W}" height="${y+20}" filter="url(#fPaper)" opacity=".5"/><rect width="${W}" height="${y+20}" fill="url(#gPage)"/>`}}catch(e){gr.innerHTML='';sc.innerHTML=''}}
     svg.innerHTML=`<path class="tr-edge" d="${d}"/><path class="tr-base" d="${d}"/><path class="tr-rut" d="${d}" transform="translate(-4,0)"/><path class="tr-dash" d="${d}"/>${done?`<path class="tr-done" d="${done}"/>`:''}`};
   drawTrail();window.__drawTrail=drawTrail;
   if(!window.__trailRO&&window.ResizeObserver){window.__trailRO=new ResizeObserver(()=>{if(mode==='plan'&&window.__drawTrail)window.__drawTrail()});}
