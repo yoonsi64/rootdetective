@@ -1007,7 +1007,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .wmap{--plt:#6F675A;--pls:#4D473E;--cloudtop:#C9D3E2;--cloudbot:#8D9AB0}}
 :root[data-theme="dark"] .wmap{--plt:#6F675A;--pls:#4D473E;--cloudtop:#C9D3E2;--cloudbot:#8D9AB0}
 .wstatic .wtrail{z-index:0}
-.wsky{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none;will-change:transform}
+.wsky{position:absolute;left:0;top:0;width:100%;height:100%;z-index:4;pointer-events:none}
 .sdefs{position:absolute;width:0;height:0;overflow:hidden}
 .wmap .stage{background:none!important;box-shadow:none!important;animation:none!important;border-radius:50%!important}
 .wmap .stage::before,.wmap .stage.cur::before{display:none!important;animation:none!important}
@@ -1069,7 +1069,8 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .wmap .graze{transform-box:fill-box;transform-origin:0% 60%;animation:graze 10s ease-in-out infinite}
 @keyframes graze{0%,26%,100%{rotate:0deg}34%{rotate:32deg}40%{rotate:29deg}46%{rotate:33deg}52%{rotate:29deg}58%,64%{rotate:32deg}72%{rotate:0deg}80%{rotate:-8deg}86%{rotate:0deg}}
 .wmap .swalk{transform-box:fill-box;transform-origin:center;animation:swalk 18s ease-in-out infinite}
-@keyframes swalk{0%,6%{translate:0 0;scale:1 1}42%{translate:18px 0;scale:1 1}48%{translate:18px 0;scale:1 1}50%,54%{translate:18px 0;scale:-1 1}90%{translate:0 0;scale:-1 1}94%,100%{translate:0 0;scale:1 1}}
+@keyframes swalk{0%,6%{translate:0 0}42%,52%{translate:18px 0}90%,100%{translate:0 0}}@keyframes swalkF{0%{scale:1 1}49%{scale:-1 1}93%{scale:1 1}100%{scale:1 1}}
+.wmap .swalkF{transform-box:fill-box;transform-origin:center;animation:swalkF 18s step-end infinite}
 .wmap .sbob{animation:sbob .5s ease-in-out infinite alternate}@keyframes sbob{to{translate:0 -.7px}}
 .wmap .henA,.wmap .hen0{fill:#FFFDF7}.wmap .hen1{fill:#C9773C}.wmap .henw{fill:none;stroke:var(--ink);stroke-width:.8;opacity:.6}
 .wmap .comb,.wmap .wattle{fill:#E0453A}.wmap .hleg{stroke:#E8A23B;stroke-width:1.1;stroke-linecap:round}
@@ -1077,12 +1078,14 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 @keyframes peck{0%,46%,100%{rotate:0deg;translate:0 0}50%{rotate:36deg}54%{rotate:2deg}58%{rotate:36deg}62%{rotate:0deg}74%{translate:4px 0}86%{translate:4px 0}96%{translate:0 0}}
 .wmap .earin{fill:none;stroke:#F0B7BE;stroke-width:.9;stroke-linecap:round}
 .wmap .rhop{transform-box:fill-box;transform-origin:center bottom;animation:rhop 12s ease-in-out infinite}
-@keyframes rhop{0%,30%{translate:0 0;scale:1 1}33%{translate:5px -7px}36%{translate:10px 0}39%{translate:15px -7px}42%{translate:20px 0;scale:1 1}66%{translate:20px 0;scale:1 1}67%,70%{translate:20px 0;scale:-1 1}73%{translate:15px -7px;scale:-1 1}76%{translate:10px 0;scale:-1 1}79%{translate:5px -7px;scale:-1 1}82%,99%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+@keyframes rhop{0%,30%{translate:0 0}33%{translate:5px -7px}36%{translate:10px 0}39%{translate:15px -7px}42%,68%{translate:20px 0}73%{translate:15px -7px}76%{translate:10px 0}79%{translate:5px -7px}82%,100%{translate:0 0}}@keyframes rhopF{0%{scale:1 1}67%{scale:-1 1}99%{scale:1 1}100%{scale:1 1}}
+.wmap .rhopF{transform-box:fill-box;transform-origin:center;animation:rhopF 12s step-end infinite}
 .wmap .rears{transform-box:fill-box;transform-origin:30% 100%;animation:rears 4.4s ease-in-out infinite}
 @keyframes rears{0%,70%,100%{rotate:0deg}74%{rotate:-12deg}78%{rotate:0deg}82%{rotate:-10deg}86%{rotate:0deg}}
 .wmap .duckhead{fill:#3E8E5A}.wmap .duckw{fill:none;stroke:var(--ink);stroke-width:.8;opacity:.5}
 .wmap .paddle{transform-box:fill-box;transform-origin:center;animation:paddle 26s ease-in-out infinite}
-@keyframes paddle{0%,4%{translate:-12px 0;scale:1 1}46%{translate:12px 0;scale:1 1}50%,54%{translate:12px 0;scale:-1 1}96%{translate:-12px 0;scale:-1 1}100%{translate:-12px 0;scale:1 1}}
+@keyframes paddle{0%,4%{translate:-12px 0}46%,54%{translate:12px 0}96%,100%{translate:-12px 0}}@keyframes paddleF{0%{scale:1 1}50%{scale:-1 1}98%{scale:1 1}100%{scale:1 1}}
+.wmap .paddleF{transform-box:fill-box;transform-origin:center;animation:paddleF 26s step-end infinite}
 .wmap .dbob{animation:dbob 1.8s ease-in-out infinite}@keyframes dbob{50%{translate:0 .8px}}
 .wmap .deerb{fill:none;stroke:#F6E7D0;stroke-width:1.4;stroke-linecap:round;opacity:.8}
 .wmap .dhead{transform-box:fill-box;transform-origin:12% 95%;animation:dgraze 11s ease-in-out infinite}
@@ -1094,11 +1097,13 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .wmap .breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.6s ease-in-out infinite}@keyframes breathe{50%{scale:1 1.06}}
 .wmap .sq{fill:#B9673A}.wmap .sqb{fill:none;stroke:#F3D8B8;stroke-width:1;stroke-linecap:round}
 .wmap .scamper{transform-box:fill-box;transform-origin:center bottom;animation:scamper 10s ease-in-out infinite}
-@keyframes scamper{0%,22%{translate:0 0;scale:1 1}24%{translate:6px -3px}26%{translate:12px 0}28%{translate:18px -3px}30%{translate:24px 0;scale:1 1}58%{translate:24px 0;scale:1 1}59%,62%{translate:24px 0;scale:-1 1}64%{translate:18px -3px;scale:-1 1}66%{translate:12px 0;scale:-1 1}68%{translate:6px -3px;scale:-1 1}70%,99%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+@keyframes scamper{0%,22%{translate:0 0}24%{translate:6px -3px}26%{translate:12px 0}28%{translate:18px -3px}30%,60%{translate:24px 0}64%{translate:18px -3px}66%{translate:12px 0}68%{translate:6px -3px}70%,100%{translate:0 0}}@keyframes scamperF{0%{scale:1 1}59%{scale:-1 1}99%{scale:1 1}100%{scale:1 1}}
+.wmap .scamperF{transform-box:fill-box;transform-origin:center;animation:scamperF 10s step-end infinite}
 .wmap .stail{transform-box:fill-box;transform-origin:100% 100%;animation:stail 2.4s ease-in-out infinite}@keyframes stail{50%{rotate:-9deg}}
 .wmap .rr{fill:#8C7A5E}.wmap .rrc{fill:#4F4434}.wmap .rrw{fill:none;stroke:#F2E6CF;stroke-width:1;stroke-linecap:round}.wmap .rleg{stroke:#5B8BC9;stroke-width:1.1;stroke-linecap:round}.wmap .rrstreak{stroke:#4F86C6;stroke-width:1.2;stroke-linecap:round}
 .wmap .rrun{transform-box:fill-box;transform-origin:center;animation:rrun 13s ease-in-out infinite}
-@keyframes rrun{0%,30%{translate:0 0;scale:1 1}37%{translate:110px 0;scale:1 1}40%{translate:110px 0;scale:1 1}41%,64%{translate:110px 0;scale:-1 1}71%{translate:0 0;scale:-1 1}74%,99%{translate:0 0;scale:-1 1}100%{translate:0 0;scale:1 1}}
+@keyframes rrun{0%,30%{translate:0 0}37%,64%{translate:110px 0}71%,100%{translate:0 0}}@keyframes rrunF{0%{scale:1 1}40%{scale:-1 1}99%{scale:1 1}100%{scale:1 1}}
+.wmap .rrunF{transform-box:fill-box;transform-origin:center;animation:rrunF 13s step-end infinite}
 .wmap .marm{fill:#A9774C}.wmap .marmb{fill:#E2C39D}.wmap .burrow{fill:#4A3726}.wmap .mound{fill:#E7E9EE}
 .wmap .mpop{animation:mpop 10s ease-in-out infinite}@keyframes mpop{0%,14%{translate:0 17px}22%,72%{translate:0 0}80%,100%{translate:0 17px}}
 .wmap .mlook{transform-box:fill-box;transform-origin:center bottom;animation:mlook 10s ease-in-out infinite}@keyframes mlook{0%,30%{rotate:0deg}36%,44%{rotate:-12deg}50%,58%{rotate:12deg}64%,100%{rotate:0deg}}
@@ -16081,30 +16086,31 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
   const fogged=y=>{const k=zys.findIndex(z=>y>=z.y0&&y<z.y1);return k>=fogFrom};
   const D=()=>`style="animation-delay:${f(-R()*14)}s"`;
   const A=(x,y,s,flip,body)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)}) scale(${f(flip?-s:s)},${f(s)})">${body}</g>`;
+  const MV=(cls,body)=>{if(!cls)return body;const d=f(-R()*14);return`<g class="${cls}" style="animation-delay:${d}s"><g class="${cls}F" style="animation-delay:${d}s">${body}</g></g>`};
   const keep=(x,y,r)=>{put(x,y,r);put(x,y+20,r*.9)};/* also keep the ground just in front clear, so a tree can't hide the animal */
-  const sheepA=(x,y,flip,walk)=>A(x,y,1.05,flip,`<g class="${walk?'swalk':''}" ${D()}>${sh(1,1,11,2.6)}<g class="${walk?'sbob':''}">
+  const sheepA=(x,y,flip,walk)=>A(x,y,1.05,flip,`${MV(walk?'swalk':'',`${sh(1,1,11,2.6)}<g class="${walk?'sbob':''}">
     <path class="k leg" d="M-5 0v-5M-2.2 0v-5M3 0v-5M5.6 0v-5"/><path class="k wool" d="${blob(0,-8.4,7.8,8,.18,.66)}"/><path class="woolsh" d="M-6-5.4q6 3.4 12 0"/><path class="woolc" d="M-3.4-11.2q1.6-1.6 3.2 0M.8-10.4q1.6-1.6 3.2 0"/>
-    <g class="shead${walk?'':' graze'}" ${D()}><path class="k face" d="M5.2-10.8q3.8-2.6 6.8.4q1.2 2.4-.4 3.8q-2.6 1.2-4.8-.2Z"/><path class="k face" d="M6.2-11l-2.4-1.8.7 2.7Z"/><circle class="eye" cx="9.7" cy="-9.4" r=".65"/><path class="woolcap" d="M4.8-11.6q2.2-2.2 4.4-1.2"/></g></g></g>`);
+    <g class="shead${walk?'':' graze'}" ${D()}><path class="k face" d="M5.2-10.8q3.8-2.6 6.8.4q1.2 2.4-.4 3.8q-2.6 1.2-4.8-.2Z"/><path class="k face" d="M6.2-11l-2.4-1.8.7 2.7Z"/><circle class="eye" cx="9.7" cy="-9.4" r=".65"/><path class="woolcap" d="M4.8-11.6q2.2-2.2 4.4-1.2"/></g></g>`)}`);
   const hen=(x,y,flip,c)=>A(x,y,1,flip,`${sh(0,1,6.5,1.7)}<g class="peck" ${D()}><path class="hleg" d="M-1.2 0v-3.4M1.4 0v-3.4"/>
     <path class="k hen${c}" d="M-6.6-6.2q-2.2-3.6-1-6q1.4 1.6 2.8 2.4q1.2-1.6 3.6-1.8q1.6-3.4 4.4-2.4q2.6 1 1.6 3.8l-.8 2.6q-.8 4.4-5.6 4.4q-3.6 0-5-3Z"/>
     <path class="henw" d="M-3.6-7.2q2.8-1.6 5 .6q-2.2 2.4-5-.6Z"/><path class="k comb" d="M1.8-13.8q.6-2 1.7-.6q.9-1.5 1.7.2q.6 1.1-.7 1.7Z"/><path class="wattle" d="M5.4-9.6q.2 1.6-.8 1.8q-.6-1 .2-1.8Z"/>
     <path class="beak" d="M5.6-11.2l2.2.7-2.2.7Z"/><circle class="eye" cx="4" cy="-11.4" r=".55"/></g>`);
-  const bunnyA=(x,y,flip)=>A(x,y,1,flip,`<g class="rhop" ${D()}>${sh(0,1,8.5,2)}<path class="k bunny" d="M-7.4 0q-2.4-6.8 3.6-8.4q4.6-1 7.4 1.8q2.2 2.4 1 5q-.6 1.6-2.6 1.6Z"/><path class="bunnyb" d="M-3.6-.6q3.4.8 6.4-.2q1.4-1.4 1-3.4q-3 2.4-7.4 3.6Z"/><path class="bunnyl" d="M-4.6-1q-2-4.2 1.8-6.2"/>
+  const bunnyA=(x,y,flip)=>A(x,y,1,flip,`${MV('rhop',`${sh(0,1,8.5,2)}<path class="k bunny" d="M-7.4 0q-2.4-6.8 3.6-8.4q4.6-1 7.4 1.8q2.2 2.4 1 5q-.6 1.6-2.6 1.6Z"/><path class="bunnyb" d="M-3.6-.6q3.4.8 6.4-.2q1.4-1.4 1-3.4q-3 2.4-7.4 3.6Z"/><path class="bunnyl" d="M-4.6-1q-2-4.2 1.8-6.2"/>
     <g class="rears" ${D()}><path class="k bunny" d="M4.6-10q-2.4-5.6-.6-7.2q2 1.4 2.4 6.6Z"/><path class="k bunny" d="M6.4-10.2q-.6-5.6 1.6-6.8q1.4 1.8-.2 6.6Z"/><path class="earin" d="M4.8-11.6q-1-3.4-.2-4.4M7-11.6q.1-3.2 1-4"/></g>
-    <path class="k bunny" d="M3.2-7.6q.4-4 4.2-3.6q3.2.6 3 3.6q-.2 2.4-3.2 2.8q-2.8.2-4-2.8Z"/><circle class="tail" cx="-7.6" cy="-4.4" r="2.2"/><circle class="eye" cx="7.6" cy="-8.4" r=".85"/><circle class="eyeg" cx="7.9" cy="-8.7" r=".3"/><path class="nose" d="M10-7.4l.6.5-.7.4Z"/><path class="bunnyl" d="M3.4-.4h1.8"/></g>`);
+    <path class="k bunny" d="M3.2-7.6q.4-4 4.2-3.6q3.2.6 3 3.6q-.2 2.4-3.2 2.8q-2.8.2-4-2.8Z"/><circle class="tail" cx="-7.6" cy="-4.4" r="2.2"/><circle class="eye" cx="7.6" cy="-8.4" r=".85"/><circle class="eyeg" cx="7.9" cy="-8.7" r=".3"/><path class="nose" d="M10-7.4l.6.5-.7.4Z"/><path class="bunnyl" d="M3.4-.4h1.8"/>`)}`);
   const duckB=(x,y,s,baby)=>`<g transform="translate(${x},${y}) scale(${s})"><g class="dbob" ${D()}><path class="ripple" d="M-12 2.6q4 1.8 8 0M-11 4.4q4 1.4 8 0"/><path class="k ${baby?'duckling':'duck'}" d="M-6 0Q-7.4-5.2-1-5.2Q2-5.2 3-7.2a3 3 0 1 1 3.2 3Q4.4-3 5 0Z"/>${baby?'':'<path class="duckhead" d="M3-7.2a3 3 0 1 1 3.2 3Q4.6-4.2 3.6-5.2Z"/><path class="duckw" d="M-4.2-2.6q3-2.4 6.4-.6q-3 1.8-6.4.6Z"/>'}<path class="beak" d="M8.6-5.8l3 .8-3 .8Z"/><circle class="eye" cx="6" cy="-7" r=".6"/></g></g>`;
-  const ducksA=(x,y)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})"><g class="paddle" ${D()}>${duckB(0,0,1,false)}${duckB(-12,2.2,.62,true)}${duckB(-20,3,.62,true)}</g></g>`;
+  const ducksA=(x,y)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})">${MV('paddle',`${duckB(0,0,1,false)}${duckB(-12,2.2,.62,true)}${duckB(-20,3,.62,true)}`)}</g>`;
   const deerA=(x,y,flip,buck)=>A(x,y,1,flip,`${sh(1,1,13,2.8)}<path class="k deerl" d="M-6-7v7M-3.4-7v7M3.6-7v7M6.2-7v7"/>
     <g class="dtail" ${D()}><path class="k deertail" d="M-8.6-12q-2.8-.2-2.8 1.8q1.4 1.2 3 .2Z"/></g>
     <path class="k deer" d="M-8.8-9.2q0-4.6 6-4.8h7.4q4.4.2 4.4 4.6q0 3.2-4 3.6h-10q-3.8-.2-3.8-3.4Z"/><path class="deerb" d="M-7-7.6q6 2 13 .2"/><circle class="spot" cx="-4" cy="-11.2" r=".8"/><circle class="spot" cx="-1" cy="-12" r=".8"/><circle class="spot" cx="2" cy="-11.2" r=".8"/>
     <g class="dhead" ${D()}><path class="k deer" d="M4.6-12.4l3.6-7.6h3.4l-2 8.6Z"/><path class="k deer" d="M8.4-20.6q2.8-2.4 5.6-.6l3.2 3.4q.6 1.4-.8 1.8l-3.8-.6q-3.4-.6-4.2-4Z"/>
       <g class="dear" ${D()}><path class="k deer" d="M9.6-21q-3-2.8-1.4-4.6q2 1 2.6 3.6Z"/></g><circle class="eye" cx="12.6" cy="-19.4" r=".65"/><circle class="nose" cx="16.8" cy="-16.4" r=".65"/>
       ${buck?'<path class="antler" d="M11-22.4q-1-4 1.4-6.4M11.6-25.6l-2.4-1.6M12.4-28.2l2-1.2"/>':''}</g>`);
-  const squirrelA=(x,y,flip)=>A(x,y,1,flip,`<g class="scamper" ${D()}>${sh(0,1,6,1.6)}<g class="stail" ${D()}><path class="k sq" d="M-3.4-2.6q-7.6-.6-6.8-8.2q.8-5.2 5.4-4.2q-3.2 2.2-1.2 5.4q2 3.2 2.6 7Z"/></g>
-    <path class="k sq" d="M-3.8 0q-.8-5.2 3-6.2q3.8-.6 4.8 2.6q.6 2.4-1.4 3.6Z"/><path class="k sq" d="M1.4-5.6q.4-3.6 3.4-3.6q2.6.2 2.8 2.6q0 2-2.4 2.2Z"/><path class="k sq" d="M3-8.8l.4-2 1.4 1.6Z"/><circle class="eye" cx="5.4" cy="-7.2" r=".55"/><path class="sqb" d="M-1-4q2 1.6 3.6 0"/></g>`);
-  const roadrunner=(x,y,flip)=>A(x,y,1,flip,`<g class="rrun" ${D()}>${sh(0,1,9,1.8)}<path class="rleg" d="M-1.4 0l1.2-5.4M1.6 0l-.4-5.4"/>
+  const squirrelA=(x,y,flip)=>A(x,y,1,flip,`${MV('scamper',`${sh(0,1,6,1.6)}<g class="stail" ${D()}><path class="k sq" d="M-3.4-2.6q-7.6-.6-6.8-8.2q.8-5.2 5.4-4.2q-3.2 2.2-1.2 5.4q2 3.2 2.6 7Z"/></g>
+    <path class="k sq" d="M-3.8 0q-.8-5.2 3-6.2q3.8-.6 4.8 2.6q.6 2.4-1.4 3.6Z"/><path class="k sq" d="M1.4-5.6q.4-3.6 3.4-3.6q2.6.2 2.8 2.6q0 2-2.4 2.2Z"/><path class="k sq" d="M3-8.8l.4-2 1.4 1.6Z"/><circle class="eye" cx="5.4" cy="-7.2" r=".55"/><path class="sqb" d="M-1-4q2 1.6 3.6 0"/>`)}`);
+  const roadrunner=(x,y,flip)=>A(x,y,1,flip,`${MV('rrun',`${sh(0,1,9,1.8)}<path class="rleg" d="M-1.4 0l1.2-5.4M1.6 0l-.4-5.4"/>
     <path class="k rr" d="M-13-10.4q5-.2 9 1.8q3-3.6 7.6-6.4q2.4-1.4 3.8.4l4.6.6-4.4 1.2q-1.4 4.6-5.2 7.6q-3.2 2.4-7.2 1.4q-3.4-.8-8.2-6.6Z"/><path class="rrw" d="M-5-8.6q4-2 8 .4"/>
-    <path class="k rrc" d="M5.6-15.4l-1.6-3.4 2.6 1.4.4-2.6 1.2 3Z"/><circle class="eye" cx="7.2" cy="-13.6" r=".6"/><path class="rrstreak" d="M5.6-12.2l2.6.4"/></g>`);
+    <path class="k rrc" d="M5.6-15.4l-1.6-3.4 2.6 1.4.4-2.6 1.2 3Z"/><circle class="eye" cx="7.2" cy="-13.6" r=".6"/><path class="rrstreak" d="M5.6-12.2l2.6.4"/>`)}`);
   const marmot=(x,y,id)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})">${sh(1,2,13,3)}<ellipse class="k burrow" cx="0" cy="0" rx="8.4" ry="3"/>
     <clipPath id="mclip${id}"><rect x="-12" y="-30" width="24" height="30.4"/></clipPath><g clip-path="url(#mclip${id})"><g class="mpop" ${D()}><g class="mlook"><path class="k marm" d="M-5.4 6V-5.6q0-6.2 5.4-6.2t5.4 6.2V6Z"/><path class="marmb" d="M-2.8 4v-6.4q0-2.2 2.8-2.2t2.8 2.2V4Z"/><circle class="k marm" cx="-4.2" cy="-10.6" r="1.4"/><circle class="k marm" cx="4.2" cy="-10.6" r="1.4"/><circle class="eye" cx="-1.9" cy="-7.6" r=".65"/><circle class="eye" cx="1.9" cy="-7.6" r=".65"/><ellipse class="nose" cx="0" cy="-5.6" rx="1.1" ry=".75"/><path class="k marm" d="M-5 -1.4q-1.6 1-.4 2.6M5-1.4q1.6 1 .4 2.6"/></g></g></g>
     <path class="k mound" d="M-13.6 1.2q2.4-3.6 5.6-4q-1.2 2 .2 3.6q7.8 1.6 15.6 0q1.4-1.6.2-3.6q3.2.4 5.6 4q-6 3.6-13.6 3.6t-13.6-3.6Z"/></g>`;
@@ -16289,7 +16295,7 @@ function renderPlan(){
   <div class="stagesheet" id="stageSheet" hidden></div>`;
   $('planBody').innerHTML=h;
   const map=$('wmap');map.style.height=(y+20)+'px';
-  const drawTrail=()=>{const W=map.clientWidth,svg=$('wtrail');if(!W||!svg)return;svg.setAttribute('viewBox',`0 0 ${W} ${y+20}`);
+  const drawTrail=()=>{const W=map.clientWidth,svg=$('wtrail');if(!W||!svg)return;window.__mapW=W;svg.setAttribute('viewBox',`0 0 ${W} ${y+20}`);
     const P=pts.map(p=>[p.x/100*W,p.y]);let d=`M${P[0][0]},${P[0][1]}`,done='';
     for(let k=1;k<P.length;k++){const [x0,y0]=P[k-1],[x1,y1]=P[k],m=(y0+y1)/2,seg=` C${x0},${m} ${x1},${m} ${x1},${y1}`;d+=seg;if(pts[k].st!=='locked')done+=(done?'':`M${x0},${y0}`)+seg}
     const gr=$('wground'),sc=$('wscene');
@@ -16299,7 +16305,7 @@ function renderPlan(){
   const placeYou=()=>{const yh=map.querySelector('.youhere'),W=map.clientWidth;if(!yh||!W)return;const sx=+yh.dataset.x/100*W,w=yh.offsetWidth,gap=46;
     let l=sx>W/2?sx-gap-w:sx+gap;l=Math.max(6,Math.min(W-w-6,l));yh.style.left=l+'px';yh.style.transform='translateY(-50%)';yh.classList.toggle('onleft',sx>W/2)};
   drawTrail();placeYou();window.__drawTrail=()=>{drawTrail();placeYou()};
-  if(!window.__trailRO&&window.ResizeObserver){window.__trailRO=new ResizeObserver(()=>{if(mode==='plan'&&window.__drawTrail)window.__drawTrail()});}
+  if(!window.__trailRO&&window.ResizeObserver){window.__trailRO=new ResizeObserver(()=>{const m=$('wmap');if(mode==='plan'&&window.__drawTrail&&m&&m.clientWidth!==window.__mapW)window.__drawTrail()});}
   if(window.__trailRO){window.__trailRO.disconnect();window.__trailRO.observe(map)}
   map.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>openStage(+b.dataset.stage));
   $('planBody').querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
