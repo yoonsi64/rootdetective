@@ -1109,6 +1109,26 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .wmap .waddle{transform-box:fill-box;transform-origin:50% 100%;animation:waddle .9s ease-in-out infinite alternate}.wmap .waddle.w2{animation-duration:1.1s;animation-delay:-.4s}@keyframes waddle{from{rotate:-7deg}to{rotate:7deg}}
 .wmap .pstep{transform-box:fill-box;transform-origin:center;animation:pstep 14s ease-in-out infinite}@keyframes pstep{0%,20%{translate:0 0}45%,60%{translate:-14px 2px}85%,100%{translate:0 0}}
 .wmap .gnod{transform-box:fill-box;transform-origin:50% 100%;animation:gnod 7s ease-in-out infinite}@keyframes gnod{0%,58%,100%{rotate:0deg}64%,70%{rotate:4deg}74%,80%{rotate:-2deg}}
+/* realistic birds of prey, flock birds, cottontails, penguins, kite flyer */
+.wmap .hawk .rapw{fill:#7B5233}.wmap .hawk .rapc{fill:#B48356;opacity:.85}.wmap .hawk .raptip{fill:#3F2A1B;opacity:.9}.wmap .hawk .raptail{fill:#C9662F}.wmap .hawk .raptl{fill:none;stroke:#8A3F18;stroke-width:.5;opacity:.6}
+.wmap .hawk .rapb{fill:#8B5E3A}.wmap .hawk .raph{fill:#9C6B44}.wmap .hawk .rapbk{fill:#F2C14E}
+.wmap .hawk .eagle .rapw,.wmap .hawk .eagle .rapb{fill:#4A3122}.wmap .hawk .eagle .rapc{fill:#6E4A33}.wmap .hawk .eagle .raptail,.wmap .hawk .eagle .raph{fill:#FFFFFF}.wmap .hawk .eagle .raptl{stroke:#C9C2B6}
+.wmap .hawk .k{stroke-width:.9}
+.wmap .rap.eagle{animation:none}
+.wmap .hawk{animation:hawkFlex 4.4s ease-in-out infinite}
+@keyframes hawkFlex{0%,100%{scale:1 1}50%{scale:.92 1}}
+.wmap .hawksh{fill:#3A2414;opacity:.12}
+.wmap .bird .bwl,.wmap .bird .bwr{fill:var(--ink);stroke:none}
+.wmap .bird .bwl{transform-origin:100% 60%}.wmap .bird .bwr{transform-origin:0% 60%}
+.wmap .bunny{fill:#B08A68}.wmap .bunnyb{fill:#E8D8C2}.wmap .bunnyl{fill:none;stroke:#7E5E43;stroke-width:.8;stroke-linecap:round;opacity:.8}.wmap .eyeg{fill:#fff}
+.wmap .pengy{fill:#F2B33D}
+.wmap .kidl{stroke:#3B5B8C;stroke-width:1.8;stroke-linecap:round}.wmap .kida{stroke:#E9B48C;stroke-width:1.5;stroke-linecap:round}.wmap .kidb{fill:#E5534B}.wmap .kidh{fill:#F2C7A0}.wmap .kidhair{fill:#6B4426}
+.wmap .kstring{fill:none;stroke:var(--ink);stroke-width:.8;opacity:.7;stroke-linecap:round}
+.wmap .kbridle{fill:none;stroke:var(--ink);stroke-width:.5;opacity:.5}
+.wmap .kite{transform-box:fill-box;transform-origin:center;animation:kiteSway 4.6s ease-in-out infinite}
+@keyframes kiteSway{0%,100%{rotate:-6deg}50%{rotate:6deg}}
+.wmap .ktail{transform-box:fill-box;transform-origin:50% 0%;animation:ktail 1.4s ease-in-out infinite alternate}
+@keyframes ktail{from{rotate:-10deg}to{rotate:10deg}}
 /* ---------- Phones: fit each activity on one screen ---------- */
 .lvtoggle{display:none}
 @media (max-width:700px){
@@ -16038,7 +16058,7 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
   /* peaks */
   const goat=(x,y,flip)=>G(x,y,1,`${sh(2,1,9,2.2)}<path class="k goatl" d="M-4-4v4M-2-4v4M2.4-4v4M4.4-4v4"/><ellipse class="k goat" cx="0" cy="-6.6" rx="6.2" ry="3.5"/><path class="k goat" d="M4-8.4l3-5h3.2l-1 6Z"/><path class="horn" d="M8.2-13.2q-2.4-4 1.2-5.4M9.6-13.2q-1-3.4 1.6-4.2"/><path class="beard" d="M9.2-7.6l-.6 2.6"/><circle class="eye" cx="9.2" cy="-11.4" r=".6"/>`,flip);
   const igloo=(x,y)=>G(x,y,1,`${sh(6,2,18,3.6)}<path class="k ice" d="M-14 2a14 13 0 0 1 28 0Z"/><path class="icesh" d="M6-9.5a14 13 0 0 1 8 11.5H8a14 13 0 0 0-2-11.5Z"/><path class="icel" d="M-13-3h26M-11-8h22M-7-12h14M-6 2v-5M2 2v-5M10 2v-5M-10-3v-5M-2-3v-5M6-3v-5M-4-8v-4M4-8v-4"/><path class="k ice" d="M10 2v-6a5 5 0 0 1 10 0v6Z"/><path class="k door" d="M12.5 2v-4a2.5 2.5 0 0 1 5 0v4Z"/><path class="k flagp" d="M-2-13v-8"/><path class="flag2" d="M-2-21h6l-2 2 2 2h-6Z"/>`);
-  const penguin=(x,y,flip)=>G(x,y,1,`<ellipse class="k peng" cx="0" cy="-5" rx="3.6" ry="5"/><ellipse class="pengb" cx=".7" cy="-4.4" rx="2.2" ry="3.6"/><circle class="eye2" cx="1.5" cy="-7.6" r=".75"/><circle class="eye" cx="1.7" cy="-7.6" r=".35"/><path class="beak" d="M3.2-7.4l2.2.6-2.2.6Z"/><path class="feet" d="M-1.6 0h2M1 0h2"/><path class="scarf2" d="M-3.4-5.8h6.8l-1 1.4"/><path class="scarf2" d="M-2.4-5l-1.2 3.4"/>`,flip);
+  const penguin=(x,y,flip)=>G(x,y,1,`<ellipse class="k peng" cx="0" cy="-5" rx="3.6" ry="5"/><ellipse class="pengb" cx=".7" cy="-4.4" rx="2.2" ry="3.6"/><circle class="eye2" cx="1.5" cy="-7.6" r=".75"/><circle class="eye" cx="1.7" cy="-7.6" r=".35"/><path class="beak" d="M3.2-7.4l2.2.6-2.2.6Z"/><path class="feet" d="M-1.6 0h2M1 0h2"/><path class="pengy" d="M1.4-9.2q1.8.6 1.6 2.6l-1.6-.8Z"/><path class="k peng" d="M-3.4-5.6q-1.6 2.2-.6 4.4"/>`,flip);
   const snowman=(x,y)=>G(x,y,1,`${sh(4,2,12,3)}<circle class="k snowb" cx="0" cy="-7" r="8"/><path class="icesh" d="M3-14a8 8 0 0 1 0 14a10 8 0 0 0 0-14Z"/><circle class="k snowb" cx="0" cy="-19" r="5.5"/><path class="k scarf" d="M-5-15h10l-1 3h-2v5h-3v-5h-4Z"/><path class="carrot" d="M0-19l6 1-6 1Z"/><circle class="eye" cx="-2" cy="-21" r=".8"/><circle class="eye" cx="1.5" cy="-21" r=".8"/><circle class="eye" cx="0" cy="-9" r=".8"/><circle class="eye" cx="0" cy="-5" r=".8"/><path class="k arm" d="M-7-9-13-14M7-9 13-13M-12-13l-1.6-.4M12-12l1.4-1.2"/><path class="k hat" d="M-4-24h8v-6h-8ZM-6-24h12"/>`);
   const temple=(x,y,s)=>{let c='';for(let k=0;k<5;k++)c+=k===3?`<rect class="k stone2" x="${-22+k*10}" y="-13" width="5" height="11"/>`:`<rect class="k stone" x="${-22+k*10}" y="-26" width="5" height="24"/><path class="colsh" d="M${-18.6+k*10} -26h1.6v24h-1.6Z"/><path class="colline" d="M${-20.4+k*10} -24v20"/>`;
     return G(x,y,s,`${sh(8,3,40,5)}<rect class="k stone2" x="-31" y="-2" width="62" height="5"/><rect class="k stone" x="-28" y="-5" width="56" height="4"/>${c}<path class="k stone" d="M-28-31H12v5H-28Z"/><path class="k stone" d="M-30-31-9-42 5-37Z"/><path class="k stone2" d="M22 3l4-5 5 5zM-38 3l3-4 4 4z"/><path class="vine" d="M-21-26q-3 6 1 10q-3 5 0 10M-1-26q2 4-1 8"/>`)};
@@ -16055,7 +16075,7 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
     const c=cls=>pf.map(([px,py,r])=>`<circle class="${cls}" cx="${f(px)}" cy="${f(py)}" r="${f(r)}"/>`).join('')+`<ellipse class="${cls}" cx="0" cy="1" rx="${f(w/2+9)}" ry="6.5"/>`;
     return`<g transform="translate(${f(x)},${f(y)}) scale(${f(s)})"><g class="cloud c${k%3}" style="animation-delay:${f(-R()*40)}s"><ellipse class="cloudgsh" cx="30" cy="66" rx="${f(w/2+16)}" ry="10"/>${c('cloudo')}${c('cloudf')}<path class="cloudlo" d="M${f(-w/2-4)} 3q${f(w/2+4)} 6 ${f(w+8)} 0"/><path class="cloudhi2" d="M${f(-w/4)} ${f(-pf[1][2]*.9)}q6-5 12-3"/></g></g>`};
   /* a small flock that flies the width of the map, wings flapping */
-  const birds=(x,y,k)=>`<g transform="translate(0,${f(y)})"><g class="flock fk${k%3}" style="--fw:${f(W+120)}px;animation-delay:${f(-R()*40)}s">${[[0,0],[-12,7],[-23,13],[11,8]].slice(0,3+k%2).map(([dx,dy],i)=>`<g transform="translate(${dx},${dy}) scale(${f(.85+R()*.3)})"><g class="bird"><path class="bwl" style="animation-delay:${f(-i*.11)}s" d="M0 0Q-4-3.6-8.4-1.4"/><path class="bwr" style="animation-delay:${f(-i*.11)}s" d="M0 0Q4-3.6 8.4-1.4"/><circle class="bbod" r=".9"/></g></g>`).join('')}</g></g>`;
+  const birds=(x,y,k)=>`<g transform="translate(0,${f(y)})"><g class="flock fk${k%3}" style="--fw:${f(W+120)}px;animation-delay:${f(-R()*40)}s">${[[0,0],[-12,7],[-23,13],[11,8]].slice(0,3+k%2).map(([dx,dy],i)=>`<g transform="translate(${dx},${dy}) scale(${f(.85+R()*.3)})"><g class="bird"><path class="bwl" style="animation-delay:${f(-i*.11)}s" d="M.4.2C-1.8-3.2-5.2-4.4-9.4-2.2C-5.6-2.6-2.8-1.6-.4 1.4Z"/><path class="bwr" style="animation-delay:${f(-i*.11)}s" d="M-.4.2C1.8-3.2 5.2-4.4 9.4-2.2C5.6-2.6 2.8-1.6.4 1.4Z"/><ellipse class="bbod" cy=".4" rx="1.3" ry="1"/><path class="bbod" d="M1.2.2l1.6-.3-1.4.9Z"/></g></g>`).join('')}</g></g>`;
   const butterfly=(x,y,k)=>`<g transform="translate(${f(x)},${f(y)})"><g class="bfly f${k%3}"><g class="wing"><path class="k bw${k%3}" d="M0 0q-6-7-8-2q2 4 8 2Zm0 0q-5 5-6 3q1-4 6-3Z"/><path class="k bw${k%3}" d="M0 0q6-7 8-2q-2 4-8 2Zm0 0q5 5 6 3q-1-4-6-3Z"/></g><path class="bbody" d="M0-2.4v4.8"/></g></g>`;
   /* ---------- living animals (animated layer; placed in open ground so nothing stands in front of them) ---------- */
   const fogged=y=>{const k=zys.findIndex(z=>y>=z.y0&&y<z.y1);return k>=fogFrom};
@@ -16069,9 +16089,9 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
     <path class="k hen${c}" d="M-6.6-6.2q-2.2-3.6-1-6q1.4 1.6 2.8 2.4q1.2-1.6 3.6-1.8q1.6-3.4 4.4-2.4q2.6 1 1.6 3.8l-.8 2.6q-.8 4.4-5.6 4.4q-3.6 0-5-3Z"/>
     <path class="henw" d="M-3.6-7.2q2.8-1.6 5 .6q-2.2 2.4-5-.6Z"/><path class="k comb" d="M1.8-13.8q.6-2 1.7-.6q.9-1.5 1.7.2q.6 1.1-.7 1.7Z"/><path class="wattle" d="M5.4-9.6q.2 1.6-.8 1.8q-.6-1 .2-1.8Z"/>
     <path class="beak" d="M5.6-11.2l2.2.7-2.2.7Z"/><circle class="eye" cx="4" cy="-11.4" r=".55"/></g>`);
-  const bunnyA=(x,y,flip)=>A(x,y,1,flip,`<g class="rhop" ${D()}>${sh(1,1,7,2)}<path class="k bunny" d="M-5 0q-2.4-7 3.6-8.4q2.4-.6 4.4.4q3 1.4 2.6 5q-.4 3-3.4 3Z"/>
-    <g class="rears" ${D()}><path class="k bunny" d="M2.4-8q-1.4-6.4.6-8.2q1.8 2 .8 8.2M4.4-7.4q.8-6.2 3-6.8q.6 2.2-1.6 7"/><path class="earin" d="M3.2-9.4q-.6-3.6.2-5M5.2-8.6q.6-3.4 1.6-4"/></g>
-    <circle class="tail" cx="-5.6" cy="-3.4" r="2"/><circle class="eye" cx="4.4" cy="-5.6" r=".7"/><circle class="nose" cx="7.2" cy="-4.2" r=".6"/></g>`);
+  const bunnyA=(x,y,flip)=>A(x,y,1,flip,`<g class="rhop" ${D()}>${sh(0,1,8.5,2)}<path class="k bunny" d="M-7.4 0q-2.4-6.8 3.6-8.4q4.6-1 7.4 1.8q2.2 2.4 1 5q-.6 1.6-2.6 1.6Z"/><path class="bunnyb" d="M-3.6-.6q3.4.8 6.4-.2q1.4-1.4 1-3.4q-3 2.4-7.4 3.6Z"/><path class="bunnyl" d="M-4.6-1q-2-4.2 1.8-6.2"/>
+    <g class="rears" ${D()}><path class="k bunny" d="M4.6-10q-2.4-5.6-.6-7.2q2 1.4 2.4 6.6Z"/><path class="k bunny" d="M6.4-10.2q-.6-5.6 1.6-6.8q1.4 1.8-.2 6.6Z"/><path class="earin" d="M4.8-11.6q-1-3.4-.2-4.4M7-11.6q.1-3.2 1-4"/></g>
+    <path class="k bunny" d="M3.2-7.6q.4-4 4.2-3.6q3.2.6 3 3.6q-.2 2.4-3.2 2.8q-2.8.2-4-2.8Z"/><circle class="tail" cx="-7.6" cy="-4.4" r="2.2"/><circle class="eye" cx="7.6" cy="-8.4" r=".85"/><circle class="eyeg" cx="7.9" cy="-8.7" r=".3"/><path class="nose" d="M10-7.4l.6.5-.7.4Z"/><path class="bunnyl" d="M3.4-.4h1.8"/></g>`);
   const duckB=(x,y,s,baby)=>`<g transform="translate(${x},${y}) scale(${s})"><g class="dbob" ${D()}><path class="ripple" d="M-12 2.6q4 1.8 8 0M-11 4.4q4 1.4 8 0"/><path class="k ${baby?'duckling':'duck'}" d="M-6 0Q-7.4-5.2-1-5.2Q2-5.2 3-7.2a3 3 0 1 1 3.2 3Q4.4-3 5 0Z"/>${baby?'':'<path class="duckhead" d="M3-7.2a3 3 0 1 1 3.2 3Q4.6-4.2 3.6-5.2Z"/><path class="duckw" d="M-4.2-2.6q3-2.4 6.4-.6q-3 1.8-6.4.6Z"/>'}<path class="beak" d="M8.6-5.8l3 .8-3 .8Z"/><circle class="eye" cx="6" cy="-7" r=".6"/></g></g>`;
   const ducksA=(x,y)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})"><g class="paddle" ${D()}>${duckB(0,0,1,false)}${duckB(-12,2.2,.62,true)}${duckB(-20,3,.62,true)}</g></g>`;
   const deerA=(x,y,flip,buck)=>A(x,y,1,flip,`${sh(1,1,13,2.8)}<path class="k deerl" d="M-6-7v7M-3.4-7v7M3.6-7v7M6.2-7v7"/>
@@ -16090,7 +16110,14 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
     <path class="k mound" d="M-13.6 1.2q2.4-3.6 5.6-4q-1.2 2 .2 3.6q7.8 1.6 15.6 0q1.4-1.6.2-3.6q3.2.4 5.6 4q-6 3.6-13.6 3.6t-13.6-3.6Z"/></g>`;
   const cat=(x,y)=>`<g class="ani${fogged(y)?' infog':''}" transform="translate(${f(x)},${f(y)})"><g class="ctail" ${D()}><path class="cattail" d="M2.6-1.4q5.4 2 4.4 7.6q-.6 3 1.2 4.4"/></g><path class="k catc" d="M-4.2 0q-1.2-7.4 4.2-8q5.4.6 4.2 8Z"/>
     <g class="chead" ${D()}><path class="k catc" d="M-3.8-7.6q-.8-4.6 3.8-4.8q4.6.2 3.8 4.8q-1.4 1.8-3.8 1.8t-3.8-1.8Z"/><path class="k catc" d="M-3.4-10.6l-.6-3.4 2.6 1.8ZM3.4-10.6l.6-3.4-2.6 1.8Z"/><circle class="eye" cx="-1.5" cy="-9.2" r=".55"/><circle class="eye" cx="1.5" cy="-9.2" r=".55"/><path class="nose" d="M-.6-8h1.2l-.6.7Z"/></g><path class="catst" d="M-2.6-4.6h1.6M1-3h1.6"/></g>`;
-  const hawk=(cx,cy,r,k,cw)=>`<g transform="translate(${f(cx)},${f(cy)})"><g class="orbit o${k}" style="animation-direction:${cw?'normal':'reverse'};animation-delay:${f(-R()*30)}s"><circle r="${r}" fill="none"/><g transform="translate(${r},0) rotate(${cw?180:0})"><ellipse class="hawksh" cx="10" cy="40" rx="8" ry="2.6"/><g class="hawk"><path class="k hawkw" d="M-15 1.4q7.4-5.4 15-1.4q7.6-4 15 1.4q-6.6-.6-11 2.6l-4-.4-4 .4q-4.4-3.2-11-2.6Z"/><path class="k hawkb" d="M-2.2-4q2.2-2.4 4.4 0l.6 10.4-2.8 2.4-2.8-2.4Z"/><path class="hawkt" d="M-2.4 8.6 0 12.4 2.4 8.6Z"/></g></g></g></g>`;
+  /* bird of prey seen from above: slotted primaries, lighter covert band, fanned tail. kind: 'hawk' (red-tailed) or 'eagle' (bald) */
+  const raptorArt=kind=>{const L='M-2.2-2.4C-6.4-4.6-11.6-4.8-16.4-2.8L-19.2-1.2-16.6-.6-18.6 1-15.8 1.2-17.2 3-14.4 2.6-15 4.4-12 3.6C-9.4 4.6-5.8 5.4-2.2 4.6Z';
+    const C='M-2.4-2.2C-6.6-4-10.8-4-14.2-2.6C-10.4-1.6-6.4-.6-2.4.4Z';
+    return`<g class="rap ${kind}"><path class="k rapw" d="${L}"/><path class="k rapw" d="${L}" transform="scale(-1,1)"/><path class="rapc" d="${C}"/><path class="rapc" d="${C}" transform="scale(-1,1)"/>
+      <path class="raptip" d="M-16.4-2.8L-19.2-1.2-16.6-.6-18.6 1-15.8 1.2-17.2 3-14.4 2.6-15 4.4-12 3.6C-12.6 1.4-13.6-.8-16.4-2.8Z"/><path class="raptip" d="M-16.4-2.8L-19.2-1.2-16.6-.6-18.6 1-15.8 1.2-17.2 3-14.4 2.6-15 4.4-12 3.6C-12.6 1.4-13.6-.8-16.4-2.8Z" transform="scale(-1,1)"/>
+      <path class="k raptail" d="M-2 5.4L-4.6 11.8Q0 13.6 4.6 11.8L2 5.4Z"/><path class="raptl" d="M-1.4 7.4l-1 4M1.4 7.4l1 4M0 7.4v4.8"/>
+      <ellipse class="k rapb" cx="0" cy="1.2" rx="2.7" ry="5.4"/><circle class="k raph" cy="-5.2" r="2.3"/><path class="rapbk" d="M-.7-7.2L0-8.6.7-7.2Z"/></g>`};
+  const hawk=(cx,cy,r,k,cw,kind='hawk',sc=1)=>`<g transform="translate(${f(cx)},${f(cy)})"><g class="orbit o${k}" style="animation-direction:${cw?'normal':'reverse'};animation-delay:${f(-R()*30)}s"><circle r="${r}" fill="none"/><g transform="translate(${r},0) rotate(${cw?180:0}) scale(${sc})"><ellipse class="hawksh" cx="12" cy="44" rx="9" ry="3"/><g class="hawk">${raptorArt(kind)}</g></g></g></g>`;
   /* keep the scenery clear where the 'You are here' mascot stands */
   if(curI>=0&&P[curI]){const [cx,cy]=P[curI];put(cx+(cx>W/2?-88:88),cy+4,62)}
   /* ---------- MEADOW ---------- */
@@ -16100,6 +16127,13 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
     const wl=near(s[0],s[1],52,70);if(wl){objs.push([wl[1],well(wl[0],wl[1])]);put(wl[0],wl[1],22)}
     const w2=spot(s[1]-40,s[1]+80,90);if(w2){back.push(windmill(w2[0],w2[1]));put(w2[0],w2[1],58)}}}
   {const s=spot(m.y0+250,m.y1-70,105);if(s){back.push(lake(s[0],s[1],38,16,''));anim.push(ducksA(s[0]+6,s[1]+1));put(s[0],s[1],74)}}
+  /* a child flying a kite: the string runs from the child's raised hand to the kite's bridle; the kite sways around that point */
+  for(let t=0;t<80;t++){const s=spot(m.y0+150,m.y1-60,62,24);if(!s)break;const dir=trailX(s[1])>s[0]?-1:1,hx=s[0]+dir*7,hy=s[1]-14.6,kx=hx+dir*26,ky=hy-64;
+    if(kx<20||kx>W-20||ky<m.y0+70||Math.abs(kx-trailX(ky))<44||P.some(p=>Math.hypot(p[0]-kx,p[1]-ky)<58||Math.hypot(p[0]-(hx+kx)/2,p[1]-(hy+ky)/2)<48))continue;
+    anim.push(A(s[0],s[1],1,dir<0,`${sh(0,1,6,1.6)}<path class="kidl" d="M-1.6 0v-5.2M1.6 0v-5.2"/><path class="kida" d="M-2.8-9.4l-2 4.2"/><path class="k kidb" d="M-3.6-4.8q-.2-6.6 3.6-6.6t3.6 6.6Z"/><path class="kida" d="M2.8-9.6L7-14.6"/><circle class="k kidh" cy="-13.8" r="3.1"/><path class="kidhair" d="M-3.1-14q0-3.8 3.1-3.8t3.1 3.6q-1.8-1.6-3.1-1.4t-3.1 1.6Z"/><circle class="eye" cx="1.4" cy="-13.6" r=".45"/>`));
+    keep(s[0],s[1],26);
+    const mx=(hx+kx)/2+dir*6,my=(hy+ky)/2+10;
+    sky.push(`<path class="kstring" d="M${f(hx)} ${f(hy)}Q${f(mx)} ${f(my)} ${f(kx)} ${f(ky)}"/><g transform="translate(${f(kx)},${f(ky)})"><g class="kite"><circle r="24" fill="none"/><g transform="rotate(${dir*-14})"><path class="k kitef" d="M0-26 8.6-14 0 0-8.6-14Z"/><path class="kitef2" d="M0-26 8.6-14H0Z"/><path class="kitef2" d="M0 0-8.6-14H0Z"/><path class="kl" d="M0-26V0M-8.6-14h17.2"/><g class="ktail"><path class="kitetail" d="M0 0q-4 6 0 10t0 10"/><path class="bow" d="M-2.4 5l4.8 1.2M-2.4 14l4.8 1.2"/></g><path class="kbridle" d="M0-14L0 0M-4-10L0 0M4-10L0 0" transform="translate(0,0)"/></g></g></g>`);break}
   {const s=spot(m.y0+120,m.y1-60,70);if(s){objs.push([s[1],hive(s[0],s[1])]);put(s[0],s[1],26)}}
   {const s=spot(m.y0+140,m.y1-60,70);if(s){objs.push([s[1],laundry(s[0],s[1])]);put(s[0],s[1],30)}}
   for(let k=0;k<3;k++){const s=spot(m.y0+80,m.y1-30,64,30);if(s){objs.push([s[1],hay(s[0],s[1])]);put(s[0],s[1],20)}}
@@ -16109,7 +16143,6 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
   for(let k=0;k<22;k++){const s=spot(m.y0+40,m.y1,46,10);if(s)grd.push(grass(s[0],s[1]))}
   for(let k=0;k<11;k++){const s=spot(m.y0+60,m.y1,52,14);if(s)grd.push(flowers(s[0],s[1]))}
   for(let k=0;k<4;k++)anim.push(butterfly(30+R()*(W-60),m.y0+90+R()*(m.y1-m.y0-140),k));
-  {const kx=W*.72,ky=m.y0+70;sky.push(`<g transform="translate(${f(kx)},${f(ky)})"><g class="kite"><path class="k kitef" d="M0-11 8 0 0 13-8 0Z"/><path class="kitef2" d="M0-11 8 0H0Z"/><path class="kl" d="M0-11v24M-8 0h16"/><path class="kitetail" d="M0 13q-4 6 0 10t0 10"/><path class="bow" d="M-2.4 18l4.8 1.2M-2.4 27l4.8 1.2"/></g><path class="kstring" d="M0 13q-14 30-30 60"/></g>`)}
   back.push(stonewall(m.y1-16));
   /* ---------- FOREST ---------- */
   {const s=spot(fo.y0+120,fo.y1-150,115);if(s){const cx=s[0]+(s[0]>W/2?-40:40);back.push(lake(s[0],s[1]+18,48,19,''),cabin(cx,s[1]-4));anim.push(`<g class="ani${fogged(s[1])?' infog':''}"><g class="bbob">${boat(s[0]+8,s[1]+20)}</g></g>`);put(s[0],s[1]+10,100)}}
@@ -16164,7 +16197,6 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
   for(let k=0;k<12;k++){const s=spot(pk.y0+60,pk.y1-20,60,15);if(s){objs.push([s[1],pine(s[0],s[1],.7+R()*.45,true)]);put(s[0],s[1],18)}}
   for(let k=0;k<8;k++){const s=spot(pk.y0+60,pk.y1,50,12);if(s)grd.push(`<path class="drift" d="M${f(s[0]-14)} ${f(s[1])}q7-5 14-1q7-4 14 1Z"/>`)}
   for(let k=0;k<12;k++)anim.push(`<circle class="flake fall" cx="${f(R()*W)}" cy="${f(pk.y0+20+R()*(pk.y1-pk.y0-40))}" r="${f(1.3+R()*1.5)}" style="animation-delay:${f(-R()*6)}s"/>`);
-  sky.push(`<g transform="translate(${f(W*.3)},${f(pk.y0+170)})"><g class="eagle"><path class="k eaglew" d="M-16 0q8-7 16 0q8-7 16 0q-8-2-16 2.4q-8-4.4-16-2.4Z"/><path class="eagleh" d="M-1.6.6h3.2l-1.6 2.4Z"/></g></g>`);
   /* castles, finale dragon and treasure */
   P.forEach((p,k)=>{if(PLAN[k].review)objs.push([p[1]+30,castle(p[0],p[1]+30,1.15)])});
   {const p=P[P.length-1],dx=p[0]>W/2?Math.max(46,p[0]-112):Math.min(W-46,p[0]+112),dy=p[1]+22;
@@ -16183,6 +16215,7 @@ function drawMapScene(W,H,P,zys,fogFrom,curI=-1){
     if(placed.some(q=>q[2]>=50&&Math.abs(q[0]-x)<q[2]+40&&Math.abs(q[1]-y)<q[2]*.6+30))return;sky.push(cloud(x,y,Math.min(1,W/520)*(.85+R()*.3),i))});
   lanes.filter((l,i)=>i%2===1).filter((l,i)=>i%2===0).slice(0,4).forEach((l,i)=>sky.push(birds(0,l.y-6,i)));
   lanes.filter(l=>l.y>ca.y0+60&&l.y<ca.y1-40).slice(0,2).forEach((l,i)=>sky.push(hawk(laneX(l,.16),l.y,Math.min(24,W*.07),i,i===0)));
+  {const l=lanes.find(l=>l.y>pk.y0+120&&l.y<pk.y1-80);if(l)sky.push(hawk(laneX(l,.17),l.y,Math.min(26,W*.07),2,true,'eagle',1.25))}
   const fog=zys.map((z,k)=>k>=fogFrom?`<rect class="fog" x="-30" y="${z.y0+34}" width="${W+60}" height="${(k===3?H+20:z.y1)-z.y0-30}" filter="url(#fMist)"/><path class="fogswirl" d="M${f(W*.15)} ${f(z.y0+150)}q20-12 40 0t40 0M${f(W*.55)} ${f(z.y0+260)}q20-12 40 0t40 0M${f(W*.25)} ${f(z.y0+380)}q20-12 40 0t40 0"/>`:'').join('');
   objs.sort((a,b)=>a[0]-b[0]);
   return{ground:wash[0]+`<g filter="url(#fWC)">${wash.slice(1).join('')}</g>`+light.join('')+`<g filter="url(#fWob)">${grd.join('')}</g>`,
