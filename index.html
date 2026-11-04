@@ -383,6 +383,11 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 @keyframes toastIn{0%{transform:translate(-50%,40px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
 @media (prefers-reduced-motion: reduce){.btoast.in,.btoast.in .medal{animation:none}}
 /* Home screen */
+.getready{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 14px;background:var(--card);border:2px dashed color-mix(in srgb,var(--primary) 45%,var(--line));border-radius:16px;padding:12px 14px}
+.rdots{display:flex;align-items:center;gap:6px;margin-top:4px}.rdots i{width:22px;height:10px;border-radius:99px;background:var(--line)}.rdots i.on{background:var(--good)}.rdots em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:4px}
+.rgot{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.rgot span{font-size:.8rem;font-weight:700;color:var(--good);background:var(--good-bg);border-radius:999px;padding:2px 9px}
+.rrule{display:block;margin-top:6px;color:var(--muted);font-size:.82rem;line-height:1.45}.rrule summary{cursor:pointer;font-weight:700;color:var(--primary);width:max-content}.rrule span{display:block;padding-left:4px}.rrule span::before{content:'• '}
+.nextflag.soft{background:var(--bg);color:var(--ink);border:1.5px dashed var(--line)}
 .cardstop{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}.cardstop:empty{display:none}
 .scope{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;font-size:.95rem}
 .nextstep{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 35%,var(--card)),var(--card));border:2.5px solid var(--hi);border-radius:16px;padding:12px 14px}
@@ -1008,6 +1013,29 @@ function openWeeks(){const o=new Set(store.get('rd-open-weeks',[]));if(curWeek)o
 function isUnlocked(w){try{if(canTeach||w<=1||openWeeks().has(w))return true;return weekPassed(w-1)&&isUnlocked(w-1)}catch(e){return true}}
 function unlockedWeeks(){return PLAN.map(p=>p.w).filter(isUnlocked)}
 function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))||u[u.length-1]}
+/* ---------- Check-in readiness: finish READY different activities with the current week's words first ---------- */
+const READY=4;
+const ACTN={cards:'Flashcards',parts:'Break it down',build:'Build it',quiz:'Quiz',review:'Daily review',context:'Context clues',match:'Match',memory:'Memory',spell:'Spell it',sort:'Word sort',speed:'Speed round'};
+const ACTRULE='Flashcards: see every card · Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
+function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>out.add(x))}}catch(e){}return[...out]}
+function checkReady(w){return canTeach||weekPassed(w)||actsFor(w).length>=READY||!!(checkHistory(HIST.days)[w])}
+function doneActivity(kind){try{
+  const w=frontierWeek();if(weekPassed(w)||unlockedWeeks().length>=WEEKS)return;
+  const before=actsFor(w);if(before.includes(kind))return;
+  rec(d=>{const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind)});
+  const n=before.length+1;
+  if(n===READY){setTimeout(()=>{FX.cheer({left:innerWidth/2,top:140,width:0,height:0},'🎯 Check-in ready!');FX.play('win')},400)}
+  try{renderCardsTop()}catch(e){}
+}catch(e){}}
+const SESS={};
+function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need)doneActivity(kind)}catch(e){}}
+function readyHTML(w,compact){const got=actsFor(w),n=Math.min(got.length,READY);
+  const dots=Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');
+  return`<div class="getready ${compact?'compact':''}"><span class="ns-ico" aria-hidden="true">🧩</span><div class="ns-text"><p class="hkick">Get ready for the week ${w} check-in</p>
+    <b>Finish ${READY} different activities with this week's words</b>
+    <span class="rdots" aria-label="${n} of ${READY} done">${dots}<em>${n} of ${READY} done</em></span>
+    ${got.length?`<span class="rgot">${got.map(k=>`<span>✓ ${ACTN[k]||k}</span>`).join('')}</span>`:''}
+    <details class="rrule"><summary>What counts?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}</details></div></div>`}
 function startCheckin(w){setMode('quiz',true);startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})}
 const chosen=()=>{
   if(studyWeeks.length){const ids=new Set();studyWeeks.forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id))}
@@ -1076,8 +1104,9 @@ let deck=[], idx=0;
 function nextStepHTML(where){
   const uw=unlockedWeeks();if(uw.length>=WEEKS||selected)return'';
   const fw=frontierWeek(),h=checkHistory(HIST.days)[fw];
+  if(!checkReady(fw))return readyHTML(fw,where==='cards');
   return`<div class="nextstep"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><p class="hkick">Next step</p>
-    <b>Take the week ${fw} check-in to unlock week ${fw+1}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:where==='cards'?' Study these cards first, then try it.':''}</span></div>
+    <b>Take the week ${fw} check-in to unlock week ${fw+1}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished ${READY} activities, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
 function renderCardsTop(){
   const el=$('cardsTop');if(!el)return;let h='';
@@ -1116,7 +1145,8 @@ function renderCard(){
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
-const seenCard=()=>{const c=deck[idx];if(c)rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)})};
+const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});
+  try{const w=frontierWeek(),need=weekIds(w,PLAN[w-1].review),seen=new Set();for(const k in HIST.days)((HIST.days[k].cards||{}).ids||[]).forEach(i=>seen.add(i));if(need.every(i=>seen.has(i)))doneActivity('cards')}catch(e){}};
 $('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join(', ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{$('flash').classList.toggle('flipped');seenCard()};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
@@ -1169,6 +1199,7 @@ function results(){
   const wasOpen=new Set(unlockedWeeks());
   rec(d=>{const o=sub(d,'quiz');bump(o,'r');o.best=Math.max(o.best||0,Q.score);if(Q.tag.review)bump(d,'review');
     if(Q.tag.check){const c=sub(sub(d,'check'),Q.tag.check);if(c.f==null)c.f=Q.score;c.s=Math.max(c.s||0,Q.score);c.l=Q.score;bump(c,'n')}});
+  if(!Q.tag.check&&Q.score>=7)doneActivity(Q.tag.review?'review':'quiz');
   const tagNote=Q.tag.check?(()=>{const h=checkHistory(HIST.days)[Q.tag.check]||{};return`<p class="note" style="margin:0">Week ${Q.tag.check} check-in. First try: ${h.first}/10 · Best: ${h.best}/10${h.n>1&&h.best>h.first?` · up ${h.best-h.first} since your first try!`:''}</p>`})():Q.tag.review?'<p class="note" style="margin:0">Daily review done. Come back tomorrow for a new set.</p>':'';
   const opened=Q.tag.check?unlockedWeeks().filter(w=>!wasOpen.has(w)):[];
   const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Week ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to week ${opened[0]}</button></div>`
@@ -1352,7 +1383,7 @@ function renderParts(){
     <div style="text-align:right">${reportBtn({where:"Break it down",word:w.w,card:w.parts.filter(p=>p.card).map(p=>p.card.main).join(", ")})}</div>
     <div class="sayrow"><p class="whole"><b>${esc(w.w)}</b> = ${esc(w.def)}</p>${sayBtn(`${w.w}. ${w.parts.map(p=>p.s).join(", ")}. ${w.w} means ${w.def}.`,"Listen to the word")}</div>`;
 }
-$('wnext').onclick=()=>{widx=(widx+1)%wdeck.length;renderParts();rec(d=>bump(sub(d,'parts'),'n'))};
+$('wnext').onclick=()=>{widx=(widx+1)%wdeck.length;renderParts();rec(d=>bump(sub(d,'parts'),'n'));progressCount('parts',8)};
 $('wprev').onclick=()=>{widx=(widx-1+wdeck.length)%wdeck.length;renderParts()};
 $('wshuffle').onclick=()=>{wdeck=shuf(wdeck);widx=0;renderParts()};
 
@@ -1392,7 +1423,7 @@ function renderBuild(){
   if(B.solved){$('bnext').onclick=newBuild;$('bnext').focus();return}
   $('bcheck').onclick=()=>{
     const made=B.picked.map(i=>B.tiles[i].s).join('');
-    if(made===w.w){rec(d=>{const o=sub(d,'build');bump(o,'n');if(B.hint)bump(o,'hints');w.parts.forEach(p=>{if(p.card)bump(sub(d,'right'),p.card.id)})});B.solved=true;built++;renderBuild();const sl=$('slots');FX.burst(sl,40);FX.cheer(sl,FX.praise(0));FX.play('good',2);sl.classList.add('popin')}
+    if(made===w.w){rec(d=>{const o=sub(d,'build');bump(o,'n');if(B.hint)bump(o,'hints');w.parts.forEach(p=>{if(p.card)bump(sub(d,'right'),p.card.id)})});B.solved=true;built++;progressCount('build',3);renderBuild();const sl=$('slots');FX.burst(sl,40);FX.cheer(sl,FX.praise(0));FX.play('good',2);sl.classList.add('popin')}
     else{B.msg=made.length<w.w.length&&w.w.startsWith(made)?`Good start! “${esc(made)}” needs more parts.`:`“${esc(made)}” isn't the word. Try a different part.`;
       renderBuild();const sl=$('slots');sl.classList.add('no','shake')}
   };
@@ -1505,7 +1536,7 @@ function renderMatch(){
       M.done.add(lid);M.sel=null;M.streak++;M.best=Math.max(M.best,M.streak);const fin=M.done.size===M.cs.length;if(fin)M.t1=Date.now();
       renderMatch();FX.burst(lr,18);FX.burst(rr,26);FX.cheer(side==='r'?rr:lr,FX.praise(M.streak));FX.play('good',M.streak);
       ['l','r'].forEach(k=>{const e=$('mcard').querySelector(`[data-${k}="${lid}"]`);if(e)e.classList.add('popin')});
-      if(fin){rec(d=>{const o=sub(d,'match');bump(o,'r');bump(o,'miss',M.miss);bump(o,'sec',Math.round((M.t1-M.t0)/1000));o.fast=Math.min(o.fast||99999,Math.round((M.t1-M.t0)/1000));if(M.miss===0)bump(o,'perfect');o.best=Math.max(o.best||0,M.best);M.cs.forEach(c=>bump(sub(d,'right'),c.id))});setTimeout(celebrateWin,350)}}
+      if(fin){rec(d=>{const o=sub(d,'match');bump(o,'r');bump(o,'miss',M.miss);bump(o,'sec',Math.round((M.t1-M.t0)/1000));o.fast=Math.min(o.fast||99999,Math.round((M.t1-M.t0)/1000));if(M.miss===0)bump(o,'perfect');o.best=Math.max(o.best||0,M.best);M.cs.forEach(c=>bump(sub(d,'right'),c.id))});doneActivity('match');setTimeout(celebrateWin,350)}}
     else{M.miss++;M.streak=0;rec(d=>missCard(d,lid));FX.play('bad');M.sel=null;renderMatch();const e=$('mcard').querySelector(`[data-${side}="${id}"]`);if(e)e.classList.add('shake')}
   };
   $('mcard').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>pick('l',b.dataset.l,b));
@@ -1532,7 +1563,7 @@ function renderMemory(){
         G.got.add(a.c.id);G.up=[];G.streak++;G.best=Math.max(G.best,G.streak);const fin=G.got.size===G.cs.length;renderMemory();
         rs.forEach(r=>FX.burst(r,22));FX.cheer(rs[1],FX.praise(G.streak));FX.play('good',G.streak);
         ks.forEach(k=>{const e=$('memcard').querySelector(`[data-i="${k}"]`);if(e)e.classList.add('popin')});
-        if(fin){rec(d=>{const o=sub(d,'mem');bump(o,'r');bump(o,'turns',G.moves);o.fewest=Math.min(o.fewest||999,G.moves);o.best=Math.max(o.best||0,G.best)});setTimeout(celebrateWin,350)}}
+        if(fin){rec(d=>{const o=sub(d,'mem');bump(o,'r');bump(o,'turns',G.moves);o.fewest=Math.min(o.fewest||999,G.moves);o.best=Math.max(o.best||0,G.best)});doneActivity('memory');setTimeout(celebrateWin,350)}}
       else{G.lock=true;G.streak=0;renderMemory();setTimeout(()=>{FX.play('bad')},250);setTimeout(()=>{G.up=[];G.lock=false;renderMemory()},1100)}}
     else{FX.play('flip');renderMemory()}
   });
@@ -14955,7 +14986,7 @@ function renderContext(){
 }
 function ctxResults(){
   rec(d=>{const o=sub(d,'ctx');bump(o,'r');const l=sub(sub(o,'lv'),C.lev.n);bump(l,'r');l.best=Math.max(l.best||0,C.score)});
-  const s=C.score,L=C.lev.n,nb=ctxBest[L]==null||s>ctxBest[L];
+  const s=C.score,L=C.lev.n,nb=ctxBest[L]==null||s>ctxBest[L];if(s>=7)doneActivity('context');
   if(s>=7)setTimeout(celebrateWin,150);
   if(nb){ctxBest[L]=s;store.set('rd-ctx-best',ctxBest)}
   const up=s>=8&&L<6, down=s<=4&&L>1;
@@ -15033,9 +15064,9 @@ function renderHome(){
     </div>
     ${(()=>{const uw=unlockedWeeks(),fw=frontierWeek(),all=uw.length>=WEEKS,ph=checkHistory(HIST.days)[fw];
       return`<div class="hplan"><div class="hp-top"><span class="hp-ico">🗺️</span><div><p class="hkick">Your plan</p><b>${all?`All ${WEEKS} weeks unlocked`:`Week ${fw} of ${WEEKS}`}</b>
-        <span class="note">${all?'Keep reviewing to stay sharp.':`Score ${PASS}/10 on the week ${fw} check-in to unlock week ${fw+1}.${ph?` Your best so far: ${ph.best}/10.`:''}`}</span></div></div>
+        <span class="note">${all?'Keep reviewing to stay sharp.':checkReady(fw)?`Score ${PASS}/10 on the week ${fw} check-in to unlock week ${fw+1}.${ph?` Your best so far: ${ph.best}/10.`:''}`:`Practice this week's words: ${Math.min(actsFor(fw).length,READY)} of ${READY} activities done. Then the check-in opens up.`}</span></div></div>
         <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div>
-        <div class="grp">${all?'':`<button class="btn primary small" id="homeCheck">Take the week ${fw} check-in</button>`}<button class="btn small" id="homePlan">See the plan</button></div></div>`})()}
+        <div class="grp">${all||!checkReady(fw)?'':`<button class="btn primary small" id="homeCheck">Take the week ${fw} check-in</button>`}<button class="btn small" id="homePlan">See the plan</button></div></div>`})()}
     <div><p class="plabel">Or pick a game</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');return`<button class="hgame" data-go="${k}">${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
   </div>`;
   const hr2=$('homeReview');if(hr2)hr2.onclick=()=>{setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
@@ -15078,7 +15109,7 @@ function renderSpell(autoSay){
       if(SP.state==='retry'){SP.state='ask';renderSpell();$('spFb').innerHTML=`<p class="bfb no">Not quite. Listen again: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`;const i2=$('spIn');i2.classList.add('shake');i2.select()}}};
   if($('spNext'))$('spNext').onclick=()=>{SP.i++;SP.tries=0;SP.state='ask';SP.last='';SP.showSent=false;renderSpell(true)};
 }
-function spellResults(){const s=SP.score;rec(d=>{const o=sub(d,'spell');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=7)setTimeout(celebrateWin,150);
+function spellResults(){const s=SP.score;rec(d=>{const o=sub(d,'spell');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=7)doneActivity('spell');if(s>=7)setTimeout(celebrateWin,150);
   $('spellBody').innerHTML=`<div class="qcard"><div class="qtop"><span>Round complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${SN}</p><p class="prompt">${s>=9?'Spelling superstar!':s>=7?'Great spelling!':'Nice effort. Listen for each word part and try again.'}</p>
     ${SP.missed.length?`<div><p class="note" style="margin-bottom:8px">Words to practice:</p><div class="chips">${SP.missed.map(x=>`<span>${hl(x.w,x.c)}</span>`).join('')}</div></div>`:''}
@@ -15114,7 +15145,7 @@ function renderSort(){
     const t=WS.tiles[WS.sel],bin=WS.bins[+b.dataset.b];
     if(t.c===bin){WS.placed[WS.sel]=1;WS.sel=null;WS.streak++;WS.best=Math.max(WS.best,WS.streak);const r=b.getBoundingClientRect();renderSort();
       FX.burst(r,22);FX.cheer(r,FX.praise(WS.streak));FX.play('good');rec(d=>bump(sub(d,'right'),t.c.id));
-      if(Object.keys(WS.placed).length===WS.tiles.length){rec(d=>{const o=sub(d,'sort');bump(o,'r');bump(o,'miss',WS.miss);if(!WS.miss)bump(o,'perfect')});setTimeout(celebrateWin,350)}}
+      if(Object.keys(WS.placed).length===WS.tiles.length){rec(d=>{const o=sub(d,'sort');bump(o,'r');bump(o,'miss',WS.miss);if(!WS.miss)bump(o,'perfect')});if(WS.miss<=2)doneActivity('sort');setTimeout(celebrateWin,350)}}
     else{WS.miss++;WS.streak=0;FX.play('bad');rec(d=>missCard(d,t.c.id));renderSort();const nb=$('sortBody').querySelector(`[data-b="${b.dataset.b}"]`);nb.classList.add('shake')}
   });
   if($('wsAgain'))$('wsAgain').onclick=newSort;
@@ -15149,7 +15180,7 @@ function renderSpeed(){const q=SR.q,left=Math.max(0,Math.ceil((SR.end-Date.now()
     const tick=()=>{if(!SR||SR.done)return;const n=Math.ceil((until-Date.now())/1000);if(n<=0){nextSpeedQ();return}
       box.innerHTML=`<b>Wait ${n}…</b> ${q.t==='mean'?`${esc(q.c.main)} means “${esc(meanOf(q.c))}.”`:`“${esc(meanOf(q.c))}” is ${esc(q.c.main)}.`}`;setTimeout(tick,200)};tick()})}
 function endSpeed(){if(!SR||SR.done)return;SR.done=true;clearInterval(SR.timer);const s=SR.score,best=store.get('rd-speed-best',0),nb=s>best;if(nb)store.set('rd-speed-best',s);
-  rec(d=>{const o=sub(d,'speed');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=10)setTimeout(celebrateWin,100);
+  rec(d=>{const o=sub(d,'speed');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=8)doneActivity('speed');if(s>=10)setTimeout(celebrateWin,100);
   $('speedBody').innerHTML=`<div class="qcard"><div class="qtop"><span>Time!</span></div>${starRow(s>=20?3:s>=12?2:s>=6?1:0)}
     <p class="score">${s}</p><p class="prompt">${s} right in 60 seconds${SR.miss?`, ${SR.miss} miss${SR.miss===1?'':'es'}`:''}.${nb&&s?' New personal best!':''}</p>${SR.miss>s&&SR.miss>=4?`<p class="note" style="margin:0">More misses than right answers: slow down and read each one. Wrong taps cost 3 seconds each.</p>`:''}
     <div class="grp"><button class="btn primary" id="srAgain">Go again</button></div></div>`;
@@ -15229,12 +15260,12 @@ function renderPlan(){
     let counts='';
     if(!p.review){const a=p.ids.filter(i=>i[0]==='a').length,l=p.ids.filter(i=>i[0]==='l').length,g=p.ids.filter(i=>i[0]==='g').length;
       counts=[a&&`${a} affix${a>1?'es':''}`,l&&`${l} Latin`,g&&`${g} Greek`].filter(Boolean).join(' · ')}
-    const isNext=p.w===fw&&!weekPassed(p.w)&&uw.length<WEEKS;
-    h+=`<div class="wk ${now?'now':''} ${p.review?'rev':''} ${isNext?'nextwk':''}">${isNext?`<span class="nextflag">🎯 Next step: pass this check-in to unlock week ${p.w+1}</span>`:''}<div class="wkhead"><h3>Week ${p.w}${p.review?' · Review':''}</h3>${now?'<span class="pill">This week</span>':`<span class="note">${p.ids.length} cards</span>`}</div>
+    const isNext=p.w===fw&&!weekPassed(p.w)&&uw.length<WEEKS,rdy=isNext&&checkReady(p.w);
+    h+=`<div class="wk ${now?'now':''} ${p.review?'rev':''} ${isNext?'nextwk':''}">${isNext?(rdy?`<span class="nextflag">🎯 Next step: pass this check-in to unlock week ${p.w+1}</span>`:`<span class="nextflag soft">🧩 Practice first: ${Math.min(actsFor(p.w).length,READY)} of ${READY} activities done</span>`):''}<div class="wkhead"><h3>Week ${p.w}${p.review?' · Review':''}</h3>${now?'<span class="pill">This week</span>':`<span class="note">${p.ids.length} cards</span>`}</div>
       ${counts?`<span class="note">${counts}</span>`:''}${chips}
       ${(()=>{const h=checkHistory(HIST.days)[p.w];return h?`<p class="note" style="margin:0">Check-in: first ${h.first}/10 · best ${h.best}/10</p>`:''})()}
       ${weekPassed(p.w)?'<p class="note" style="margin:0;color:var(--good);font-weight:700">✓ Check-in passed</p>':''}
-      <div class="grp"><button class="btn small ${p.w===fw&&!weekPassed(p.w)?'primary':''}" data-check="${p.w}">${p.review?'Review check-in':'Check-in quiz'}</button><button class="btn small ${studyWeeks.includes(p.w)?'primary':''}" data-study="${p.w}" aria-pressed="${studyWeeks.includes(p.w)}">${studyWeeks.includes(p.w)?'Studying (tap to remove)':studyWeeks.length?'Add to my study':'Study this week'}</button></div></div>`;
+      <div class="grp"><button class="btn small ${p.w===fw&&!weekPassed(p.w)&&checkReady(p.w)?'primary':''}" data-check="${p.w}">${p.review?'Review check-in':'Check-in quiz'}</button><button class="btn small ${studyWeeks.includes(p.w)?'primary':''}" data-study="${p.w}" aria-pressed="${studyWeeks.includes(p.w)}">${studyWeeks.includes(p.w)?'Studying (tap to remove)':studyWeeks.length?'Add to my study':'Study this week'}</button></div></div>`;
   });
   $('planBody').innerHTML=h+'</div>';
   $('planBody').querySelectorAll('[data-check]').forEach(b=>b.onclick=()=>startCheckin(+b.dataset.check));
