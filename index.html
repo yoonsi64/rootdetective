@@ -383,6 +383,22 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 @keyframes toastIn{0%{transform:translate(-50%,40px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
 @media (prefers-reduced-motion: reduce){.btoast.in,.btoast.in .medal{animation:none}}
 /* Home screen */
+.scopebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--card);border:2px solid var(--primary);border-radius:14px;padding:10px 14px}
+.sb-ico{font-size:1.7rem;line-height:1}.sb-text{display:flex;flex-direction:column;flex:1 1 14em;gap:2px}.sb-text b{font-size:1.1rem}.sb-text span{font-size:.88rem;color:var(--muted)}
+.wktag{align-self:flex-end;margin-right:auto;font-size:.78rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--paper-ink);opacity:.7;padding:0 0 10px}
+.foot{display:flex}
+.nextstep{animation:nsPulse 2.2s ease-in-out infinite}
+@keyframes nsPulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--hi) 35%,transparent)}}
+.modetabs button.ping{position:relative}
+.modetabs button.ping::after{content:"!";position:absolute;top:4px;right:10px;width:18px;height:18px;border-radius:50%;background:#E03131;color:#fff;font-size:.72rem;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--card);animation:pingDot 1.4s ease-in-out infinite}
+@keyframes pingDot{50%{transform:scale(1.2)}}
+.readypop{position:fixed;inset:0;z-index:66;display:grid;place-items:center;padding:16px;background:rgba(10,14,22,.45)}
+.readypop[hidden]{display:none}
+.rp-card{width:min(420px,100%);background:var(--card);color:var(--ink);border:3px solid var(--hi);border-radius:22px;padding:22px 20px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:rpIn .45s cubic-bezier(.3,1.5,.5,1)}
+.rp-card h3{margin:4px 0 8px;font-family:var(--display);font-size:1.45rem;line-height:1.2}.rp-card p{margin:0 0 14px}.rp-card .grp{justify-content:center}
+.rp-ico{font-size:3.2rem;line-height:1;margin-bottom:6px}
+@keyframes rpIn{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){.nextstep,.modetabs button.ping::after,.rp-card{animation:none}}
 .getready{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 14px;background:var(--card);border:2px dashed color-mix(in srgb,var(--primary) 45%,var(--line));border-radius:16px;padding:12px 14px}
 .rdots{display:flex;align-items:center;gap:6px;margin-top:4px}.rdots i{width:22px;height:10px;border-radius:99px;background:var(--line)}.rdots i.on{background:var(--good)}.rdots em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:4px}
 .rgot{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.rgot span{font-size:.8rem;font-weight:700;color:var(--good);background:var(--good-bg);border-radius:999px;padding:2px 9px}
@@ -1024,9 +1040,23 @@ function doneActivity(kind){try{
   const before=actsFor(w);if(before.includes(kind))return;
   rec(d=>{const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind)});
   const n=before.length+1;
-  if(n===READY){setTimeout(()=>{FX.cheer({left:innerWidth/2,top:140,width:0,height:0},'🎯 Check-in ready!');FX.play('win')},400)}
-  try{renderCardsTop()}catch(e){}
+  if(n===READY)setTimeout(()=>{showReadyPop(w);FX.play('win')},450);
+  try{renderCardsTop()}catch(e){}updateReadyDots();
 }catch(e){}}
+/* "You're ready" pop-up: stays until the student chooses; dots on Home and Plan while the check-in waits */
+function readyPending(){try{if(canTeach||unlockedWeeks().length>=WEEKS)return 0;const w=frontierWeek();return checkReady(w)&&!checkHistory(HIST.days)[w]?w:0}catch(e){return 0}}
+function updateReadyDots(){const w=readyPending();['tab-home','tab-plan'].forEach(id=>{const t=$(id);if(t){t.classList.toggle('ping',!!w);t.setAttribute('aria-description',w?`Week ${w} check-in is ready`:'')}})}
+function showReadyPop(w){
+  let el=$('readyPop');if(!el){el=document.createElement('div');el.id='readyPop';el.className='readypop';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');el.setAttribute('aria-labelledby','rpTitle');document.body.appendChild(el)}
+  el.innerHTML=`<div class="rp-card"><div class="rp-ico" aria-hidden="true">🎯</div><p class="hkick">Level-up test unlocked</p><h3 id="rpTitle">You're ready for the week ${w} check-in!</h3>
+    <p>You finished ${READY} activities with this week's words. Score ${PASS} out of 10 to unlock week ${w+1}.</p>
+    <div class="grp"><button class="btn primary big" id="rpGo">Take it now →</button><button class="btn" id="rpLater">Later</button></div></div>`;
+  el.hidden=false;if(!document.documentElement.classList.contains('calm'))FX.shower();
+  const close=()=>{el.hidden=true;store.set('rd-ready-seen',w)};
+  $('rpGo').onclick=()=>{close();startCheckin(w);scrollTo({top:0})};$('rpLater').onclick=close;
+  el.onclick=e=>{if(e.target===el)close()};setTimeout(()=>$('rpGo').focus(),50);
+  document.addEventListener('keydown',function k(e){if(e.key==='Escape'&&!el.hidden){close();document.removeEventListener('keydown',k)}});
+}
 const SESS={};
 function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need)doneActivity(kind)}catch(e){}}
 function readyHTML(w,compact){const got=actsFor(w),n=Math.min(got.length,READY);
@@ -1109,14 +1139,18 @@ function nextStepHTML(where){
     <b>Take the week ${fw} check-in to unlock week ${fw+1}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished ${READY} activities, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
 function renderCardsTop(){
-  const el=$('cardsTop');if(!el)return;let h='';
-  if(cardsScoped()){const w=newestWeek(),n=cardPool().length,all=pool().length;
-    h+=`<div class="scope"><span>📚 Showing <b>week ${w}${PLAN[w-1].review?' review':''}</b> cards (${n})</span><button class="linkish" id="cardsAllBtn">Show all my weeks (${all})</button></div>`}
-  else if(cardsAll&&!studyWeeks.length&&!selected&&unlockedWeeks().length>1){
-    h+=`<div class="scope"><span>📚 Showing <b>all your unlocked weeks</b> (${pool().length})</span><button class="linkish" id="cardsNewBtn">Show only week ${newestWeek()}</button></div>`}
-  h+=nextStepHTML('cards');el.innerHTML=h;
+  const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',sub='',btn='';
+  if(selected){main=curWeek?`Your class's week ${curWeek} cards`:"Your class's cards";sub='Your teacher chose these cards.'}
+  else if(studyWeeks.length){main=`${weeksLabel(studyWeeks)} (you picked these)`;sub='Your Study menu picks are on, so every activity uses these weeks.';
+    btn=`<button class="btn small" id="cardsBackNew">Back to my newest week (${w})</button>`}
+  else if(cardsAll&&uw.length>1){main='All your unlocked weeks';sub=`${weeksLabel(uw)}. Flip back to just this week's new cards anytime.`;btn=`<button class="btn small" id="cardsNewBtn">Show only week ${w}</button>`}
+  else{main=`Week ${w}${PLAN[w-1].review?' review':''}: ${uw.length>1?"this week's new cards":'your first cards'}`;
+    sub=uw.length>1?'Your other activities mix in every week you have unlocked.':'Finish activities and pass the check-in to unlock week 2.';
+    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">Show all my weeks (${pool().length})</button>`}
+  el.innerHTML=`<div class="scopebar"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'} · ${esc(sub)}</span></div>${btn}</div>`+nextStepHTML('cards');
   if($('cardsAllBtn'))$('cardsAllBtn').onclick=()=>{cardsAll=true;deck=cardPool();idx=0;renderCard()};
   if($('cardsNewBtn'))$('cardsNewBtn').onclick=()=>{cardsAll=false;deck=cardPool();idx=0;renderCard()};
+  if($('cardsBackNew'))$('cardsBackNew').onclick=()=>{cardsAll=false;setStudyWeeks([])};
   el.querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
 }
 function renderCard(){
@@ -1128,6 +1162,7 @@ function renderCard(){
   const c=deck[idx];
   const size=c.main.length>18?'2.1rem':c.main.length>11?'clamp(2.3rem,9vw,3.3rem)':'clamp(3rem,13vw,4.6rem)';
   const BAND={prefix:'PREFIX',suffix:'SUFFIX',latin:'LATIN',greek:'GREEK'}[c.kind];
+  const wkOf=PLAN.find(p=>!p.review&&p.ids.includes(c.id));
   const TAB=c.set==='a'?`Affix (${c.num})`:c.set==='l'?`Latin base (${c.num})`:`Greek base (${c.num})`;
   const n=c.cols.length, perCol=c.senses.length===n;
   const heads=perCol?c.senses.map(x=>`<div><b>${esc(x.mean)}</b>${x.pos?`<i>${esc(x.pos)}</i>`:''}${x.form?`<i class="form">${esc(x.form)}</i>`:''}</div>`).join('')
@@ -1136,11 +1171,11 @@ function renderCard(){
   $('front').innerHTML=`<div class="band">${BAND}</div>
     <div class="bigwrap"><div class="big" style="font-size:${size}">${esc(c.main)}</div>${c.alts?`<div class="alts">also: ${esc(c.alts)}</div>`:''}</div>
     <div class="hint">Tap the card to see what it means</div>
-    <div class="foot"><span class="tab">${TAB}</span></div>`;
+    <div class="foot">${wkOf?`<span class="wktag">Week ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
   $('back').innerHTML=`<div class="band">${BAND}</div>
     <div class="heads" style="grid-template-columns:repeat(${n},1fr)">${heads}</div>
     <div class="tchart" style="grid-template-columns:repeat(${n},1fr)">${c.cols.map(col=>`<div class="col">${col.map(w=>`<span>${hl(w,c)}</span>`).join('')}</div>`).join('')}</div>
-    <div class="foot"><span class="tab">${TAB}</span></div>`;
+    <div class="foot">${wkOf?`<span class="wktag">Week ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
   $('known').setAttribute('aria-pressed',known.has(c.id));
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
@@ -1204,6 +1239,7 @@ function results(){
   const opened=Q.tag.check?unlockedWeeks().filter(w=>!wasOpen.has(w)):[];
   const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Week ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to week ${opened[0]}</button></div>`
     :Q.score<PASS&&!weekPassed(Q.tag.check)&&Q.tag.check<WEEKS?`<p class="note" style="margin:0">Score ${PASS} or more to unlock week ${Q.tag.check+1}. Study the missed cards and try again.</p>`:'';
+  try{updateReadyDots()}catch(e){}
   if(opened.length){cardsAll=false;refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
   const s=Q.score,newBest=best===null||s>best;if(newBest){best=s;store.set('rd-best2',s)}
   if(s>=7)setTimeout(celebrateWin,150);
@@ -1221,7 +1257,7 @@ function results(){
 
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
 function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
-  centerTab(m);document.body.classList.toggle('on-home',m==='home');try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
+  centerTab(m);document.body.classList.toggle('on-home',m==='home');try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
 (()=>{const c=$('modeTabs');if(!c)return;const w=$('tabWrap'),edge=()=>{const max=c.scrollWidth-c.clientWidth;c.classList.toggle('fl',c.scrollLeft>4);c.classList.toggle('fr',c.scrollLeft<max-4);if(w){w.classList.toggle('cl',c.scrollLeft>4);w.classList.toggle('cr',c.scrollLeft<max-4)}};
@@ -15627,6 +15663,7 @@ renderNameBar();
 studyWeeks=studyWeeks.filter(isUnlocked);
 applySelection(null,null);
 applyHashWeeks();
+setTimeout(()=>{updateReadyDots();const w=readyPending();if(w&&store.get('rd-ready-seen',0)!==w)showReadyPop(w)},900);
 deck=cardPool();idx=0;renderCard();setMode('home');
 (async()=>{
   const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
