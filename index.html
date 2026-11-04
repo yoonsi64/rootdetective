@@ -665,7 +665,7 @@ html.calm .wmap .stage.cur::before{animation:none}
 .sstars{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);display:flex;gap:1px;font-size:1rem;text-shadow:0 1px 0 rgba(0,0,0,.3)}
 .sstars i,.ss-stars i{font-style:normal;color:rgba(0,0,0,.25)}.sstars i.on,.ss-stars i.on{color:#FFC800}
 .slabel{position:absolute;top:-24px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.72rem;font-family:var(--body);background:var(--card);color:var(--ink);border-radius:99px;padding:1px 8px;border:1.5px solid var(--line)}
-.youhere{position:absolute;z-index:3;transform:translate(26px,-112px);display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.youhere{position:absolute;z-index:3;transform:translate(26px,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .youhere .mascot{width:58px;height:58px;animation:bob 2.4s ease-in-out infinite}
 .youhere span{background:var(--ink);color:var(--card);font-size:.72rem;font-weight:800;border-radius:99px;padding:2px 8px;white-space:nowrap;margin-top:-4px}
 .deco{position:absolute;z-index:1;transform:translate(-50%,-50%);font-size:1.9rem;opacity:.9;filter:drop-shadow(0 2px 0 rgba(0,0,0,.1));pointer-events:none}
@@ -1355,6 +1355,8 @@ function weekPassed(w){try{const h=checkHistory(HIST.days)[w];return !!h&&h.best
 function openWeeks(){const o=new Set(store.get('rd-open-weeks',[]));if(curWeek)o.add(curWeek);return o}
 function isUnlocked(w){try{if(canTeach||w<=1||openWeeks().has(w))return true;return weekPassed(w-1)&&isUnlocked(w-1)}catch(e){return true}}
 function unlockedWeeks(){return PLAN.map(p=>p.w).filter(isUnlocked)}
+function questDone(){try{return weekPassed(WEEKS)&&unlockedWeeks().length>=WEEKS}catch(e){return false}}
+const nextGoal=w=>w<WEEKS?`unlock week ${w+1}`:'finish the Word Quest';
 function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))||u[u.length-1]}
 /* ---------- Check-in readiness: finish READY different activities with the current week's words first ---------- */
 const READY=4;
@@ -1363,7 +1365,7 @@ const ACTRULE='Flashcards: see every card · Break it down: 8 words · Build it:
 function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>out.add(x))}}catch(e){}return[...out]}
 function checkReady(w){return canTeach||weekPassed(w)||actsFor(w).length>=READY||!!(checkHistory(HIST.days)[w])}
 function doneActivity(kind){try{
-  const w=frontierWeek();if(weekPassed(w)||unlockedWeeks().length>=WEEKS)return;
+  const w=frontierWeek();if(weekPassed(w)||questDone())return;
   const before=actsFor(w);if(before.includes(kind))return;
   rec(d=>{const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind)});
   const n=before.length+1;
@@ -1371,12 +1373,12 @@ function doneActivity(kind){try{
   try{renderCardsTop()}catch(e){}updateReadyDots();
 }catch(e){}}
 /* "You're ready" pop-up: stays until the student chooses; dots on Home and Plan while the check-in waits */
-function readyPending(){try{if(canTeach||unlockedWeeks().length>=WEEKS)return 0;const w=frontierWeek();return checkReady(w)&&!checkHistory(HIST.days)[w]?w:0}catch(e){return 0}}
+function readyPending(){try{if(canTeach||questDone())return 0;const w=frontierWeek();return checkReady(w)&&!checkHistory(HIST.days)[w]?w:0}catch(e){return 0}}
 function updateReadyDots(){const w=readyPending();['tab-home','tab-plan'].forEach(id=>{const t=$(id);if(t){t.classList.toggle('ping',!!w);t.setAttribute('aria-description',w?`Week ${w} check-in is ready`:'')}})}
 function showReadyPop(w){
   let el=$('readyPop');if(!el){el=document.createElement('div');el.id='readyPop';el.className='readypop';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');el.setAttribute('aria-labelledby','rpTitle');document.body.appendChild(el)}
   el.innerHTML=`<div class="rp-card"><div class="rp-ico" aria-hidden="true">🎯</div><p class="hkick">Level-up test unlocked</p><h3 id="rpTitle">You're ready for the week ${w} check-in!</h3>
-    <p>You finished ${READY} activities with this week's words. Score ${PASS} out of 10 to unlock week ${w+1}.</p>
+    <p>You finished ${READY} activities with this week's words. Score ${PASS} out of 10 to ${nextGoal(w)}.</p>
     <div class="grp"><button class="btn primary big" id="rpGo">Take it now →</button><button class="btn" id="rpLater">Later</button></div></div>`;
   el.hidden=false;if(!document.documentElement.classList.contains('calm'))FX.shower();
   const close=()=>{el.hidden=true;store.set('rd-ready-seen',w)};
@@ -1459,11 +1461,11 @@ function renderFilter(){
 let deck=[], idx=0;
 /* Above the flashcards: which week is showing, and the check-in that unlocks the next week */
 function nextStepHTML(where){
-  const uw=unlockedWeeks();if(uw.length>=WEEKS||selected)return'';
+  const uw=unlockedWeeks();if(questDone()||selected)return'';
   const fw=frontierWeek(),h=checkHistory(HIST.days)[fw];
   if(!checkReady(fw))return readyHTML(fw,where==='cards');
   return`<div class="nextstep"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><p class="hkick">Next step</p>
-    <b>Take the week ${fw} check-in to unlock week ${fw+1}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished ${READY} activities, so you're ready!`:''}</span></div>
+    <b>Take the week ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished ${READY} activities, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
 function renderCardsTop(){
   const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',sub='',btn='';
@@ -1565,9 +1567,10 @@ function results(){
   const tagNote=Q.tag.check?(()=>{const h=checkHistory(HIST.days)[Q.tag.check]||{};return`<p class="note" style="margin:0">Week ${Q.tag.check} check-in. First try: ${h.first}/10 · Best: ${h.best}/10${h.n>1&&h.best>h.first?` · up ${h.best-h.first} since your first try!`:''}</p>`})():Q.tag.review?'<p class="note" style="margin:0">Daily review done. Come back tomorrow for a new set.</p>':'';
   const opened=Q.tag.check?unlockedWeeks().filter(w=>!wasOpen.has(w)):[];
   const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Week ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to week ${opened[0]}</button></div>`
+    :Q.tag.check===WEEKS&&Q.score>=PASS?`<div class="unlockbox"><span class="ub-ico">🏆</span><div><b>You finished the Word Quest!</b><span>All 16 stages cleared. The treasure is yours, detective!</span></div></div>`
     :Q.score<PASS&&!weekPassed(Q.tag.check)&&Q.tag.check<WEEKS?`<p class="note" style="margin:0">Score ${PASS} or more to unlock week ${Q.tag.check+1}. Study the missed cards and try again.</p>`:'';
   try{updateReadyDots()}catch(e){}
-  if(opened.length){cardsAll=false;refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
+  if(opened.length||(Q.tag.check===WEEKS&&Q.score>=PASS)){cardsAll=false;refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
   const s=Q.score,newBest=best===null||s>best;if(newBest){best=s;store.set('rd-best2',s)}
   if(s>=7)setTimeout(celebrateWin,150);
   const msg=s===QN?'Perfect score! Every word part found.':s>=8?'Great job, detective!':s>=5?"Good work. A little more practice and you've got it.":'Keep going. Study the flashcards and try again.';
@@ -15420,12 +15423,12 @@ function renderHome(){
   const mastered=aggStats(days,Object.keys(days)).mastered.filter(i=>ids.has(i)).length,total=ids.size||1;
   const nb=earnedBadges(days,HIST.name).ids.length,done=((HIST.days[dayKey()]||{}).review||0)>0,picks=reviewPick(10);
   const hr=new Date().getHours(),hello=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
-  const uw=unlockedWeeks(),fw=frontierWeek(),all=uw.length>=WEEKS,ready=!all&&checkReady(fw),ph=checkHistory(HIST.days)[fw];
+  const uw=unlockedWeeks(),fw=frontierWeek(),all=questDone(),ready=!all&&checkReady(fw),ph=checkHistory(HIST.days)[fw];
   const got=actsFor(fw),n=Math.min(got.length,READY);
   /* one "next up" card: the check-in when ready, otherwise practice (today's review first) */
   let next;
   if(ready){next=`<div class="hnext ready"><p class="hkick">🎯 Next up</p><h3>Take the week ${fw} check-in</h3>
-      <p class="note">Score ${PASS}/10 to unlock week ${fw+1}.${ph?` Best so far: ${ph.best}/10.`:''}</p>
+      <p class="note">Score ${PASS}/10 to ${nextGoal(fw)}.${ph?` Best so far: ${ph.best}/10.`:''}</p>
       <div class="grp"><button class="btn primary big" id="homeCheck">Start the check-in →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
   else{
     const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>${n} of ${READY} activities done, then the week ${fw} check-in</span></div>`;
@@ -15842,10 +15845,10 @@ function drawMapScene(W,H,P,zys,fogFrom){
     scene:`<g filter="url(#fWob)">${back.join('')}${objs.map(o=>o[1]).join('')}</g>${fog}`,anim:anim.join('')};
 }
 function renderPlan(){
-  const uw=unlockedWeeks(),fw=frontierWeek(),all=uw.length>=WEEKS,ch=checkHistory(HIST.days);
+  const uw=unlockedWeeks(),fw=frontierWeek(),all=questDone(),ch=checkHistory(HIST.days);
   const totalStars=PLAN.reduce((a,p)=>a+(ch[p.w]?starsFor(ch[p.w].best):0),0);
   let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a week:</b> add <code>#week-5</code> to the end of your share link (or <code>#weeks-3-4-5</code> for several). The link opens with those weeks ticked in the Study menu.</div>`:''}
-  <div class="maphead"><div><p class="hkick">🗺️ Word Quest</p><h2>${all?'Every land unlocked!':`Stage ${fw} of ${WEEKS}`}</h2>
+  <div class="maphead"><div><p class="hkick">🗺️ Word Quest</p><h2>${all?'🏆 Quest complete!':`Stage ${fw} of ${WEEKS}`}</h2>
     <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
     <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
   ${nextStepHTML('plan')}
@@ -15866,7 +15869,7 @@ function renderPlan(){
           <span class="snum">${st==='locked'?'🔒':boss?'🏰':w}</span>
           ${st==='done'?`<span class="sstars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>`:''}
           ${boss&&st!=='locked'?`<span class="slabel">Week ${w}</span>`:''}</button>`;
-      if(cur)h+=`<div class="youhere" style="left:${x}%;top:${cy}px">${MASCOT}<span>You are here</span></div>`;
+      if(cur)h+=`<div class="youhere" data-x="${x}" data-y="${cy}" style="left:${x}%;top:${cy}px">${MASCOT}<span>You are here</span></div>`;
       y+=112;
     }
     y+=10;
@@ -15885,7 +15888,9 @@ function renderPlan(){
     if(gr&&sc){try{const r=drawMapScene(W,y+20,P,zys,fzi+1);const an=$('wanim');[gr,sc,an].forEach(e=>e&&e.setAttribute('viewBox',`0 0 ${W} ${y+20}`));gr.innerHTML=r.ground;sc.innerHTML=r.scene;if(an)an.innerHTML=r.anim;
       const pp=$('wpaper');if(pp){pp.setAttribute('viewBox',`0 0 ${W} ${y+20}`);pp.innerHTML=`<defs><filter id="fPaper" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" values="0 0 0 0 .55  0 0 0 0 .45  0 0 0 0 .32  0 0 0 -1.4 .9" result="speck"/><feTurbulence type="fractalNoise" baseFrequency=".012 .2" numOctaves="2" seed="3" result="fib"/><feColorMatrix in="fib" values="0 0 0 0 .6  0 0 0 0 .5  0 0 0 0 .38  0 0 0 1.4 -.85" result="fibers"/><feMerge><feMergeNode in="speck"/><feMergeNode in="fibers"/></feMerge></filter><radialGradient id="gPage" cx=".5" cy=".5" r=".72"><stop offset=".72" stop-color="#8A6A45" stop-opacity="0"/><stop offset="1" stop-color="#8A6A45" stop-opacity=".28"/></radialGradient></defs><rect width="${W}" height="${y+20}" filter="url(#fPaper)" opacity=".5"/><rect width="${W}" height="${y+20}" fill="url(#gPage)"/>`}}catch(e){gr.innerHTML='';sc.innerHTML=''}}
     svg.innerHTML=`<path class="tr-edge" d="${d}"/><path class="tr-base" d="${d}"/><path class="tr-rut" d="${d}" transform="translate(-4,0)"/><path class="tr-dash" d="${d}"/>${done?`<path class="tr-done" d="${done}"/>`:''}`};
-  drawTrail();window.__drawTrail=drawTrail;
+  const placeYou=()=>{const yh=map.querySelector('.youhere'),W=map.clientWidth;if(!yh||!W)return;const sx=+yh.dataset.x/100*W,w=yh.offsetWidth,gap=46;
+    let l=sx>W/2?sx-gap-w:sx+gap;l=Math.max(6,Math.min(W-w-6,l));yh.style.left=l+'px';yh.style.transform='translateY(-50%)';yh.classList.toggle('onleft',sx>W/2)};
+  drawTrail();placeYou();window.__drawTrail=()=>{drawTrail();placeYou()};
   if(!window.__trailRO&&window.ResizeObserver){window.__trailRO=new ResizeObserver(()=>{if(mode==='plan'&&window.__drawTrail)window.__drawTrail()});}
   if(window.__trailRO){window.__trailRO.disconnect();window.__trailRO.observe(map)}
   map.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>openStage(+b.dataset.stage));
