@@ -58,6 +58,21 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--primary);outlin
 /* Mode tabs: one scrolling row of icon tiles */
 .modetabs{flex:1 1 100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;position:relative;gap:2px;border-radius:18px;padding:5px;scroll-padding-inline:8px}
 .modetabs::-webkit-scrollbar{display:none}
+.tabwrap{position:relative;flex:1 1 100%;min-width:0;display:flex}
+.tabwrap .modetabs{flex:1 1 auto}
+.tabarrow{display:none;position:absolute;top:50%;z-index:2;width:36px;height:36px;margin-top:-18px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);box-shadow:0 3px 10px rgba(0,0,0,.15);place-items:center;padding:0;cursor:pointer}
+.tabarrow svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.tabarrow:hover{border-color:var(--primary);color:var(--primary)}
+.tabarrow.l{left:-8px}.tabarrow.r{right:-8px}
+/* Computers: arrows when the row scrolls, and all modes in two rows when there's room */
+@media (hover:hover) and (pointer:fine){
+  .tabwrap.cl .tabarrow.l,.tabwrap.cr .tabarrow.r{display:grid}
+}
+@media (hover:hover) and (pointer:fine) and (min-width:560px){
+  .modetabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));overflow:visible;-webkit-mask-image:none!important;mask-image:none!important;gap:4px}
+  .modetabs button{min-width:0;white-space:normal;text-align:center;padding:8px 4px 7px;font-size:.82rem}
+  .tabwrap .tabarrow{display:none!important}
+}
 .modetabs.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px);mask-image:linear-gradient(90deg,transparent,#000 36px)}
 .modetabs.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
 .modetabs.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,transparent,#000 36px,#000 calc(100% - 36px),transparent)}
@@ -607,6 +622,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
       <div class="grp"><input id="nameInput" maxlength="40" placeholder="Your name" autocomplete="off"><button class="btn small primary" id="nameSave">Save</button></div>
     </div>
     <div class="bar">
+      <div class="tabwrap" id="tabWrap"><button type="button" class="tabarrow l" id="tabPrev" aria-label="Show earlier modes" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg></button>
       <div class="tabs modetabs" id="modeTabs" role="tablist" aria-label="Ways to study">
         <button id="tab-home" role="tab" aria-selected="true"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M5.5 10.2 12 4.8l6.5 5.4V20h-13z"/><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/></svg><span>Home</span></button>
         <button id="tab-cards" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><rect class="d" x="3.5" y="5.5" width="11" height="15" rx="2" transform="rotate(-10 9 13)"/><rect x="3.5" y="5.5" width="11" height="15" rx="2" transform="rotate(-10 9 13)"/><rect x="9" y="3.5" width="11.5" height="16" rx="2" class="bg"/><path d="M12.5 9.5h5M12.5 13h3.5"/></svg><span>Flashcards</span></button>
@@ -623,6 +639,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
         <button id="tab-plan" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M9 4v13.5L3 20V6.5zM21 4v13.5L15 20V6.5z"/><path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20z"/><path d="M9 4v13.5M15 6.5V20"/></svg><span>Plan</span></button>
         <button id="tab-progress" role="tab" aria-selected="false"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true"><path class="d" d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5v1.5A3.5 3.5 0 0 0 8 11M17 6h2.5v1.5A3.5 3.5 0 0 1 16 11"/><path d="M12 14v3M8.5 21h7l-.8-4H9.3z"/></svg><span>Progress</span></button>
       </div>
+      <button type="button" class="tabarrow r" id="tabNext" aria-label="Show more modes" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button></div>
       <div class="weekbar" id="weekbar">
         <span class="wlbl" id="weekLbl">Study</span>
         <button type="button" id="weekBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="weekLbl weekBtn">All cards</button>
@@ -1108,11 +1125,12 @@ function results(){
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
 function setMode(m,noStart){if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
   centerTab(m);document.body.classList.toggle('on-home',m==='home');try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
-function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
+function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
-(()=>{const c=$('modeTabs');if(!c)return;const edge=()=>{const max=c.scrollWidth-c.clientWidth;c.classList.toggle('fl',c.scrollLeft>4);c.classList.toggle('fr',c.scrollLeft<max-4)};
+(()=>{const c=$('modeTabs');if(!c)return;const w=$('tabWrap'),edge=()=>{const max=c.scrollWidth-c.clientWidth;c.classList.toggle('fl',c.scrollLeft>4);c.classList.toggle('fr',c.scrollLeft<max-4);if(w){w.classList.toggle('cl',c.scrollLeft>4);w.classList.toggle('cr',c.scrollLeft<max-4)}};
+  const step=d=>{try{c.scrollBy({left:d*c.clientWidth*.7,behavior:document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft+=d*c.clientWidth*.7}};
+  if($('tabPrev'))$('tabPrev').onclick=()=>step(-1);if($('tabNext'))$('tabNext').onclick=()=>step(1);
   c.addEventListener('scroll',edge,{passive:true});addEventListener('resize',edge);edge();
-  c.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&c.scrollWidth>c.clientWidth){const max=c.scrollWidth-c.clientWidth;if((e.deltaY<0&&c.scrollLeft>0)||(e.deltaY>0&&c.scrollLeft<max)){c.scrollLeft+=e.deltaY;e.preventDefault()}}},{passive:false});
   c.addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const bs=[...c.querySelectorAll('[role=tab]')],i=bs.indexOf(document.activeElement);if(i<0)return;
     const n=bs[(i+(e.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.focus();n.click();e.preventDefault()})})();
 function refreshMode(){if(mode==='home')renderHome();else if(mode==='review')renderReview();else if(mode==='spell')startSpell();else if(mode==='sort')newSort();else if(mode==='speed'){stopSpeedIfLeaving();renderSpeedStart()}else if(mode==='quiz')startQuiz();else if(mode==='parts'){buildWdeck();renderParts()}else if(mode==='build')newBuild();else if(mode==='plan')renderPlan();else if(mode==='progress'){if(progView==='class')watchClass();renderProgress()}else if(mode==='match')newMatch();else if(mode==='memory')newMemory();else if(mode==='context')startContext()}
