@@ -16000,12 +16000,6 @@ const ROUTINE=[['Mon','Flashcards','Meet the new cards. Flip each one and say th
   ['Thu','Quiz','Take one round. Study any missed cards.'],
   ['Fri','Context clues + games','Do a round of Context clues, then Match or Memory for review.']];
 /* ---------- Plan as an adventure map: 16 stages along a winding trail through four lands ---------- */
-const ZONES=[
-  {from:1,to:4,name:'Prefix Meadow',ico:'🌼',cls:'z1',deco:['🌳','🌼','🌷','🍀','🐇']},
-  {from:5,to:8,name:'Root Forest',ico:'🌲',cls:'z2',deco:['🌲','🍄','🌲','🦉','🪵']},
-  {from:9,to:12,name:'Greek Canyon',ico:'🏜️',cls:'z3',deco:['🌵','🏺','🪨','🦎','🌵']},
-  {from:13,to:16,name:'Summit Peaks',ico:'🏔️',cls:'z4',deco:['🏔️','❄️','🌨️','🦅','⛄']}];
-const zoneOf=w=>ZONES.find(z=>w>=z.from&&w<=z.to);
 const starsFor=best=>best>=10?3:best>=9?2:best>=PASS?1:0;
 let mapSel=null;
 function stageState(w){if(weekPassed(w))return'done';if(!isUnlocked(w))return'locked';return'open'}
@@ -16064,20 +16058,22 @@ function renderPlan(){
   if(cur&&!renderPlan.__scrolled){renderPlan.__scrolled=true;setTimeout(()=>{try{const r=cur.getBoundingClientRect();if(r.top>innerHeight*.7||r.top<0)scrollTo({top:scrollY+r.top-innerHeight*.4,behavior:document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){}},60)}
 }
 function openStage(w,keep){
-  mapSel=w;const el=$('stageSheet');if(!el)return;const p=PLAN[w-1],z=zoneOf(w),st=stageState(w),ch=checkHistory(HIST.days)[w],stars=ch?starsFor(ch.best):0;
+  mapSel=w;const el=$('stageSheet');if(!el)return;const p=PLAN[w-1],st=stageState(w),ch=checkHistory(HIST.days)[w],stars=ch?starsFor(ch.best):0;
   const fw=frontierWeek(),isNext=w===fw&&st==='open',ready=checkReady(w),got=actsFor(w),n=Math.min(got.length,READY);
   document.querySelectorAll('.stage.sel').forEach(s=>s.classList.remove('sel'));const sb=document.querySelector(`.stage[data-stage="${w}"]`);if(sb)sb.classList.add('sel');
-  const chips=p.review?`<p class="note" style="margin:0">Review castle: all ${p.ids.length} word parts from weeks 1–${w-1}.</p>`
+  const chips=p.review?`<p class="note" style="margin:0">Review: all ${p.ids.length} word parts from weeks 1–${w-1}.</p>`
     :`<div class="chipset ${st==='locked'?'dim':''}">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
   let status='',btns='';
   if(st==='locked'){status=`<p class="ss-status lock">🔒 ${isUnlocked(w-1)?`Pass the week ${w-1} check-in with ${PASS}/10 to open this stage.`:`Clear week ${w-1} first.`}</p>`}
   else{
     status=st==='done'?`<p class="ss-status ok">✓ Cleared · best ${ch.best}/10 <span class="ss-stars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>${stars<3?` <small>Score ${stars===1?9:10}/10 for another star</small>`:''}</p>`
-      :isNext&&!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${n} of ${READY} activities done, then the check-in</div>`
+      :!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${n} of ${READY} activities done, then the check-in</div>`
       :`<p class="ss-status">${ch?`Best so far: ${ch.best}/10. `:''}Score ${PASS}/10 on the check-in to clear this stage.</p>`;
-    btns=`<button class="btn ${st!=='done'&&ready?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button><button class="btn ${st==='done'||!ready?'primary':''}" data-ss="study">Study week ${w} cards</button>`}
-  el.innerHTML=`<div class="ss-card ${z.cls}"><button class="ss-x" data-ss="close" aria-label="Close">✕</button>
-    <p class="hkick">${z.ico} ${z.name}${p.review?' · Review castle':''}</p><h3>Week ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
+    /* the check-in only opens after the week's practice activities (or once it has been passed) */
+    const canCheck=st==='done'||ready;
+    btns=`<button class="btn ${st==='done'||!canCheck?'primary':''}" data-ss="study">Study week ${w} cards</button>`+(canCheck?`<button class="btn ${st!=='done'?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button>`:`<button class="btn" disabled title="Finish ${READY} activities with this week's words first">🔒 Check-in after ${READY} activities</button>`)}
+  el.innerHTML=`<div class="ss-card"><button class="ss-x" data-ss="close" aria-label="Close">✕</button>
+    <h3>Week ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
   el.hidden=false;
   el.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const a=b.dataset.ss;
     if(a==='close'){el.hidden=true;mapSel=null;document.querySelectorAll('.stage.sel').forEach(s=>s.classList.remove('sel'));return}
