@@ -873,6 +873,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .spform label{width:100%}
 .spform input{font:inherit;font-size:1.6rem;letter-spacing:.06em;flex:1;min-width:0;padding:8px 12px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
 .spform input:focus-visible{border-color:var(--primary)}
+.spform input::placeholder{font-size:1.05rem;letter-spacing:0;color:var(--muted);opacity:.85}
 .bins{display:grid;gap:10px}
 .bin{font:inherit;color:var(--paper-ink);background:var(--fc);border:0;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:150px;cursor:pointer;text-align:center;min-width:0}
 .bin:disabled{cursor:default}
@@ -15530,7 +15531,10 @@ function startSpell(){
   const uniq=[],seen=new Set();for(const x of items)if(!seen.has(x.w)){seen.add(x.w);uniq.push(x)}
   SP={qs:draw('spell',uniq,SN,x=>x.w),i:0,score:0,tries:0,missed:[],state:'ask'};renderSpell(true);
 }
-function renderSpell(autoSay){
+/* Phones and tablets: the on-screen keyboard opens only when the student taps the box.
+   Computers (real keyboard): the cursor goes straight into the box. */
+const SPELL_KB=matchMedia('(hover:hover) and (pointer:fine)');
+function renderSpell(autoSay,keepKb){
   if(SP.i>=SN)return spellResults();
   const x=SP.qs[SP.i];
   $('spellBody').innerHTML=`<div class="qcard">
@@ -15539,20 +15543,20 @@ function renderSpell(autoSay){
       <p class="cask" style="margin:0">It means “${esc(x.def)}.”</p></div>
     ${SP.showSent||!SPEAK.ok||!DISP.speak?`<p class="sent">${sentHTML(x,'blank')}</p>`:`<div><button class="btn small" id="spSent">Show it in a sentence</button></div>`}
     <form id="spForm" class="spform" autocomplete="off"><label for="spIn" class="note">Type the word</label>
-      <input id="spIn" autocapitalize="off" autocorrect="off" spellcheck="false" ${SP.state!=='ask'?'disabled':''} value="${esc(SP.last||'')}">
+      <input id="spIn" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${SPELL_KB.matches?'Type here':'Tap here to type'}" ${SP.state!=='ask'?'disabled':''} value="${esc(SP.last||'')}">
       ${SP.state==='ask'?`<button class="btn primary" type="submit">Check</button>`:''}</form>
     <div id="spFb">${SP.state==='retry'?`<p class="bfb no">Not quite. Listen again and look at the parts: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`:''}
     ${SP.state==='right'||SP.state==='shown'?`<div class="fb ${SP.state==='right'?'ok':'no'}"><strong>${SP.state==='right'?'Spelled it!':'Here is the spelling.'}</strong><p style="font-size:1.6rem;margin:0"><b>${hl(x.w,x.c)}</b></p>${partsRow(x.w)}<div class="grp" style="justify-content:space-between"><button class="btn primary" id="spNext">${SP.i===SN-1?'See my score':'Next word →'}</button>${reportBtn({where:'Spell it',word:x.w,card:x.c.main})}</div></div>`:''}</div>
   </div>`;
   if(autoSay&&SP.state==='ask'&&DISP.speak)setTimeout(()=>SPEAK.say(x.w,.85),250);
   if($('spSent'))$('spSent').onclick=()=>{SP.showSent=true;SP.last=$('spIn').value;renderSpell()};
-  const inp=$('spIn');if(SP.state!=='right'&&SP.state!=='shown')inp.focus();
-  $('spForm').onsubmit=e=>{e.preventDefault();if(SP.state!=='ask')return;const v=inp.value.trim().toLowerCase();if(!v)return;SP.last=v;
+  const inp=$('spIn');if(SP.state==='ask'&&(keepKb||SPELL_KB.matches))inp.focus();
+  $('spForm').onsubmit=e=>{e.preventDefault();if(SP.state!=='ask')return;const kb=document.activeElement===inp;const v=inp.value.trim().toLowerCase();if(!v)return;SP.last=v;
     if(v===x.w){const first=!SP.tries;if(first)SP.score++;SP.state='right';
       rec(d=>{const o=sub(d,'spell');bump(o,'t');if(first){bump(o,'c');bump(sub(d,'right'),x.c.id)}else missCard(d,x.c.id)});
       renderSpell();const f=$('spFb');FX.burst(f,30);FX.cheer(f,FX.praise(SP.score));FX.play('good');}
     else{FX.play('bad');SP.tries++;if(SP.tries>=2){SP.state='shown';SP.missed.push(x);rec(d=>{bump(sub(d,'spell'),'t');missCard(d,x.c.id)})}else SP.state='retry';renderSpell();
-      if(SP.state==='retry'){SP.state='ask';renderSpell();$('spFb').innerHTML=`<p class="bfb no">Not quite. Listen again: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`;const i2=$('spIn');i2.classList.add('shake');i2.select()}}};
+      if(SP.state==='retry'){SP.state='ask';renderSpell(false,kb);$('spFb').innerHTML=`<p class="bfb no">Not quite. Listen again: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`;const i2=$('spIn');i2.classList.add('shake');if(kb||SPELL_KB.matches)i2.select()}}};
   if($('spNext'))$('spNext').onclick=()=>{SP.i++;SP.tries=0;SP.state='ask';SP.last='';SP.showSent=false;renderSpell(true)};
 }
 function spellResults(){const s=SP.score;rec(d=>{const o=sub(d,'spell');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=7)doneActivity('spell');if(s>=7)setTimeout(celebrateWin,150);
