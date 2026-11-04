@@ -686,6 +686,50 @@ html.calm .wmap .stage.cur::before{animation:none}
 @media (max-width:420px){.stage{width:58px;height:58px;font-size:1.3rem}.stage.cur{width:70px;height:70px}.stage.boss{width:76px;height:76px}.deco{font-size:1.6rem}}
 @media (prefers-reduced-motion: reduce){.stage.cur,.youhere .mascot,.ss-card{animation:none}}
 html.calm .stage.cur,html.calm .youhere .mascot{animation:none}
+/* Activity pages: the activity leads. Slim top row, one-line Study row. */
+body.in-act #practiceNote{display:none}
+body.in-act header{align-items:center}
+body.in-act header>div{display:flex;align-items:center;gap:6px 12px;min-width:0}
+body.in-act h1{font-size:1.5rem;white-space:nowrap}
+body.in-act .whochip{margin-top:0;min-height:34px;padding:2px 10px 2px 4px;font-size:.92rem;gap:6px;min-width:0;max-width:100%}
+body.in-act .whochip .ed{display:none}
+.whochip .wn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whochip .wave,.whochip .wst,.whochip .ed{flex:none;white-space:nowrap}
+body.in-act #whoami{display:flex;min-width:0}
+body.in-act h1{flex:none}
+body.in-act #namebar:not(.editing){display:none}
+body.no-study #weekbar,body.no-study #filter{display:none}
+body.in-act #weekbar{flex:none;padding:2px 4px 2px 10px;min-height:44px}
+body.in-act #filter{flex:1 1 0;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;padding:2px 0}
+body.in-act #filter::-webkit-scrollbar{display:none}
+body.in-act #filter button{flex:none;white-space:nowrap}
+body.in-act #filter>:first-child{margin-left:auto}
+#filter.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+#filter.fl{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px);mask-image:linear-gradient(90deg,transparent,#000 28px)}
+#filter.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,transparent,#000 28px,#000 calc(100% - 28px),transparent)}
+/* Computers: the mode grid stays, but smaller on activity pages */
+@media (hover:hover) and (pointer:fine) and (min-width:560px){
+  body.in-act .modetabs button{min-height:50px;padding:5px 4px 4px;gap:2px;font-size:.76rem}
+  body.in-act .modetabs .ti{width:21px;height:21px}
+  body.in-act .modetabs button.ping::after{top:2px;right:8px}
+}
+/* Phones: tighter, and the name chip lives on Home */
+@media (max-width:700px){
+  body.in-act .wrap{padding-top:12px;gap:14px}
+  body.in-act h1{font-size:1.3rem}
+}
+@media (max-width:479px){body.in-act #whoami{display:none}body.in-act .weekbar .wlbl{font-size:.8rem}}
+/* Flashcards: slim strips above, the check-in progress below */
+.scopebar.slim{flex-wrap:nowrap;gap:10px;padding:6px 6px 6px 12px;border-width:1.5px;border-color:var(--line);border-radius:12px;min-height:48px}
+.scopebar.slim .sb-ico{font-size:1.25rem}
+.scopebar.slim .sb-text{flex:1 1 auto;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:0 8px;min-width:0}
+.scopebar.slim .sb-text b{font-size:1rem}.scopebar.slim .sb-text span{font-size:.85rem;white-space:nowrap}
+.scopebar.slim .btn{flex:none;white-space:nowrap}
+.nextstep.slim{flex-wrap:nowrap;gap:10px;padding:6px 6px 6px 12px;border-radius:12px}
+.nextstep.slim .ns-ico{font-size:1.35rem}.nextstep.slim .ns-text{flex:1 1 auto;min-width:0}.nextstep.slim .ns-text b{font-size:1rem}
+.cardstop{gap:8px}
+.cardsbottom{display:flex;flex-direction:column;gap:10px;margin-top:16px}.cardsbottom:empty{display:none}
+.cardsbottom .note{margin:0}
 /* Decluttered home */
 body.on-home #practiceNote,body.on-home #weekbar{display:none}
 @media (max-width:480px){h1{font-size:1.85rem}header{align-items:center}}
@@ -1045,6 +1089,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
           </div>
         </div>
         <p class="note" id="knownNote" style="margin-top:10px"></p>
+        <div id="cardsBottom" class="cardsbottom"></div>
       </div>
       <div class="empty" id="noCards" hidden>
         <h2>No cards chosen yet</h2>
@@ -1455,7 +1500,10 @@ function renderFilter(){
   const opts=[['all',`All (${ch.length})`],...Object.keys(SETS).filter(s=>counts[s]).map(s=>[s,`${SETS[s].split(' ')[0]} (${counts[s]})`])];
   $('filter').innerHTML=opts.length>2?opts.map(([k,t])=>`<button id="f-${k}" data-f="${k}" aria-pressed="${filter===k}">${t}</button>`).join(''):'';
   $('filter').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderFilter();deck=cardPool();idx=0;renderCard();if(mode!=='cards')refreshMode()});
+  filterEdge();
 }
+function filterEdge(){const f=$('filter');if(!f)return;const max=f.scrollWidth-f.clientWidth;f.classList.toggle('fl',max>4&&f.scrollLeft>4);f.classList.toggle('fr',max>4&&f.scrollLeft<max-4)}
+(()=>{const f=$('filter');if(!f)return;f.addEventListener('scroll',filterEdge,{passive:true});addEventListener('resize',filterEdge)})();
 
 /* ---------- Flashcards ---------- */
 let deck=[], idx=0;
@@ -1468,19 +1516,24 @@ function nextStepHTML(where){
     <b>Take the week ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished ${READY} activities, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
 function renderCardsTop(){
-  const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',sub='',btn='';
-  if(selected){main=curWeek?`Your class's week ${curWeek} cards`:"Your class's cards";sub='Your teacher chose these cards.'}
-  else if(studyWeeks.length){main=`${weeksLabel(studyWeeks)} (you picked these)`;sub='Your Study menu picks are on, so every activity uses these weeks.';
-    btn=`<button class="btn small" id="cardsBackNew">Back to my newest week (${w})</button>`}
-  else if(cardsAll&&uw.length>1){main='All your unlocked weeks';sub=`${weeksLabel(uw)}. Flip back to just this week's new cards anytime.`;btn=`<button class="btn small" id="cardsNewBtn">Show only week ${w}</button>`}
-  else{main=`Week ${w}${PLAN[w-1].review?' review':''}: ${uw.length>1?"this week's new cards":'your first cards'}`;
-    sub=uw.length>1?'Your other activities mix in every week you have unlocked.':'Finish activities and pass the check-in to unlock week 2.';
-    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">Show all my weeks (${pool().length})</button>`}
-  el.innerHTML=`<div class="scopebar"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'} · ${esc(sub)}</span></div>${btn}</div>`+nextStepHTML('cards');
+  const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',note='',btn='';
+  if(selected){main=curWeek?`Class week ${curWeek}`:"Your class's cards";note='Your teacher chose these cards.'}
+  else if(studyWeeks.length){main=weeksLabel(studyWeeks);note='Your Study menu picks are on, so every activity uses these weeks.';
+    btn=`<button class="btn small" id="cardsBackNew">Week ${w} only</button>`}
+  else if(cardsAll&&uw.length>1){main='All my weeks';note=`Showing ${weeksLabel(uw)}.`;btn=`<button class="btn small" id="cardsNewBtn">Week ${w} only</button>`}
+  else{main=`Week ${w}${PLAN[w-1].review?' review':''}${uw.length>1?' new cards':''}`;
+    note=uw.length>1?'Flashcards show this week\'s new cards. Your other activities mix in every week you have unlocked.':'Finish activities and pass the check-in to unlock week 2.';
+    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">All weeks (${pool().length})</button>`}
+  /* Top: one slim line. A ready check-in also gets a slim line; the progress card sits below the flashcards. */
+  const ns=nextStepHTML('cards'),ready=ns.includes('class="nextstep');
+  let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
+  if(ready){const fw=frontierWeek();top+=`<div class="nextstep slim"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><b>Week ${fw} check-in is ready!</b></div><button class="btn primary small ns-btn" data-checkin="${fw}">Take it →</button></div>`}
+  el.innerHTML=top;
+  const bot=$('cardsBottom');if(bot)bot.innerHTML=(ready?'':ns)+(note?`<p class="note">${esc(note)}</p>`:'');
   if($('cardsAllBtn'))$('cardsAllBtn').onclick=()=>{cardsAll=true;deck=cardPool();idx=0;renderCard()};
   if($('cardsNewBtn'))$('cardsNewBtn').onclick=()=>{cardsAll=false;deck=cardPool();idx=0;renderCard()};
   if($('cardsBackNew'))$('cardsBackNew').onclick=()=>{cardsAll=false;setStudyWeeks([])};
-  el.querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
+  $('cards').querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
 }
 function renderCard(){
   try{renderCardsTop()}catch(e){}
@@ -1587,7 +1640,7 @@ function results(){
 
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
 function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
-  centerTab(m);document.body.classList.toggle('on-home',m==='home');try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
+  centerTab(m);document.body.classList.toggle('on-home',m==='home');document.body.classList.toggle('in-act',m!=='home');document.body.classList.toggle('no-study',m==='home'||m==='plan'||m==='progress');requestAnimationFrame(()=>{try{filterEdge()}catch(e){}});try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
 document.addEventListener('focusin',e=>{if(e.target.matches&&e.target.matches('input:not([type=checkbox]):not([type=radio]),textarea'))document.body.classList.add('typing')});
@@ -15962,9 +16015,9 @@ function mergeDays(a,b){const out=Object.assign({},a);
 function setName(n){editingName=false;HIST.name=String(n||'').trim().slice(0,40);store.set('rd-name',HIST.name);saveLocal();if(progRef)pushRemote();renderNameBar();if(typeof checkBadges==='function')checkBadges()}
 let editingName=false;
 function renderNameBar(){const nb=$('namebar');if(!nb)return;
-  nb.hidden=!!HIST.name&&!editingName;
+  nb.hidden=!!HIST.name&&!editingName;nb.classList.toggle('editing',editingName);
   const run=typeof currentRun==='function'?currentRun(HIST.days):0;
-  $('whoami').innerHTML=HIST.name?`<button type="button" class="whochip" id="whoChip" aria-label="Signed in as ${esc(HIST.name)}. Change name"><span class="wave">👋</span>${esc(HIST.name)}${run?`<span class="wst">🔥 ${run}</span>`:''}<span class="ed">✎</span></button>`:'';
+  $('whoami').innerHTML=HIST.name?`<button type="button" class="whochip" id="whoChip" aria-label="Signed in as ${esc(HIST.name)}. Change name"><span class="wave">👋</span><span class="wn">${esc(HIST.name)}</span>${run?`<span class="wst">🔥 ${run}</span>`:''}<span class="ed">✎</span></button>`:'';
   const wc=$('whoChip');if(wc)wc.onclick=()=>{editingName=!editingName;renderNameBar();if(editingName){const i=$('nameInput');i.value=HIST.name;i.focus();i.select()}};
 }
 /* summarize days in a range */
