@@ -383,6 +383,14 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 @keyframes toastIn{0%{transform:translate(-50%,40px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
 @media (prefers-reduced-motion: reduce){.btoast.in,.btoast.in .medal{animation:none}}
 /* Home screen */
+.cardstop{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}.cardstop:empty{display:none}
+.scope{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;font-size:.95rem}
+.nextstep{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 35%,var(--card)),var(--card));border:2.5px solid var(--hi);border-radius:16px;padding:12px 14px}
+.ns-ico{font-size:2rem;line-height:1}.ns-text{display:flex;flex-direction:column;gap:2px;flex:1 1 14em}.ns-text b{font-size:1.08rem;line-height:1.3}.ns-text span{font-size:.9rem;color:var(--muted)}
+.ns-btn{flex:none}
+.chipset.dim .chip{opacity:.55;filter:saturate(.6)}
+.wk.nextwk{border:2.5px solid var(--hi);box-shadow:0 0 0 4px color-mix(in srgb,var(--hi) 25%,transparent)}
+.nextflag{display:inline-block;align-self:flex-start;background:var(--hi);color:var(--hi-ink);font-weight:800;font-size:.8rem;border-radius:999px;padding:3px 10px;margin-bottom:6px}
 .wchk.locked{opacity:.55;cursor:not-allowed}.wchk.locked small{font-size:.65rem}
 .wk.locked.far{padding-top:8px;padding-bottom:8px}.wk.locked.far .note{font-size:.82rem}.wk.locked.far h3{font-size:1rem}
 .wk.locked{opacity:.75;background:repeating-linear-gradient(135deg,var(--card) 0 12px,var(--bg) 12px 24px)}
@@ -667,6 +675,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 
     <section id="home"><div id="homeBody"></div></section>
     <section id="cards" hidden>
+      <div id="cardsTop" class="cardstop"></div>
       <div id="cardArea">
         <div class="scene">
           <button class="flash" id="flash" aria-label="Flashcard. Tap to flip.">
@@ -1006,6 +1015,11 @@ const chosen=()=>{
   const ids=new Set();unlockedWeeks().forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id));
 };
 const pool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
+/* Flashcards: when the student hasn't picked weeks (and no teacher selection), show only the newest unlocked week */
+let cardsAll=false;
+const newestWeek=()=>{const u=unlockedWeeks();return u[u.length-1]||1};
+const cardsScoped=()=>!studyWeeks.length&&!selected&&!cardsAll&&unlockedWeeks().length>1;
+const cardPool=()=>{if(!cardsScoped())return pool();const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));return pool().filter(c=>ids.has(c.id))};
 
 let curWeek=null;
 function applySelection(ids,week){
@@ -1014,7 +1028,7 @@ function applySelection(ids,week){
   const ch=chosen();
   if(filter!=='all'&&!ch.some(c=>c.set===filter))filter='all';
   refreshStudyUI();
-  renderFilter();deck=pool();idx=0;renderCard();
+  renderFilter();deck=cardPool();idx=0;renderCard();
   if(mode!=='cards')refreshMode();
 }
 function refreshStudyUI(){
@@ -1053,12 +1067,31 @@ function renderFilter(){
   const ch=chosen(), counts={a:0,l:0,g:0};ch.forEach(c=>counts[c.set]++);
   const opts=[['all',`All (${ch.length})`],...Object.keys(SETS).filter(s=>counts[s]).map(s=>[s,`${SETS[s].split(' ')[0]} (${counts[s]})`])];
   $('filter').innerHTML=opts.length>2?opts.map(([k,t])=>`<button id="f-${k}" data-f="${k}" aria-pressed="${filter===k}">${t}</button>`).join(''):'';
-  $('filter').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderFilter();deck=pool();idx=0;renderCard();if(mode!=='cards')refreshMode()});
+  $('filter').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderFilter();deck=cardPool();idx=0;renderCard();if(mode!=='cards')refreshMode()});
 }
 
 /* ---------- Flashcards ---------- */
 let deck=[], idx=0;
+/* Above the flashcards: which week is showing, and the check-in that unlocks the next week */
+function nextStepHTML(where){
+  const uw=unlockedWeeks();if(uw.length>=WEEKS||selected)return'';
+  const fw=frontierWeek(),h=checkHistory(HIST.days)[fw];
+  return`<div class="nextstep"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><p class="hkick">Next step</p>
+    <b>Take the week ${fw} check-in to unlock week ${fw+1}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:where==='cards'?' Study these cards first, then try it.':''}</span></div>
+    <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
+function renderCardsTop(){
+  const el=$('cardsTop');if(!el)return;let h='';
+  if(cardsScoped()){const w=newestWeek(),n=cardPool().length,all=pool().length;
+    h+=`<div class="scope"><span>📚 Showing <b>week ${w}${PLAN[w-1].review?' review':''}</b> cards (${n})</span><button class="linkish" id="cardsAllBtn">Show all my weeks (${all})</button></div>`}
+  else if(cardsAll&&!studyWeeks.length&&!selected&&unlockedWeeks().length>1){
+    h+=`<div class="scope"><span>📚 Showing <b>all your unlocked weeks</b> (${pool().length})</span><button class="linkish" id="cardsNewBtn">Show only week ${newestWeek()}</button></div>`}
+  h+=nextStepHTML('cards');el.innerHTML=h;
+  if($('cardsAllBtn'))$('cardsAllBtn').onclick=()=>{cardsAll=true;deck=cardPool();idx=0;renderCard()};
+  if($('cardsNewBtn'))$('cardsNewBtn').onclick=()=>{cardsAll=false;deck=cardPool();idx=0;renderCard()};
+  el.querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
+}
 function renderCard(){
+  try{renderCardsTop()}catch(e){}
   const has=deck.length>0;
   $('cardArea').hidden=!has;$('noCards').hidden=has;
   if(!has)return;
@@ -1080,7 +1113,7 @@ function renderCard(){
     <div class="tchart" style="grid-template-columns:repeat(${n},1fr)">${c.cols.map(col=>`<div class="col">${col.map(w=>`<span>${hl(w,c)}</span>`).join('')}</div>`).join('')}</div>
     <div class="foot"><span class="tab">${TAB}</span></div>`;
   $('known').setAttribute('aria-pressed',known.has(c.id));
-  const p=pool(), k=p.filter(x=>known.has(x.id)).length;
+  const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
 const seenCard=()=>{const c=deck[idx];if(c)rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)})};
@@ -1140,7 +1173,7 @@ function results(){
   const opened=Q.tag.check?unlockedWeeks().filter(w=>!wasOpen.has(w)):[];
   const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Week ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to week ${opened[0]}</button></div>`
     :Q.score<PASS&&!weekPassed(Q.tag.check)&&Q.tag.check<WEEKS?`<p class="note" style="margin:0">Score ${PASS} or more to unlock week ${Q.tag.check+1}. Study the missed cards and try again.</p>`:'';
-  if(opened.length){refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
+  if(opened.length){cardsAll=false;refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
   const s=Q.score,newBest=best===null||s>best;if(newBest){best=s;store.set('rd-best2',s)}
   if(s>=7)setTimeout(celebrateWin,150);
   const msg=s===QN?'Perfect score! Every word part found.':s>=8?'Great job, detective!':s>=5?"Good work. A little more practice and you've got it.":'Keep going. Study the flashcards and try again.';
@@ -1149,7 +1182,7 @@ function results(){
     ${Q.missed.length?`<div><p class="note" style="margin-bottom:8px">Cards to practice:</p><div class="chips">${Q.missed.map(c=>`<span><mark>${esc(c.main)}</mark> = ${esc(c.mean)}</span>`).join('')}</div></div>`:''}
     <div class="grp"><button class="btn primary" id="again">Play again</button>${Q.missed.length?'<button class="btn" id="studyMissed">Study missed cards</button><button class="btn" id="quizMissed">Quiz me on these</button>':''}</div>`;
   $('again').onclick=()=>Q.tag.check?startQuiz(BANK.filter(c=>weekIds(Q.tag.check,false).includes(c.id)),Q.tag):Q.tag.review?(setMode('review')):startQuiz();
-  if($('goNewWeek'))$('goNewWeek').onclick=()=>{setStudyWeeks([opened[0]]);setMode('cards',true);deck=pool();idx=0;renderCard();scrollTo({top:0})};
+  if($('goNewWeek'))$('goNewWeek').onclick=()=>{cardsAll=false;setMode('cards',true);deck=cardPool();idx=0;renderCard();scrollTo({top:0})};
   if(Q.missed.length){const m=Q.missed.slice();
     $('studyMissed').onclick=()=>{setMode('cards',true);deck=m;idx=0;renderCard()};
     $('quizMissed').onclick=()=>startQuiz(m)}
@@ -1167,7 +1200,7 @@ function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.s
   c.addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const bs=[...c.querySelectorAll('[role=tab]')],i=bs.indexOf(document.activeElement);if(i<0)return;
     const n=bs[(i+(e.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.focus();n.click();e.preventDefault()})})();
 function refreshMode(){if(mode==='home')renderHome();else if(mode==='review')renderReview();else if(mode==='spell')startSpell();else if(mode==='sort')newSort();else if(mode==='speed'){stopSpeedIfLeaving();renderSpeedStart()}else if(mode==='quiz')startQuiz();else if(mode==='parts'){buildWdeck();renderParts()}else if(mode==='build')newBuild();else if(mode==='plan')renderPlan();else if(mode==='progress'){if(progView==='class')watchClass();renderProgress()}else if(mode==='match')newMatch();else if(mode==='memory')newMemory();else if(mode==='context')startContext()}
-$('tab-cards').onclick=()=>{setMode('cards');deck=pool();idx=0;renderCard()};
+$('tab-cards').onclick=()=>{setMode('cards');deck=cardPool();idx=0;renderCard()};
 MODES.slice(1).forEach(x=>$('tab-'+x).onclick=()=>setMode(x));
 
 /* ---------- Words made of parts ---------- */
@@ -15184,18 +15217,20 @@ function renderPlan(){
   let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a week:</b> add <code>#week-5</code> to the end of your share link (or <code>#weeks-3-4-5</code> for several). The link opens with those weeks ticked in the Study menu.</div>`:''}<div class="routine"><h2>Each week</h2><p class="note">About 15 minutes a day. Weeks 8 and 16 review everything learned so far.</p>
     <div class="days">${ROUTINE.map(([d,m,t])=>`<div class="day"><b>${d}</b><span>${m}</span><small>${t}</small></div>`).join('')}</div></div><div class="weeks">`;
   const uw=unlockedWeeks(),fw=frontierWeek();
-  h=`<div class="planprog"><div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div><p><b>🔓 ${uw.length} of ${WEEKS} weeks unlocked.</b> ${uw.length>=WEEKS?'You can study every week!':`Score ${PASS}/10 or better on the week ${fw} check-in to unlock week ${fw+1}.`}</p></div>`+h;
+  h=nextStepHTML('plan')+`<div class="planprog"><div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div><p><b>🔓 ${uw.length} of ${WEEKS} weeks unlocked.</b> ${uw.length>=WEEKS?'You can study every week!':''}</p></div>`+h;
   PLAN.forEach(p=>{
     const now=curWeek===p.w;
     if(!isUnlocked(p.w)){const next=isUnlocked(p.w-1);
       h+=`<div class="wk locked ${p.review?'rev':''} ${next?'':'far'}"><div class="wkhead"><h3>🔒 Week ${p.w}${p.review?' · Review':''}</h3><span class="note">${p.ids.length} cards</span></div>
-        <p class="note" style="margin:0">${next?`Score ${PASS}/10 or better on the week ${p.w-1} check-in to unlock.`:`Unlock week ${p.w-1} first.`}</p></div>`;return}
+        ${p.review?'':`<div class="chipset dim" aria-label="Word parts in week ${p.w}">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)">${esc(c.main)}</span>`}).join('')}</div>`}
+        <p class="note" style="margin:0">${next?`🔑 Score ${PASS}/10 or better on the week ${p.w-1} check-in to unlock.`:`Unlock week ${p.w-1} first.`}</p></div>`;return}
     const chips=p.review?`<p class="note" style="margin:0">Review all ${p.ids.length} cards from weeks 1–${p.w-1}.</p>`
       :`<div class="chipset">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
     let counts='';
     if(!p.review){const a=p.ids.filter(i=>i[0]==='a').length,l=p.ids.filter(i=>i[0]==='l').length,g=p.ids.filter(i=>i[0]==='g').length;
       counts=[a&&`${a} affix${a>1?'es':''}`,l&&`${l} Latin`,g&&`${g} Greek`].filter(Boolean).join(' · ')}
-    h+=`<div class="wk ${now?'now':''} ${p.review?'rev':''}"><div class="wkhead"><h3>Week ${p.w}${p.review?' · Review':''}</h3>${now?'<span class="pill">This week</span>':`<span class="note">${p.ids.length} cards</span>`}</div>
+    const isNext=p.w===fw&&!weekPassed(p.w)&&uw.length<WEEKS;
+    h+=`<div class="wk ${now?'now':''} ${p.review?'rev':''} ${isNext?'nextwk':''}">${isNext?`<span class="nextflag">🎯 Next step: pass this check-in to unlock week ${p.w+1}</span>`:''}<div class="wkhead"><h3>Week ${p.w}${p.review?' · Review':''}</h3>${now?'<span class="pill">This week</span>':`<span class="note">${p.ids.length} cards</span>`}</div>
       ${counts?`<span class="note">${counts}</span>`:''}${chips}
       ${(()=>{const h=checkHistory(HIST.days)[p.w];return h?`<p class="note" style="margin:0">Check-in: first ${h.first}/10 · best ${h.best}/10</p>`:''})()}
       ${weekPassed(p.w)?'<p class="note" style="margin:0;color:var(--good);font-weight:700">✓ Check-in passed</p>':''}
@@ -15203,6 +15238,7 @@ function renderPlan(){
   });
   $('planBody').innerHTML=h+'</div>';
   $('planBody').querySelectorAll('[data-check]').forEach(b=>b.onclick=()=>startCheckin(+b.dataset.check));
+  $('planBody').querySelectorAll('[data-checkin]').forEach(b=>b.onclick=()=>{startCheckin(+b.dataset.checkin);scrollTo({top:0})});
   $('planBody').querySelectorAll('[data-study]').forEach(b=>b.onclick=()=>{toggleStudyWeek(+b.dataset.study);renderPlan()});
 }
 
@@ -15560,7 +15596,7 @@ renderNameBar();
 studyWeeks=studyWeeks.filter(isUnlocked);
 applySelection(null,null);
 applyHashWeeks();
-deck=pool();idx=0;renderCard();setMode('home');
+deck=cardPool();idx=0;renderCard();setMode('home');
 (async()=>{
   const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
   const [db,user]=await Promise.all([use('db'),use('user')]);
