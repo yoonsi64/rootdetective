@@ -1210,6 +1210,8 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .scard.locked{box-shadow:none}
 .wmap.simple .rd-edge{stroke:color-mix(in srgb,var(--roadedge) 70%,transparent)}
 /* flashcards-first gate */
+.fcheld{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;margin:0 0 10px;border-radius:12px;font-size:.88rem;background:color-mix(in srgb,var(--good,#2F9E44) 9%,var(--card));border:1.5px solid color-mix(in srgb,var(--good,#2F9E44) 30%,var(--line))}
+.fcheld[hidden]{display:none}.fcheld span:nth-child(2){flex:1 1 14em}
 .fcgate .fg-card{text-align:center;align-items:center;gap:10px;padding:22px 18px}
 .fcgate .fg-ico{font-size:2.6rem;line-height:1}
 .fcgate h2{margin:0;font-family:var(--display);font-size:1.45rem}
@@ -1418,6 +1420,7 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
     </div>
 
     <section id="home"><div id="homeBody"></div></section>
+    <div id="fcHeldNote" class="fcheld" hidden></div>
     <section id="fcGate" class="fcgate" hidden aria-live="polite"></section>
     <section id="cards" hidden>
       <div id="cardsTop" class="cardstop"></div>
@@ -1652,7 +1655,9 @@ g|10|dec(a)|ten|decathlon / decade,decagon|decagon=a shape with ten sides
 g|11|petr(o)|rock or stone|petroleum,petrify / petroglyph,petrology|petrify=to turn to stone
 g|11|glyph|carving or symbol|hieroglyph,petroglyph / glyph,hieroglyphics|petroglyph=a picture carved into rock
 g|11|nomy|law, rules, or the study of|astronomy,economy / autonomy,taxonomy|astronomy=the study of stars and planets
-g|11|dem(o)|people|democracy,epidemic / demographic,endemic|democracy=government by the people`;
+g|11|dem(o)|people|democracy,epidemic / demographic,endemic|democracy=government by the people
+g|3|electr(o)|electricity or electric|electric,electricity,electrician / electronic,electromagnet,hydroelectric|electrician=a person whose job is to fix and install electric wiring
+`;
 
 const SETS={a:"Affixes",l:"Latin bases",g:"Greek bases"};
 function expand(t){const m=t.match(/[\(\[](\w+)[\)\]]/);if(!m)return[t];return[...expand(t.replace(m[0],m[1])),...expand(t.replace(m[0],''))]}
@@ -1678,17 +1683,22 @@ const BANK=RAW.trim().split("\n").map(line=>{
 const BYID=Object.fromEntries(BANK.map(c=>[c.id,c]));
 /* 16-week semester plan: 14 teaching weeks + review weeks 8 and 16 */
 const WEEKS=16, REVIEW=[8,16];
+/* Cards added after the term started (PLAN_ADDED) join their lesson's week without re-balancing the plan,
+   so no existing card moves to a different week. */
+const PLAN_ADDED=new Set(['g43']);
 const PLAN=(()=>{
+  const PB=BANK.filter(c=>!PLAN_ADDED.has(c.id));
   const teach=[];for(let w=1;w<=WEEKS;w++)if(!REVIEW.includes(w))teach.push(w);
   const n=teach.length, wk={};teach.forEach(w=>wk[w]=[]);
   /* Greek lessons spread across the term; affixes and Latin bases fill the rest so each week has about the same number of cards */
   const gw={};teach.forEach(w=>gw[w]=0);
-  const GL=Math.max(...BANK.filter(c=>c.set==='g').map(c=>c.num));for(let L=1;L<=GL;L++){const w=teach[Math.round((L-1)*(n-1)/(GL-1))];const ids=BANK.filter(c=>c.set==='g'&&c.num===L).map(c=>c.id);wk[w].push(...ids);gw[w]+=ids.length}
-  const T=BANK.length/n, cap=teach.map(w=>Math.max(0,T-gw[w])), capSum=cap.reduce((a,b)=>a+b,0);
+  const GL=Math.max(...PB.filter(c=>c.set==='g').map(c=>c.num));const lessonWeek=L=>teach[Math.round((L-1)*(n-1)/(GL-1))];for(let L=1;L<=GL;L++){const w=lessonWeek(L);const ids=PB.filter(c=>c.set==='g'&&c.num===L).map(c=>c.id);wk[w].push(...ids);gw[w]+=ids.length}
+  const T=PB.length/n, cap=teach.map(w=>Math.max(0,T-gw[w])), capSum=cap.reduce((a,b)=>a+b,0);
   const alloc=total=>{const raw=cap.map(c=>c*total/capSum),fl=raw.map(Math.floor);let left=total-fl.reduce((a,b)=>a+b,0);
     raw.map((r,i)=>[r-fl[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,left).forEach(([,i])=>fl[i]++);return fl};
   const fill=(list,counts)=>{let i=0;teach.forEach((w,k)=>{wk[w].unshift(...list.slice(i,i+counts[k]).map(c=>c.id));i+=counts[k]})};
-  fill(BANK.filter(c=>c.set==='l'),alloc(43));fill(BANK.filter(c=>c.set==='a'),alloc(65));
+  fill(PB.filter(c=>c.set==='l'),alloc(43));fill(PB.filter(c=>c.set==='a'),alloc(65));
+  BANK.filter(c=>PLAN_ADDED.has(c.id)&&c.set==='g').forEach(c=>wk[lessonWeek(Math.min(c.num,GL))].push(c.id));
   const out=[];let sofar=[];
   for(let w=1;w<=WEEKS;w++){
     if(REVIEW.includes(w))out.push({w,review:true,ids:sofar.slice()});
@@ -1762,7 +1772,7 @@ const ACTN={cards:'Flashcards',parts:'Break it down',build:'Build it',quiz:'Quiz
 const ACTRULE='Flashcards: see every card · Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
 function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>{if(x!=='cards')out.add(x)})}}catch(e){}return[...out]}
 function checkReady(w){return canTeach||weekPassed(w)||actsFor(w).length>=READY||!!(checkHistory(HIST.days)[w])}
-function doneActivity(kind){try{if(kind==='cards')return;
+function doneActivity(kind){try{if(kind==='cards'||!fcGate().ok)return;
   const w=frontierWeek();if(weekPassed(w)||questDone())return;
   const before=actsFor(w);if(before.includes(kind))return;
   rec(d=>{const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind)});
@@ -1799,13 +1809,17 @@ const chosen=()=>{
   if(selected)return BANK.filter(c=>selected.has(c.id));
   const ids=new Set();unlockedWeeks().forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id));
 };
-const pool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
+const basePool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
+/* A new week's words stay out of the activities until their flashcards are studied on both sides;
+   earlier weeks' words stay open the whole time. */
+const fcHeld=()=>{try{const g=fcGate();return g.ok?new Set():new Set(g.ids)}catch(e){return new Set()}};
+const pool=()=>{const p=basePool(),h=fcHeld();return h.size?p.filter(c=>!h.has(c.id)):p};
 /* Flashcards: when the student hasn't picked weeks (and no teacher selection), show only the newest unlocked week */
 let cardsAll=false;
 /* the week the student is working on now (first unlocked week not yet passed); flashcards start here */
 const newestWeek=()=>{try{return frontierWeek()||1}catch(e){const u=unlockedWeeks();return u[u.length-1]||1}};
 const cardsScoped=()=>!studyWeeks.length&&!selected&&!cardsAll&&unlockedWeeks().length>1;
-const cardPool=()=>{if(!cardsScoped())return pool();const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));return pool().filter(c=>ids.has(c.id))};
+const cardPool=()=>{if(!cardsScoped())return basePool();const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));return basePool().filter(c=>ids.has(c.id))};
 
 let curWeek=null;
 function applySelection(ids,week){
@@ -1890,7 +1904,7 @@ function renderCardsTop(){
   /* Top: one slim line. A ready check-in also gets a slim line; the progress card sits below the flashcards. */
   const ns=nextStepHTML('cards'),ready=ns.includes('class="nextstep');
   const fg=fcGate();let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
-  if(!fg.ok)top+=`<div class="fcstrip"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> week ${fg.w} cards. Flip every card to unlock the activities.</span><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
+  if(!fg.ok)top+=`<div class="fcstrip"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> week ${fg.w} cards. Flip every card to ${fcActLocked()?'unlock the activities':'add them to your activities'}.</span><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
   if(ready){const fw=frontierWeek();top+=`<div class="nextstep slim"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><b>Week ${fw} check-in is ready!</b></div><button class="btn primary small ns-btn" data-checkin="${fw}">Take it →</button></div>`}
   el.innerHTML=top;
   const bot=$('cardsBottom');if(bot)bot.innerHTML=(ready?'':ns)+(note?`<p class="note">${esc(note)}</p>`:'');
@@ -2014,8 +2028,11 @@ function fcMark(side){const c=deck[idx];if(!c||mode!=='cards')return;const {f,b}
   const g=fcGate();updateFcTabs();try{renderCardsTop()}catch(e){}
   if(!was&&g.ok){try{FX.play('win');FX.shower&&FX.shower()}catch(e){}fcUnlockedNote(g.w)}}
 function fcUnlockedNote(w){let el=$('fcDone');if(!el){el=document.createElement('div');el.id='fcDone';el.className='fcdone';el.setAttribute('role','status');document.body.appendChild(el)}
-  el.innerHTML=`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200)}
-function updateFcTabs(){const g=fcGate();document.querySelectorAll('.hgame[data-go]').forEach(b=>{const lk=!FC_FREE.includes(b.dataset.go)&&!g.ok;b.classList.toggle('gated',lk);if(lk)b.setAttribute('aria-description','Locked until you study the flashcards');else b.removeAttribute('aria-description')});MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
+  const first=!chosen().some(c=>!PLAN[w-1].ids.includes(c.id));el.innerHTML=first?`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`:`<b>🎉 Week ${w} words added!</b><span>Your activities now include this week's new words.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200)}
+function fcActLocked(){const g=fcGate();if(g.ok)return false;const h=new Set(g.ids);return !chosen().some(c=>!h.has(c.id))}
+function updateFcTabs(){const g={ok:!fcActLocked()};document.querySelectorAll('.hgame[data-go]').forEach(b=>{const lk=!FC_FREE.includes(b.dataset.go)&&!g.ok;b.classList.toggle('gated',lk);if(lk)b.setAttribute('aria-description','Locked until you study the flashcards');else b.removeAttribute('aria-description')});MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
+function renderFcHeld(){const el=$('fcHeldNote');if(!el)return;const g=fcGate(),show=!g.ok&&!FC_FREE.includes(mode)&&!fcActLocked();el.hidden=!show;if(!show)return;
+  el.innerHTML=`<span aria-hidden="true">🗂️</span><span>Week ${g.w} words join after their flashcards (${g.done}/${g.ids.length})</span><button class="linkish" id="fhGo">Study them</button>`;$('fhGo').onclick=fcGo}
 function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.ids.length,pct=n?Math.round(g.done/n*100):100;
   el.innerHTML=`<div class="wcard fg-card"><div class="fg-ico" aria-hidden="true">🗂️</div><p class="hkick">Week ${g.w}</p><h2>First, study the flashcards</h2>
     <p class="fg-sub">Look at <b>both sides</b> of every week ${g.w} card: the word part, then tap to flip and read what it means. Then all the activities open up.</p>
@@ -2041,7 +2058,7 @@ function fcGo(){const g=fcGate();cardsAll=false;if(studyWeeks.length)setStudyWee
   addEventListener('pagehide',()=>shield(true));addEventListener('pageshow',()=>shield(false));
   addEventListener('beforeprint',()=>{if(!off())shield(true)});addEventListener('afterprint',()=>shield(false));
 })();
-function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;const fcLocked=!fcBypass&&!FC_FREE.includes(m)&&!fcGate().ok;MODES.forEach(x=>{$(x).hidden=x!==m||fcLocked;$('tab-'+x).setAttribute('aria-selected',x===m)});if($('fcGate')){$('fcGate').hidden=!fcLocked;if(fcLocked)renderFcGate()}updateFcTabs();
+function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;const fcLocked=!fcBypass&&!FC_FREE.includes(m)&&fcActLocked();MODES.forEach(x=>{$(x).hidden=x!==m||fcLocked;$('tab-'+x).setAttribute('aria-selected',x===m)});if($('fcGate')){$('fcGate').hidden=!fcLocked;if(fcLocked)renderFcGate()}updateFcTabs();renderFcHeld();
   centerTab(m);document.body.classList.toggle('on-home',m==='home');document.body.classList.toggle('in-act',m!=='home');document.body.classList.toggle('no-study',m==='home'||m==='plan'||m==='progress');requestAnimationFrame(()=>{try{filterEdge()}catch(e){}});try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
@@ -2176,7 +2193,15 @@ atmosphere|atmo=vapor sphere@g24|the ball of air around the earth
 tripod|tri@g31 pod@g28|a stand with three feet
 dioxide|di@g30 oxide=oxygen|having two oxygen atoms
 aerospace|aero@g21 space|the air and space around the earth
-orthodontist|ortho@g18 dont=tooth ist@a39|one who straightens teeth`;
+orthodontist|ortho@g18 dont=tooth ist@a39|one who straightens teeth
+electric|electr@g43 ic@a40|using or powered by electricity
+electricity|electr@g43 ic@a40 ity@a36|a kind of energy that powers lights and machines
+electrician|electr@g43 ic@a40 ian|a person whose job is to fix and install electric wiring
+electronic|electr@g43 on ic@a40|using tiny electric parts, like computer chips
+electrical|electr@g43 ic@a40 al@a35|having to do with electricity
+electromagnet|electro@g43 magnet|a magnet that works only when electricity runs through it
+hydroelectric|hydro@g11 electr@g43 ic@a40|making electricity from the force of moving water
+`;
 const WORDS=WRAW.trim().split("\n").map(l=>{const [w,segs,def]=l.split("|");
   const parts=segs.trim().split(/\s+/).map(t=>{let m;
     if((m=t.match(/^([a-z]+)@(\w+)$/))){const card=BYID[m[2]];return{s:m[1],card,kind:card.kind}}
@@ -2858,7 +2883,7 @@ hostile|host~base~enemy or stranger~-;ile~suffix~state or quality of~a64
 hydrant|hydr~base~water~g11;ant~suffix~one that~a57
 hydrate|hydr~base~water~g11;ate~suffix~make~a59
 hydrated|hydr~base~water~g11;at~suffix~make~a59;ed~suffix~past tense~a2
-hydroelectric|hydro~base~water~g11;electr~base~electricity~-;ic~suffix~of or relating to~a40
+hydroelectric|hydro~base~water~g11;electr~base~electricity~g43;ic~suffix~of or relating to~a40
 hydrophobia|hydro~base~water~g11;phobia~base~fear of~g12
 hydroplane|hydro~base~water~g11;plane~word~flat surface or aircraft~-
 hydroponics|hydro~base~water~g11;pon~base~work or labor~-;ics~suffix~study or science of~-
@@ -3840,7 +3865,7 @@ demography|demo~base~people~g42;graphy~base~writing about~g1
 demotic|demo~base~people~g42;t~connector~connecting letter~-;ic~suffix~of or relating to~a40
 disclose|dis~prefix~opposite of~a9;clos~base~to close or shut~l28;e~silent~silent e~-
 eagerly|eager~word~excited and wanting~-;ly~suffix~in a manner~a15
-electricity|electric~word~using electricity~-;ity~suffix~state or quality of~a36
+electricity|electr~base~electricity~g43;ic~suffix~of or relating to~a40;ity~suffix~state or quality of~a36
 endemic|en~prefix~in~-;dem~base~people~g42;ic~suffix~of or relating to~a40
 epidemic|epi~prefix~upon or among~-;dem~base~people~g42;ic~suffix~of or relating to~a40
 epidemics|epi~prefix~upon or among~-;dem~base~people~g42;ic~suffix~of or relating to~a40;s~suffix~more than one~a1
@@ -3917,6 +3942,12 @@ unravel|un~prefix~to undo~a6;ravel~word~to tangle~-
 unruly|un~prefix~not~a6;rul~word~rule~-;y~suffix~inclined to~a18
 vigilance|vigil~word~watchful staying awake~-;ance~suffix~action or state~a57
 trifold|tri~prefix~three~a52;fold~word~bend over~-
+electric|electr~base~electricity~g43;ic~suffix~of or relating to~a40
+electrician|electr~base~electricity~g43;ic~suffix~of or relating to~a40;ian~suffix~a person who~-
+electronic|electr~base~electricity~g43;on~connector~from the word electron~-;ic~suffix~of or relating to~a40
+electrical|electr~base~electricity~g43;ic~suffix~of or relating to~a40;al~suffix~relating to~a35
+electromagnet|electro~base~electricity~g43;magnet~word~a metal that pulls iron~-
+electrify|electr~base~electricity~g43;ify~suffix~to make~-
 `;
 const MORPH={};
 MRAW.trim().split("\n").forEach(l=>{const i=l.indexOf('|');if(i<0)return;const w=l.slice(0,i);
@@ -11763,6 +11794,52 @@ L|l9|reflective|The Latin root flect means “to bend.” When you are reflectiv
 L|l9|reflector|The Latin root flect means “to bend or curve.” A reflector bends light back toward where it came from.
 L|l9|reflects|The Latin root flect means “to bend or curve.” When a lake reflects the trees, it bends the light back to your eyes.
 L|l9|reflex|The Latin root flex means “to bend or curve.” A reflex comes from a word meaning bent back, like your body bouncing back a quick reaction.
+W|electric|using or powered by electricity
+W|electrician|a person whose job is to fix and install electric wiring
+W|electronic|using tiny electric parts, like computer chips
+W|electronics|devices with tiny electric parts like chips and circuits, or the study of them
+W|electrical|having to do with electricity
+W|electromagnet|a magnet that works only when electricity runs through it
+W|electromagnetic|having to do with both electricity and magnetism
+W|electrify|to make something run on electricity; also, to excite people suddenly
+W|electrified|having electricity running through it
+W|electrifying|very exciting, as if charged with electricity
+W|electrode|a small piece that lets electricity flow into or out of something
+W|electrolytes|salts in the body that help carry tiny electric signals
+L|g43|electric|The Greek root electr means “electricity.” Something electric runs on electricity.
+L|g43|electricity|The Greek root electr means “electricity.” Electricity is the energy itself, the power in the wires.
+L|g43|electrician|The Greek root electr means “electricity.” An electrician is a person who works with electric wiring.
+L|g43|electronic|The Greek root electr means “electricity.” Electronic things use tiny electric parts, like chips.
+L|g43|electronics|The Greek root electr means “electricity.” Electronics are devices built from tiny electric parts.
+L|g43|electrical|The Greek root electr means “electricity.” An electrical problem has to do with electricity.
+L|g43|electromagnet|The Greek root electro means “electricity.” An electromagnet is a magnet powered by electricity.
+L|g43|electromagnetic|The Greek root electro means “electricity.” Electromagnetic waves are made of electric and magnetic forces.
+L|g43|electrify|The Greek root electr means “electricity.” To electrify something is to fill it with electricity, or with a jolt of excitement.
+L|g43|electrified|The Greek root electr means “electricity.” An electrified fence has electricity running through it.
+L|g43|electrifying|The Greek root electr means “electricity.” Something electrifying feels exciting, like a jolt of electricity.
+L|g43|electrode|The Greek root electr means “electricity.” An electrode is the piece where electricity goes in or comes out.
+L|g43|electrolytes|The Greek root electr means “electricity.” Electrolytes are salts that help carry electric signals in your body.
+L|g43|hydroelectric|The Greek root electr means “electricity.” Hydroelectric = hydro (water) + electric: electricity made from moving water.
+C|c3211|It had to be plugged in and ran when the power came on, so an electric fan is powered by electricity.
+C|c3212|Without it the lights and the fridge stopped, so electricity is the energy that makes them work.
+C|c3213|It charges with a plug instead of using gas, so an electric bus runs on electricity.
+C|c3214|Things plugged into the wall need it to work, so electricity is the energy that powers them.
+C|c3215|The person came to fix the wires for the lights, so an electrician works on electric wiring.
+C|c3216|She fixes outlets and turns off the power first to stay safe, so an electrician works with electricity.
+C|c3217|A shock is a jolt of power, so an electric shock is made of electricity.
+C|c3218|Rubbing builds up a charge that pulls hair toward the balloon, so static electricity is a kind of energy.
+C|c3219|Instead of gears it uses a battery and a chip, so electronic means using tiny electric parts.
+C|c3220|Phones and tablets are the examples, and they run on chips and batteries, so electronic devices use tiny electric parts.
+C|c3221|The fire came from a worn-out power cord, so an electrical problem has to do with electricity.
+C|c3222|The panels make something that runs the whole house, so electricity is energy that powers things.
+C|c3223|It held the cars only while the power was on, so an electromagnet is a magnet that works with electricity.
+C|c3224|A battery sends power through the wire so the nail picks up clips, so an electromagnet is a magnet powered by electricity.
+C|c3225|They are swapping engines for batteries and electric motors, so to electrify is to make something run on electricity.
+C|c3226|Falling water spins machines that make power, so hydroelectric means making electricity from moving water.
+C|c3227|It picks up electric signals from the heart for the machine, so an electrode lets electricity pass between the body and the machine.
+C|c3228|The sentence says they are salts that help carry electric signals, and sweat washes them out, so electrolytes carry signals in the body.
+C|c3229|Touching it gave a shock, so an electrified fence has electricity running through it.
+C|c3230|The crowd suddenly jumped up cheering, so to electrify a crowd is to excite it as if with a jolt.
 `;
 const XDEF={},XLINK={},XCLUE={};
 XRAW.trim().split("\n").forEach(l=>{const f=l.split("|");if(f[0]==='W')XDEF[f[1].toLowerCase()]=f[2];else if(f[0]==='L')XLINK[f[1]+'|'+f[2].toLowerCase()]=f[3];else if(f[0]==='C')XCLUE[f[1]]=f[2]});
@@ -14979,6 +15056,26 @@ g36|octave|Starting on low C, Emma played eight piano keys up the scale until sh
 g36|octagonal|The ancient tower was [octagonal], and as the knights circled it, they counted eight stone walls before arriving back at the gate.|shaped with eight sides, like a stop sign|4
 g36|octogenarian|Grandpa Felix became an [octogenarian] this spring, and the eight candles on his cake each stood for ten years of his life.|a person who is between eighty and eighty-nine years old|5
 g36|octahedron|Holding the strange crystal up to the light, Dani counted its faces twice and realized it was an [octahedron], two pyramids fused base to base.|a solid shape with eight flat faces, often triangles|5
+g43|electric|Mom plugged in the new [electric] fan, and it started spinning as soon as the power came on.|using or powered by electricity|1
+g43|electricity|When the storm knocked down the power lines, our street had no [electricity], so the lights and the fridge stopped working.|a kind of energy that powers lights and machines|1
+g43|electric|Our new school bus is [electric], so it charges with a big plug at night instead of filling up with gas.|using or powered by electricity|1
+g43|electricity|A lamp, a TV, and a toaster all need [electricity] from the wall outlet to work.|a kind of energy that powers lights and machines|1
+g43|electrician|When the kitchen lights kept flickering, we called an [electrician] to fix the wires inside the wall.|a person whose job is to fix and install electric wiring|2
+g43|electrician|The [electrician] wore rubber gloves and turned off the power before she touched the broken outlet.|a person whose job is to fix and install electric wiring|2
+g43|electric|The eel gave the fish a tiny [electric] shock, a quick jolt of power from its own body.|using or made of electricity|2
+g43|electricity|Rubbing a balloon on your hair builds up static [electricity], which makes your hair stand up and stick to the balloon.|a kind of energy that powers lights and machines|2
+g43|electronic|Grandpa's old watch has gears, but my new [electronic] watch uses a tiny battery and a computer chip to keep time.|using tiny electric parts, like computer chips|3
+g43|electronic|Please turn off phones, tablets, and other [electronic] devices before the movie begins.|using tiny electric parts, like computer chips|3
+g43|electrical|The firefighter said the fire started from an [electrical] problem: a worn-out cord that got too hot.|having to do with electricity|3
+g43|electricity|Solar panels on the roof turn sunlight into [electricity] that runs the whole house.|a kind of energy that powers lights and machines|3
+g43|electromagnet|At the junkyard, a crane used a huge [electromagnet] to lift old cars, and when the power switched off, the cars dropped.|a magnet that works only when electricity runs through it|4
+g43|electromagnet|For the science fair, Maya wrapped wire around a nail and hooked it to a battery, making an [electromagnet] that picked up paper clips.|a magnet that works only when electricity runs through it|4
+g43|electrify|The town plans to [electrify] its old buses, swapping their diesel engines for batteries and electric motors.|to make something run on electricity|4
+g43|hydroelectric|A [hydroelectric] dam uses the force of falling water to spin machines that make electricity.|making electricity from the force of moving water|4
+g43|electrode|The nurse stuck a small [electrode] on Grandpa's chest so the machine could read the electric signals from his heartbeat.|a small piece that lets electricity flow into or out of something|5
+g43|electrolytes|After the sweaty race, the runner drank a sports drink to replace her [electrolytes], the salts that help carry electric signals in the body.|salts in the body that help carry tiny electric signals|5
+g43|electrified|The fence around the cow pasture was [electrified], so any cow that touched it felt a small shock and stepped back.|having electricity running through it|5
+g43|electrify|The singer's amazing high note seemed to [electrify] the crowd, and everyone leaped to their feet cheering.|to excite people suddenly, as if with a jolt of electricity|5
 `;
 const CTX=CRAW.trim().split("\n").map((l,i)=>{const [id,w,sent,def,lv]=l.split("|");return{sid:'c'+i,c:BYID[id],w,sent,def:xdef(w,def),lv:Math.min(5,Math.max(1,+lv||3))}}).filter(x=>x.c&&x.sent&&x.sent.includes('['+x.w+']'));
 /* Level 6 (Master): one hidden-clue sentence per card, plus two-word sentences.
@@ -15579,6 +15676,10 @@ g24|spherical|Unlike her lumpy first attempts, Kenya's newest snowball was so pe
 g36|octet|When one of the eight dancers sprained her ankle, the [octet] had to rehearse as seven until she recovered.|a group of eight, often singers or musicians
 g36|octopus|The clever [octopus] squeezed through a gap no wider than a coin, then used several of its many suckered arms to pull a shrimp from the jar.|a sea animal with a soft body and eight long arms
 g36|octogenarian|Even at eighty-three, the [octogenarian] still swam laps every morning, outpacing swimmers a third her age.|a person who is between eighty and eighty-nine years old
+g43|electrician|Before the new lights could go up, the [electrician] ran fresh wiring through the attic and tested every circuit with her meter.|a person whose job is to fix and install electric wiring
+g43|electromagnetic|Radio waves, microwaves, and even the light you see are all kinds of [electromagnetic] waves, energy made of electric and magnetic forces.|having to do with both electricity and magnetism
+g43|electronics|Mateo loves [electronics]; he takes apart old radios to study their circuit boards and tiny wires.|devices with tiny electric parts like chips and circuits, or the study of them
+g43|electrifying|The final seconds of the game were [electrifying]: the crowd held its breath, then exploded with noise when the last shot swished in.|very exciting, as if charged with electricity
 `;
 const C6PRAW=`
 a8|misinterpreted|understood something in the wrong way|a43|offended|hurt or upset by something someone said or did|Lily [misinterpreted] her friend's joke as an insult and felt [offended] all afternoon, until she learned he had meant it kindly.
@@ -15665,6 +15766,8 @@ a12|descend|to go down from a higher place|g24|stratosphere|a high layer of air 
 l7|incredulous|not able to believe what you hear|a60|nominee|a person who is picked to run for a job or win a prize|When the principal announced that the shy [nominee] had won the art award over two older students, her best friend gasped, [incredulous], and asked to hear it again.
 g36|octopus|a sea animal with a soft body and eight long arms|a36|curiosity|a strong wish to know or learn about something|The [octopus] unscrewed the jar lid with two of its eight arms, and the students' [curiosity] kept them at the glass for an hour, eager to see its next trick.
 l43|decade|a span of ten years|a48|progress|moving forward or getting better at something|In just one [decade], the town made remarkable [progress], growing from a dirt crossroads into a busy village with a library, a school, and a park.
+g43|electrician|a person whose job is to fix and install electric wiring|g11|hydroelectric|making electricity from the force of moving water|The [electrician] explained that every outlet in our town gets its power from the [hydroelectric] dam, where rushing river water turns giant turbines.
+g43|electronic|using tiny electric parts, like computer chips|g6|microscopic|so tiny that you need a strong lens to see it|Inside the [electronic] tablet are chips covered with [microscopic] switches, each far too small to see without a powerful lens.
 `;
 const CTX6=C6RAW.trim().split("\n").map((l,i)=>{const [id,w,sent,def]=l.split("|");return{sid:'s'+i,c:BYID[id],w,sent,def:xdef(w,def),lv:6}}).filter(x=>x.c&&x.sent&&x.sent.includes('['+x.w+']'));
 const CTX6P=C6PRAW.trim().split("\n").map((l,i)=>{const [id,w,def,id2,w2,def2,sent]=l.split("|");return{sid:'p'+i+'a',sid2:'p'+i+'b',c:BYID[id],w,def:xdef(w,def),c2:BYID[id2],w2,def2:xdef(w2,def2),sent,lv:6,pair:true}}).filter(x=>x.c&&x.c2&&x.sent&&x.sent.includes('['+x.w+']')&&x.sent.includes('['+x.w2+']'));
@@ -15910,7 +16013,7 @@ function renderHome(){
   /* one "next up" card: the check-in when ready, otherwise practice (today's review first) */
   let next;const fg=fcGate();
   if(!fg.ok&&!ready){const fn=fg.ids.length;next=`<div class="hnext"><p class="hkick">🗂️ Next up</p><h3>Study the week ${fg.w} flashcards</h3>
-      <p class="note">Look at both sides of every card to unlock the activities.</p>
+      <p class="note">Look at both sides of every card to ${fcActLocked()?'unlock the activities':'add them to your activities. Earlier weeks stay open'}.</p>
       <div class="fg-bar" style="max-width:none"><i style="width:${fn?Math.round(fg.done/fn*100):0}%"></i></div><p class="note" style="margin:0"><b>${fg.done} of ${fn}</b> cards studied on both sides</p>
       <div class="grp"><button class="btn primary big" id="homeFc">${fg.done?'Keep going':'Start the flashcards'} →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
   else if(ready){next=`<div class="hnext ready"><p class="hkick">🎯 Next up</p><h3>Take the week ${fw} check-in</h3>
@@ -15930,7 +16033,7 @@ function renderHome(){
         <button class="hpill" id="homeBadges" title="See your badges">🏅 ${nb} badge${nb===1?'':'s'}</button>
         <span class="hpill" title="Weeks unlocked">🔓 Week ${all?WEEKS:fw} of ${WEEKS}</span></div></div></div>
     ${next}
-    <div class="hpractice"><p class="plabel">Practice</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');const lk=!FC_FREE.includes(k)&&!fcGate().ok;return`<button class="hgame${lk?' gated':''}" data-go="${k}"${lk?' aria-description="Locked until you study the flashcards"':''}>${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
+    <div class="hpractice"><p class="plabel">Practice</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');const lk=!FC_FREE.includes(k)&&fcActLocked();return`<button class="hgame${lk?' gated':''}" data-go="${k}"${lk?' aria-description="Locked until you study the flashcards"':''}>${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
   </div>`;
   const hfc=$('homeFc');if(hfc)hfc.onclick=fcGo;
   const hr2=$('homeReview');if(hr2)hr2.onclick=()=>{setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
