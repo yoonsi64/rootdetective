@@ -1243,6 +1243,9 @@ body.shield:not(.can-copy)::after{content:"Root Detective";position:fixed;inset:
 .lvl.locked b{display:grid;place-items:center}.lvl.locked .slock{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .lvdesc.lvwarn{color:var(--bad);font-weight:700}
 .lvunlock{margin:0;font-weight:800;color:var(--good,#2F9E44);font-size:1.05rem}
+/* Home practice buttons show the same lock as the tabs */
+.hgame.gated .ti,.hgame.gated svg{opacity:.4}.hgame.gated span{color:var(--muted)}
+.hgame.gated::after{content:"";position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--muted) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2' fill='white'/%3E%3Cpath d='M9 11V8a3 3 0 0 1 6 0v3'/%3E%3C/svg%3E") center/11px no-repeat}
 /* ---------- Phones: fit each activity on one screen ---------- */
 .lvtoggle{display:none}
 @media (max-width:700px){
@@ -2013,7 +2016,7 @@ function fcMark(side){const c=deck[idx];if(!c||mode!=='cards')return;const {f,b}
   if(!was&&g.ok){try{FX.play('win');FX.shower&&FX.shower()}catch(e){}fcUnlockedNote(g.w)}}
 function fcUnlockedNote(w){let el=$('fcDone');if(!el){el=document.createElement('div');el.id='fcDone';el.className='fcdone';el.setAttribute('role','status');document.body.appendChild(el)}
   el.innerHTML=`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200)}
-function updateFcTabs(){const g=fcGate();MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
+function updateFcTabs(){const g=fcGate();document.querySelectorAll('.hgame[data-go]').forEach(b=>{const lk=!FC_FREE.includes(b.dataset.go)&&!g.ok;b.classList.toggle('gated',lk);if(lk)b.setAttribute('aria-description','Locked until you study the flashcards');else b.removeAttribute('aria-description')});MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
 function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.ids.length,pct=n?Math.round(g.done/n*100):100;
   el.innerHTML=`<div class="wcard fg-card"><div class="fg-ico" aria-hidden="true">🗂️</div><p class="hkick">Week ${g.w}</p><h2>First, study the flashcards</h2>
     <p class="fg-sub">Look at <b>both sides</b> of every week ${g.w} card: the word part, then tap to flip and read what it means. Then all the activities open up.</p>
@@ -2021,7 +2024,8 @@ function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.
     <p class="fg-n"><b>${g.done} of ${n}</b> cards studied on both sides</p>
     <div class="chipset fg-chips">${g.ids.map(id=>{const c=BYID[id],both=g.f.has(id)&&g.b.has(id),half=!both&&(g.f.has(id)||g.b.has(id));return`<span class="chip c-${c.kind} ${both?'ok':half?'half':'todo'}" style="background:var(--fc)">${both?'✓ ':''}${esc(c.main)}</span>`}).join('')}</div>
     <button class="btn primary big" id="fgGo">${g.done?'Keep going with the flashcards':'Go to the flashcards'} →</button></div>`;
-  $('fgGo').onclick=()=>{cardsAll=false;if(studyWeeks.length)setStudyWeeks([]);setMode('cards');deck=g.ids.map(i=>BYID[i]).filter(Boolean);const k=deck.findIndex(c=>!(g.f.has(c.id)&&g.b.has(c.id)));idx=k<0?0:k;renderCard();scrollTo({top:0})}}
+  $('fgGo').onclick=fcGo}
+function fcGo(){const g=fcGate();cardsAll=false;if(studyWeeks.length)setStudyWeeks([]);setMode('cards');deck=g.ids.length?g.ids.map(i=>BYID[i]).filter(Boolean):cardPool();const k=g.ids.length?deck.findIndex(c=>!(g.f.has(c.id)&&g.b.has(c.id))):0;idx=k<0?0:k;renderCard();scrollTo({top:0})}
 /* ---------- No copying, and screenshot deterrents (students; teachers can copy) ----------
    A web page cannot stop a phone's or computer's own screenshot buttons. What it can do:
    block selecting/copying/printing, hide the app in the app switcher, and blank the
@@ -15905,8 +15909,12 @@ function renderHome(){
   const uw=unlockedWeeks(),fw=frontierWeek(),all=questDone(),ready=!all&&checkReady(fw),ph=checkHistory(HIST.days)[fw];
   const got=actsFor(fw),n=Math.min(got.length,READY);
   /* one "next up" card: the check-in when ready, otherwise practice (today's review first) */
-  let next;
-  if(ready){next=`<div class="hnext ready"><p class="hkick">🎯 Next up</p><h3>Take the week ${fw} check-in</h3>
+  let next;const fg=fcGate();
+  if(!fg.ok&&!ready){const fn=fg.ids.length;next=`<div class="hnext"><p class="hkick">🗂️ Next up</p><h3>Study the week ${fg.w} flashcards</h3>
+      <p class="note">Look at both sides of every card to unlock the activities.</p>
+      <div class="fg-bar" style="max-width:none"><i style="width:${fn?Math.round(fg.done/fn*100):0}%"></i></div><p class="note" style="margin:0"><b>${fg.done} of ${fn}</b> cards studied on both sides</p>
+      <div class="grp"><button class="btn primary big" id="homeFc">${fg.done?'Keep going':'Start the flashcards'} →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
+  else if(ready){next=`<div class="hnext ready"><p class="hkick">🎯 Next up</p><h3>Take the week ${fw} check-in</h3>
       <p class="note">Score ${PASS}/10 to ${nextGoal(fw)}.${ph?` Best so far: ${ph.best}/10.`:''}</p>
       <div class="grp"><button class="btn primary big" id="homeCheck">Start the check-in →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
   else{
@@ -15923,8 +15931,9 @@ function renderHome(){
         <button class="hpill" id="homeBadges" title="See your badges">🏅 ${nb} badge${nb===1?'':'s'}</button>
         <span class="hpill" title="Weeks unlocked">🔓 Week ${all?WEEKS:fw} of ${WEEKS}</span></div></div></div>
     ${next}
-    <div class="hpractice"><p class="plabel">Practice</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');return`<button class="hgame" data-go="${k}">${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
+    <div class="hpractice"><p class="plabel">Practice</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');const lk=!FC_FREE.includes(k)&&!fcGate().ok;return`<button class="hgame${lk?' gated':''}" data-go="${k}"${lk?' aria-description="Locked until you study the flashcards"':''}>${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
   </div>`;
+  const hfc=$('homeFc');if(hfc)hfc.onclick=fcGo;
   const hr2=$('homeReview');if(hr2)hr2.onclick=()=>{setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
   $('homeBadges').onclick=()=>{progView='me';setMode('progress')};
   if($('homeCheck'))$('homeCheck').onclick=()=>{startCheckin(fw);scrollTo({top:0})};
