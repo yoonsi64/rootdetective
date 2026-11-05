@@ -16073,7 +16073,7 @@ function renderSpell(autoSay,keepKb){
       <input id="spIn" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${SPELL_KB.matches?'Type here':'Tap here to type'}" ${SP.state!=='ask'?'disabled':''} value="${esc(SP.last||'')}">
       ${SP.state==='ask'?`<button class="btn primary" type="submit">Check</button>`:''}</form>
     <div id="spFb">${SP.state==='retry'?`<p class="bfb no">Not quite. Listen again and look at the parts: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`:''}
-    ${SP.state==='right'||SP.state==='shown'?`<div class="fb ${SP.state==='right'?'ok':'no'}"><strong>${SP.state==='right'?'Spelled it!':'Here is the spelling.'}</strong><p style="font-size:1.6rem;margin:0"><b>${hl(x.w,x.c)}</b></p>${partsRow(x.w)}<div class="grp" style="justify-content:space-between"><button class="btn primary" id="spNext">${SP.i===SN-1?'See my score':'Next word →'}</button>${reportBtn({where:'Spell it',word:x.w,card:x.c.main})}</div></div>`:''}</div>
+    ${SP.state==='right'||SP.state==='shown'?`<div class="fb ${SP.state==='right'?'ok':'no'}"><strong>${SP.state==='right'?'Spelled it!':'Here is the spelling.'}</strong><p style="font-size:1.6rem;margin:0"><b>${hl(x.w,x.c)}</b></p>${partsRow(x.w)}<div class="grp" style="justify-content:space-between"><span class="grp" style="gap:10px;align-items:center"><button class="btn primary" id="spNext" aria-keyshortcuts="Enter">${SP.i===SN-1?'See my score':'Next word →'}</button>${SPELL_KB.matches?'<span class="note">or press Enter</span>':''}</span>${reportBtn({where:'Spell it',word:x.w,card:x.c.main})}</div></div>`:''}</div>
   </div>`;
   if(autoSay&&SP.state==='ask'&&DISP.speak)setTimeout(()=>SPEAK.say(x.w,.85),250);
   if($('spSent'))$('spSent').onclick=()=>{SP.showSent=true;SP.last=$('spIn').value;renderSpell()};
@@ -16086,6 +16086,10 @@ function renderSpell(autoSay,keepKb){
       if(SP.state==='retry'){SP.state='ask';renderSpell(false,kb);$('spFb').innerHTML=`<p class="bfb no">Not quite. Listen again: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`;const i2=$('spIn');i2.classList.add('shake');if(kb||SPELL_KB.matches)i2.select()}}};
   if($('spNext'))$('spNext').onclick=()=>{SP.i++;SP.tries=0;SP.state='ask';SP.last='';SP.showSent=false;renderSpell(true)};
 }
+/* Spell it: after an answer, Enter goes to the next word (the Enter that checks the word doesn't also skip it) */
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.repeat||mode!=='spell'||!(SP&&(SP.state==='right'||SP.state==='shown')))return;
+  if(e.target.closest&&e.target.closest('button,a,summary,select,textarea,[role=dialog]'))return;const r=$('repModal');if(r&&!r.hidden)return;
+  const b=$('spNext');if(b){e.preventDefault();b.click()}});
 function spellResults(){const s=SP.score;rec(d=>{const o=sub(d,'spell');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=7)doneActivity('spell');if(s>=7)setTimeout(celebrateWin,150);
   $('spellBody').innerHTML=`<div class="qcard"><div class="qtop"><span>Round complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${SN}</p><p class="prompt">${s>=9?'Spelling superstar!':s>=7?'Great spelling!':'Nice effort. Listen for each word part and try again.'}</p>
