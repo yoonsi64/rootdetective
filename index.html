@@ -1780,7 +1780,8 @@ const chosen=()=>{
 const pool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
 /* Flashcards: when the student hasn't picked weeks (and no teacher selection), show only the newest unlocked week */
 let cardsAll=false;
-const newestWeek=()=>{const u=unlockedWeeks();return u[u.length-1]||1};
+/* the week the student is working on now (first unlocked week not yet passed); flashcards start here */
+const newestWeek=()=>{try{return frontierWeek()||1}catch(e){const u=unlockedWeeks();return u[u.length-1]||1}};
 const cardsScoped=()=>!studyWeeks.length&&!selected&&!cardsAll&&unlockedWeeks().length>1;
 const cardPool=()=>{if(!cardsScoped())return pool();const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));return pool().filter(c=>ids.has(c.id))};
 
@@ -2015,7 +2016,7 @@ document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.active
   c.addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const bs=[...c.querySelectorAll('[role=tab]')],i=bs.indexOf(document.activeElement);if(i<0)return;
     const n=bs[(i+(e.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.focus();n.click();e.preventDefault()})})();
 function refreshMode(){if(mode==='home')renderHome();else if(mode==='review')renderReview();else if(mode==='spell')startSpell();else if(mode==='sort')newSort();else if(mode==='speed'){stopSpeedIfLeaving();renderSpeedStart()}else if(mode==='quiz')startQuiz();else if(mode==='parts'){buildWdeck();renderParts()}else if(mode==='build')newBuild();else if(mode==='plan')renderPlan();else if(mode==='progress'){if(progView==='class')watchClass();renderProgress()}else if(mode==='match')newMatch();else if(mode==='memory')newMemory();else if(mode==='context')startContext()}
-$('tab-cards').onclick=()=>{setMode('cards');deck=cardPool();idx=0;renderCard()};
+$('tab-cards').onclick=()=>{setMode('cards');deck=cardPool();idx=0;try{const {f,b}=fcSides(),k=deck.findIndex(c=>!(f.has(c.id)&&b.has(c.id)));if(k>0)idx=k}catch(e){}renderCard()};
 MODES.slice(1).forEach(x=>$('tab-'+x).onclick=()=>setMode(x));
 
 /* ---------- Words made of parts ---------- */
