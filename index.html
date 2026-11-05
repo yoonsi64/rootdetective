@@ -1659,6 +1659,22 @@ g|11|glyph|carving or symbol|hieroglyph,petroglyph / glyph,hieroglyphics|petrogl
 g|11|nomy|law, rules, or the study of|astronomy,economy / autonomy,taxonomy|astronomy=the study of stars and planets
 g|11|dem(o)|people|democracy,epidemic / demographic,endemic|democracy=government by the people
 g|3|electr(o)|electricity or electric|electric,electricity,electrician / electronic,electromagnet,hydroelectric|electrician=a person whose job is to fix and install electric wiring
+a|66|circum-|around|circumference,circumnavigate,circumstance / circumvent,circumspect,circumscribe|circumference=the distance around a circle
+a|67|extra-|beyond or outside of|extraordinary,extracurricular,extraterrestrial / extravagant,extrasolar,extrasensory|extraordinary=far beyond what is usual; amazing
+a|68|omni-|all|omnivore,omnipresent,omnivorous / omnipotent,omniscient,omnidirectional|omnivore=an animal that eats both plants and meat
+a|69|retro-|backward or back in time|retrospect,retrofit,retrorocket / retroactive,retrograde,retrospective|retrorocket=a small rocket that fires against a spacecraft's motion to slow it down
+a|70|counter-|against or opposite|counterclockwise,counterattack,counterpart / counterbalance,counteract,counterfeit|counterclockwise=turning the opposite way from the way a clock's hands move
+a|71|-ize|to make or become~verb|memorize,organize,apologize / visualize,modernize,criticize|memorize=to learn something so well that you can remember it exactly
+a|72|-ship|state, skill, or position of~noun|friendship,leadership,championship / citizenship,membership,sportsmanship|friendship=the state of being friends
+a|73|-ward, -wards|in the direction of~adjective or adverb|backward,forward,upward / downward,homeward,westward|homeward=in the direction of home
+l|44|aqu(a)|water|aquarium,aquatic,aqua / aqueduct,aquamarine,aquifer|aquarium=a glass tank of water where fish and other water animals live
+l|45|terr|earth or land|territory,terrain,terrarium / terrestrial,extraterrestrial,terrace|terrain=the kind of land in an area, such as hills, rocks, or sand
+l|46|spir|to breathe|inspire,spirit,expire / respiration,perspire,conspire|respiration=the act of breathing
+l|47|man(u)|hand|manual,manicure,manuscript / manufacture,manipulate,maneuver|manicure=a care treatment for your hands and fingernails
+l|48|cent|hundred|cent,century,percent / centipede,centimeter,centennial|century=a period of one hundred years
+g|8|phil(o)|love|philosophy,philosopher,philanthropist / philanthropy,bibliophile,philharmonic|bibliophile=a person who loves books
+g|9|poly|many|polygon,polyester,polyhedron / polyglot,polychrome,polynomial|polygon=a flat shape with many straight sides
+g|7|chrom(o)|color|monochrome,chromatic,polychrome / chromosome,monochromatic,chromatography|monochrome=having only one color, or shades of one color
 `;
 
 const SETS={a:"Affixes",l:"Latin bases",g:"Greek bases"};
@@ -1687,7 +1703,8 @@ const BYID=Object.fromEntries(BANK.map(c=>[c.id,c]));
 const WEEKS=16, REVIEW=[8,16];
 /* Cards added after the term started (PLAN_ADDED) join their lesson's week without re-balancing the plan,
    so no existing card moves to a different week. */
-const PLAN_ADDED=new Set(['g43']);
+const PLAN_ADDED=new Map([['g43',4],['a69',3],['l44',4],['l45',5],['l46',6],['a70',7],['a66',9],['a71',10],['g46',10],
+  ['a72',11],['g44',11],['g45',12],['a68',12],['l48',13],['a67',14],['a73',14],['l47',15]]);
 const PLAN=(()=>{
   const PB=BANK.filter(c=>!PLAN_ADDED.has(c.id));
   const teach=[];for(let w=1;w<=WEEKS;w++)if(!REVIEW.includes(w))teach.push(w);
@@ -1700,7 +1717,7 @@ const PLAN=(()=>{
     raw.map((r,i)=>[r-fl[i],i]).sort((a,b)=>b[0]-a[0]).slice(0,left).forEach(([,i])=>fl[i]++);return fl};
   const fill=(list,counts)=>{let i=0;teach.forEach((w,k)=>{wk[w].unshift(...list.slice(i,i+counts[k]).map(c=>c.id));i+=counts[k]})};
   fill(PB.filter(c=>c.set==='l'),alloc(43));fill(PB.filter(c=>c.set==='a'),alloc(65));
-  BANK.filter(c=>PLAN_ADDED.has(c.id)&&c.set==='g').forEach(c=>wk[lessonWeek(Math.min(c.num,GL))].push(c.id));
+  BANK.filter(c=>PLAN_ADDED.has(c.id)).forEach(c=>{const w=PLAN_ADDED.get(c.id);(wk[w]||wk[lessonWeek(Math.min(c.num,GL))]).push(c.id)});
   const out=[];let sofar=[];
   for(let w=1;w<=WEEKS;w++){
     if(REVIEW.includes(w))out.push({w,review:true,ids:sofar.slice()});
@@ -2209,6 +2226,117 @@ electronic|electr@g43 on ic@a40|using tiny electric parts, like computer chips
 electrical|electr@g43 ic@a40 al@a35|having to do with electricity
 electromagnet|electro@g43 magnet|a magnet that works only when electricity runs through it
 hydroelectric|hydro@g11 electr@g43 ic@a40|making electricity from the force of moving water
+circumference|circum@a66 fer@l17 ence@a58|the distance around a circle
+circumnavigate|circum@a66 navig=to_sail ate@a59|to sail or travel all the way around
+circumstance|circum@a66 st=to_stand ance@a57|a condition or fact around an event
+circumvent|circum@a66 vent@l21|to get around something that blocks you
+circumspect|circum@a66 spect@l11|careful, looking around before acting
+circumscribe|circum@a66 scrib@l8 e|to draw a line around something
+circumpolar|circum@a66 polar|circling around the North or South Pole
+extraordinary|extra@a67 ordinary|far beyond what is usual; amazing
+extracurricular|extra@a67 curricul=course_of_study ar|done outside of regular school classes
+extraterrestrial|extra@a67 terr@l45 estr ial@a35|from beyond or outside Earth
+extravagant|extra@a67 vag=to_wander ant@a57|going far beyond what is needed or sensible
+extrasensory|extra@a67 sens=to_feel ory|beyond the normal five senses
+extrasolar|extra@a67 sol=sun ar|outside our solar system
+omnivore|omni@a68 vor=to_eat e|an animal that eats both plants and meat
+omnivorous|omni@a68 vor=to_eat ous@a37|eating both plants and animals
+omnipresent|omni@a68 present|present everywhere at the same time
+omnipotent|omni@a68 pot=powerful ent@a58|having unlimited power
+omniscient|omni@a68 sci@l13 ent@a58|knowing everything
+omnidirectional|omni@a68 direct ion@a16 al@a35|working in all directions
+retrospect|retro@a69 spect@l11|looking back on the past
+retrospective|retro@a69 spect@l11 ive@a25|looking back on the past
+retrofit|retro@a69 fit|to add new parts to something old
+retroactive|retro@a69 act ive@a25|applying back to an earlier time
+retrorocket|retro@a69 rocket|a small rocket that fires backward to slow a spacecraft
+retrograde|retro@a69 grad=to_step e|moving or turning backward
+counterclockwise|counter@a70 clock wise|turning the opposite way from the way a clock's hands move
+counterattack|counter@a70 attack|a quick move right back against the other side after defending
+counterpart|counter@a70 part|a person or thing that matches or has the same job as another
+counterbalance|counter@a70 balance|to balance something with an equal weight on the other side
+counteract|counter@a70 act|to work against something and weaken its effect
+counterweight|counter@a70 weight|a weight that balances another weight on the opposite side
+counterargument|counter@a70 argu=to_prove ment@a34|a reason given against someone else's argument
+memorize|memor=memory ize@a71|to learn something so well that you can remember it exactly
+organize|organ=tool_or_working_part ize@a71|to put things in order, or to plan and set up an event
+apologize|apolog=apology ize@a71|to say you are sorry
+visualize|vis@l16 u al@a35 ize@a71|to picture something in your mind
+realize|real ize@a71|to suddenly understand or notice something
+modernize|modern ize@a71|to make something more up to date
+summarize|summar=summary ize@a71|to tell the main points in a short way
+criticize|critic ize@a71|to point out what is wrong with something
+friendship|friend ship@a72|the state of being friends
+leadership|lead er@a4 ship@a72|the skill or position of a leader
+championship|champion ship@a72|the contest that decides the champion, or the title of champion
+citizenship|citizen ship@a72|the state of being a citizen of a country
+membership|member ship@a72|the state of belonging to a group or club
+ownership|own er@a4 ship@a72|the state of owning something
+hardship|hard ship@a72|something that makes life hard
+partnership|partner ship@a72|the state of working together as partners
+backward|back ward@a73|toward the back; also, in reverse order
+forward|for@a10 ward@a73|toward the front; ahead
+upward|up ward@a73|toward a higher place
+downward|down ward@a73|toward a lower place
+homeward|home ward@a73|toward home
+inward|in ward@a73|toward the inside
+outward|out ward@a73|toward the outside; away from the center
+westward|west ward@a73|toward the west
+aquarium|aqu@l44 arium=a_place_for|a glass tank of water where fish and other water animals live
+aquatic|aqu@l44 atic=relating_to|living or growing in water
+aqueduct|aque@l44 duct@l19|a channel or bridge built to carry water a long way
+aquamarine|aqua@l44 marine=of_the_sea|a light blue-green color like clear seawater
+aquifer|aqui@l44 fer@l17|a layer of underground rock or sand that holds water
+aquanaut|aqua@l44 naut=sailor|a person who lives and works underwater for days at a time
+territory|terr@l45 itory=a_place_for|an area of land that an animal or group claims as its own
+terrain|terr@l45 ain=relating_to|the kind of land in an area, such as hills, rocks, or sand
+terrarium|terr@l45 arium=a_place_for|a glass container with soil and plants where small land animals or plants live
+terrace|terr@l45 ace=made_of|a flat, level strip of land cut into a hillside
+terrier|terr@l45 ier=one_that|a small, lively dog first bred to dig into the earth after burrowing animals
+terrestrial|terr@l45 estr=belonging_to ial@a35|living on land rather than in water
+subterranean|sub@a22 terran@l45 ean=relating_to|under the ground
+inspire|in@a7 spir@l46 e|to make someone want to do something good or creative
+inspiration|in@a7 spir@l46 at@a59 ion@a16|something that gives you an idea or makes you want to do something
+respiration|re@a11 spir@l46 at@a59 ion@a16|breathing; taking in oxygen and letting out used air
+perspire|per=through spir@l46 e|to sweat
+perspiration|per=through spir@l46 at@a59 ion@a16|sweat
+expire|ex@a53 pir@l46 e|to come to an end or stop being good to use
+aspire|a@a55 spir@l46 e|to hope for and work toward a big goal
+manual|manu@l47 al@a35|worked or done by hand
+manually|manu@l47 al@a35 ly@a15|by hand instead of by machine
+manicure|mani@l47 cure=care|a care treatment for your hands and fingernails
+manicurist|mani@l47 cur=care ist@a39|a person whose job is caring for people's hands and nails
+manuscript|manu@l47 script@l8|a handwritten or typed copy of a book or paper before it is printed
+manufacture|manu@l47 fact=to_make ure@a65|to make things in large amounts, usually in a factory
+manipulate|mani@l47 pul=to_fill ate@a59|to move or control something skillfully, often with the hands
+century|cent@l48 ury|a period of one hundred years
+percent|per=by_or_for_each cent@l48|out of every hundred
+percentage|per=by_or_for_each cent@l48 age@a62|a part of a whole, counted out of one hundred
+centipede|centi@l48 ped@l26 e|a small crawling animal with a long body and many legs
+centimeter|centi@l48 meter@g15|a unit of length; one hundred of them make a meter
+centennial|cent@l48 enn=year ial@a35|a celebration of one hundred years
+bicentennial|bi@a51 cent@l48 enn=year ial@a35|a celebration of two hundred years
+philosophy|philo@g44 soph=wisdom y|the study of big questions about life, truth, and right and wrong
+philosopher|philo@g44 soph=wisdom er@a4|a person who thinks deeply about big questions
+philosophical|philo@g44 soph=wisdom ic@a40 al@a35|thinking deeply about big questions
+bibliophile|biblio@g9 phil@g44 e|a person who loves books
+philanthropy|phil@g44 anthrop=human y|giving time or money to help other people
+philanthropist|phil@g44 anthrop=human ist@a39|a person who gives time or money to help other people
+philharmonic|phil@g44 harmon=harmony ic@a40|a large orchestra that plays classical music
+polygon|poly@g45 gon=angle|a flat, closed shape with three or more straight sides
+polyhedron|poly@g45 hedron=face|a solid shape with many flat faces
+polyester|poly@g45 ester=chemical_compound|a strong, stretchy fabric made from plastic
+polynomial|poly@g45 nomi=name_or_term al@a35|a math expression made of several terms added or subtracted
+polychrome|poly@g45 chrom@g46 e|having many colors
+polyglot|poly@g45 glot=tongue|a person who speaks many languages
+polysyllabic|poly@g45 syllab=syllable ic@a40|having many syllables
+polygraph|poly@g45 graph@g1|a machine that records many body signals at the same time
+chromatic|chromat@g46 ic@a40|having bright colors
+monochrome|mono@g29 chrom@g46 e|having only one color, or shades of one color
+monochromatic|mono@g29 chromat@g46 ic@a40|using only one color, in lighter and darker shades
+chromosome|chromo@g46 some=body|a tiny threadlike part of a cell that carries genes
+chromatography|chromato@g46 graph@g1 y|a way to separate a mixture, like ink, into its different colors
+achromatic|a@a14 chromat@g46 ic@a40|without color, like black, white, and gray
 `;
 const WORDS=WRAW.trim().split("\n").map(l=>{const [w,segs,def]=l.split("|");
   const parts=segs.trim().split(/\s+/).map(t=>{let m;
@@ -2511,8 +2639,8 @@ applicable|ap~prefix~to or toward~a55;plic~base~to fold~l22;able~suffix~able to 
 apply|ap~prefix~to or toward~a55;ply~base~to fold~l22
 appointee|appoint~word~to choose~-;ee~suffix~one who receives~a60
 approach|ap~prefix~to or toward~a55;proach~base~near~-
-aquatic|aqua~base~water~-;t~connector~connecting letter~-;ic~suffix~relating to~a40
-aqueduct|aqu~base~water~-;e~connector~connecting letter~-;duct~base~to lead~l19
+aquatic|aqua~base~water~l44;t~connector~connecting letter~-;ic~suffix~relating to~a40
+aqueduct|aqu~base~water~l44;e~connector~connecting letter~-;duct~base~to lead~l19
 arachnophobia|arachn~base~spider~-;o~connector~connecting letter~-;phobia~base~fear of~g12
 archenemy|arch~base~chief or ruler~g25;enemy~word~foe~-
 architect|arch~base~chief or ruler~g25;i~connector~connecting letter~-;tect~base~builder~-
@@ -2574,7 +2702,7 @@ bibliographer|biblio~base~book~g9;graph~base~write or draw~g1;er~suffix~one who~
 bibliographic|biblio~base~book~g9;graph~base~write or draw~g1;ic~suffix~relating to~a40
 bibliography|biblio~base~book~g9;graph~base~write or draw~g1;y~suffix~process or result~-
 bibliomania|biblio~base~book~g9;mania~base~madness~-
-bibliophile|biblio~base~book~g9;phil~base~lover~-;e~silent~silent e~-
+bibliophile|biblio~base~book~g9;phil~base~lover~g44;e~silent~silent e~-
 bicameral|bi~prefix~two~l35;camer~base~room~-;al~suffix~relating to~a35
 bicycle|bi~prefix~two~a51,l35;cycl~base~wheel or circle~g23;e~silent~silent e~-
 biennial|bi~prefix~two~l35;enn~base~year~-;i~connector~connecting letter~-;al~suffix~relating to~a35
@@ -2617,8 +2745,8 @@ cats|cat~word~pet animal~-;s~suffix~more than one~a1
 cautious|caut~base~careful~-;ious~suffix~full of or having~a37
 celebrate|celebr~base~honor~-;ate~suffix~make~a59
 celebration|celebr~base~honor~-;at~suffix~make~a59;ion~suffix~act or result of~a16
-centimeter|centi~base~hundredth~-;meter~base~measure~g15
-centipede|centi~base~hundred~-;ped~base~foot~l26;e~silent~silent e~-
+centimeter|centi~base~hundredth~l48;meter~base~measure~g15
+centipede|centi~base~hundred~l48;ped~base~foot~l26;e~silent~silent e~-
 childhood|child~word~young person~-;hood~suffix~condition or state~a46
 childish|child~word~young person~-;ish~suffix~like or resembling~a47
 chronic|chron~base~time~g17;ic~suffix~relating to~a40
@@ -2846,7 +2974,7 @@ fragile|frag~base~to break~-;ile~suffix~state or quality of~a64
 fraternal|fratern~base~brother~l30;al~suffix~relating to~a35
 fraternally|fratern~base~brother~l30;al~suffix~relating to~a35;ly~suffix~like or manner of~a15
 fraternity|fratern~base~brother~l30;ity~suffix~state or quality of~a36
-fraternize|fratern~base~brother~l30;ize~suffix~to make or become~-
+fraternize|fratern~base~brother~l30;ize~suffix~to make or become~a71
 freedom|free~word~not held back~-;dom~suffix~quality or state~a45
 friendly|friend~word~a pal~-;ly~suffix~like or manner of~a15
 frosting|frost~word~frozen ice~-;ing~suffix~materials~a3
@@ -2984,7 +3112,7 @@ malnutrition|mal~prefix~bad or abnormal~a41;nutrit~base~to feed~-;ion~suffix~act
 malodorous|mal~prefix~bad or abnormal~a41;odor~word~a smell~-;ous~suffix~full of or having~a37
 malpractice|mal~prefix~bad or abnormal~a41;practice~word~to do or work~-
 maltreat|mal~prefix~bad or abnormal~a41;treat~word~to deal with~-
-manuscript|manu~base~hand~-;script~base~to write~l8
+manuscript|manu~base~hand~l47;script~base~to write~l8
 marshes|marsh~word~wet land~-;es~suffix~more than one~a1
 maternal|matern~base~mother~l31;al~suffix~relating to~a35
 maternity|matern~base~mother~l31;ity~suffix~state or quality of~a36
@@ -3095,7 +3223,7 @@ offend|of~prefix~against or facing~a43;fend~base~to strike~-
 offense|of~prefix~against or facing~a43;fens~base~to strike~-;e~silent~silent e~-
 offer|of~prefix~against or facing~a43;fer~base~to bear or carry~l17
 omit|o~prefix~toward~-;mit~base~to send~l12
-omniscient|omni~prefix~all~-;sci~base~to know~l13;ent~suffix~inclined to~a58
+omniscient|omni~prefix~all~a68;sci~base~to know~l13;ent~suffix~inclined to~a58
 opponent|op~prefix~against or facing~a43;pon~base~to put or place~-;ent~suffix~one who~a58
 oppose|op~prefix~against or facing~a43;pos~base~to put or place~-;e~silent~silent e~-
 opposite|op~prefix~against or facing~a43;pos~base~to put or place~-;ite~suffix~being~-
@@ -3298,7 +3426,7 @@ restless|rest~word~to relax~-;less~suffix~without~a24
 retract|re~prefix~back or again~a11;tract~base~to pull or draw~l2
 return|re~prefix~back or again~a11;turn~word~to go around~-
 reverse|re~prefix~back or again~a11;vers~base~to turn~l18;e~silent~silent e~-
-revitalize|re~prefix~back or again~a11;vit~base~to live~l27;al~suffix~relating to~a35;ize~suffix~to make~-
+revitalize|re~prefix~back or again~a11;vit~base~to live~l27;al~suffix~relating to~a35;ize~suffix~to make~a71
 revive|re~prefix~back or again~a11;viv~base~to live~l27;e~silent~silent e~-
 revoke|re~prefix~back or again~a11;voke~base~to call~l24
 rewrite|re~prefix~back or again~a11;write~word~to put words down~-
@@ -3378,7 +3506,7 @@ submarine|sub~prefix~below or under~a22;marine~word~of the sea~-
 submerge|sub~prefix~below or under~a22;merge~base~to dip or plunge~-
 submit|sub~prefix~below or under~a22;mit~base~to send~l12
 subsoil|sub~prefix~below or under~a22;soil~word~dirt~-
-subterranean|sub~prefix~below or under~a22;terran~base~earth~-;ean~suffix~relating to~-
+subterranean|sub~prefix~below or under~a22;terran~base~earth~l45;ean~suffix~relating to~-
 subtitle|sub~prefix~below or under~a22;title~word~a name~-
 subtract|sub~prefix~below or under~a22;tract~base~to pull or draw~l2
 subtraction|sub~prefix~below or under~a22;tract~base~to pull or draw~l2;ion~suffix~act or result of~a16
@@ -3405,10 +3533,10 @@ suspicious|su~prefix~below or under~a22;spic~base~to see or watch~l11;ious~suffi
 swimming|swimm~word~swim~-;ing~suffix~action or process~a3
 symbiosis|sym~prefix~together~-;bio~base~life~g10;sis~suffix~state or process~-
 symmetry|sym~prefix~same or together~-;metr~base~measure~g15;y~suffix~state of~-
-sympathize|sym~prefix~together~-;path~base~feeling~g19;ize~suffix~to make or do~-
+sympathize|sym~prefix~together~-;path~base~feeling~g19;ize~suffix~to make or do~a71
 sympathy|sym~prefix~together~-;path~base~feeling~g19;y~suffix~state of~-
 symphony|sym~prefix~together~-;phon~base~sound~g2;y~suffix~state of~-
-synchronize|syn~prefix~together~-;chron~base~time~g17;ize~suffix~to make~-
+synchronize|syn~prefix~together~-;chron~base~time~g17;ize~suffix~to make~a71
 talkative|talk~word~to speak~-;ative~suffix~inclined to~a25
 taller|tall~word~high~-;er~suffix~more~a4
 tallest|tall~word~high~-;est~suffix~most~a5
@@ -3666,7 +3794,7 @@ protracted|pro~prefix~forward~a48;tract~base~to pull or draw~l2;ed~suffix~past t
 synchronized|syn~prefix~together~-;chron~base~time~g17;iz~suffix~to make~-;ed~suffix~past tense~a2
 geologist|geo~base~earth~g14;log~base~study of~g7;ist~suffix~one who practices~a39
 novelist|novel~word~a long story~-;ist~suffix~one who practices~a39
-philanthropist|phil~base~love~-;anthrop~base~human~-;ist~suffix~one who practices~a39
+philanthropist|phil~base~love~g44;anthrop~base~human~-;ist~suffix~one who practices~a39
 knighthood|knight~word~a noble soldier~-;hood~suffix~condition or state~a46
 statehood|state~word~a part of a country~-;hood~suffix~condition or state~a46
 nationhood|nation~word~a country~-;hood~suffix~condition or state~a46
@@ -3902,7 +4030,7 @@ lengthen|length~word~how long~-;en~suffix~to make~a44
 loudly|loud~word~noisy~-;ly~suffix~in a manner~a15
 matchless|match~word~an equal~-;less~suffix~without~a24
 metropolitan|metro~base~mother~-;poli~base~city~g26;t~connector~connecting letter~-;an~suffix~relating to~-
-mobilize|mob~base~to move~l20;il~suffix~able to~-;ize~suffix~to make~-
+mobilize|mob~base~to move~l20;il~suffix~able to~-;ize~suffix~to make~a71
 monogram|mono~base~one~g29;gram~base~written or drawn~g1
 neatly|neat~word~tidy~-;ly~suffix~in a manner~a15
 nomadic|nomad~word~wanderer~-;ic~suffix~of or relating to~a40
@@ -3956,6 +4084,120 @@ electronic|electr~base~electricity~g43;on~connector~from the word electron~-;ic~
 electrical|electr~base~electricity~g43;ic~suffix~of or relating to~a40;al~suffix~relating to~a35
 electromagnet|electro~base~electricity~g43;magnet~word~a metal that pulls iron~-
 electrify|electr~base~electricity~g43;ify~suffix~to make~-
+circumference|circum~prefix~around~a66;fer~base~to carry~l17;ence~suffix~action or state~a58
+circumnavigate|circum~prefix~around~a66;navig~base~to sail~-;ate~suffix~to make or do~a59
+circumstance|circum~prefix~around~a66;st~base~to stand~-;ance~suffix~action or state~a57
+circumvent|circum~prefix~around~a66;vent~base~to come~l21
+circumspect|circum~prefix~around~a66;spect~base~to look~l11
+circumscribe|circum~prefix~around~a66;scrib~base~to write~l8;e~silent~silent e~-
+circumpolar|circum~prefix~around~a66;polar~word~near the North or South Pole~-
+extraordinary|extra~prefix~beyond or outside of~a67;ordinary~word~normal or usual~-
+extracurricular|extra~prefix~beyond or outside of~a67;curricul~base~course of study~-;ar~suffix~relating to~-
+extraterrestrial|extra~prefix~beyond or outside of~a67;terr~base~earth~l45;estr~connector~connecting letters~-;ial~suffix~relating to~a35
+extravagant|extra~prefix~beyond or outside of~a67;vag~base~to wander~-;ant~suffix~inclined to~a57
+extrasensory|extra~prefix~beyond or outside of~a67;sens~base~to feel~-;ory~suffix~relating to~-
+extrasolar|extra~prefix~beyond or outside of~a67;sol~base~sun~-;ar~suffix~relating to~-
+extravehicular|extra~prefix~beyond or outside of~a67;vehicul~base~vehicle~-;ar~suffix~relating to~-
+omnivore|omni~prefix~all~a68;vor~base~to eat~-;e~silent~silent e~-
+omnivorous|omni~prefix~all~a68;vor~base~to eat~-;ous~suffix~full of or having~a37
+omnipresent|omni~prefix~all~a68;present~word~here, in a place~-
+omnipresence|omni~prefix~all~a68;presence~word~being in a place~-
+omnipotent|omni~prefix~all~a68;pot~base~powerful~-;ent~suffix~inclined to or having~a58
+omnidirectional|omni~prefix~all~a68;direct~word~to point or aim~-;ion~suffix~act or result of~a16;al~suffix~relating to~a35
+retrospect|retro~prefix~backward or back in time~a69;spect~base~to look~l11
+retrospective|retro~prefix~backward or back in time~a69;spect~base~to look~l11;ive~suffix~causing or making~a25
+retrofit|retro~prefix~backward or back in time~a69;fit~word~to put in place~-
+retroactive|retro~prefix~backward or back in time~a69;act~word~to do~-;ive~suffix~causing or making~a25
+retrorocket|retro~prefix~backward or back in time~a69;rocket~word~an engine that pushes by blasting out gas~-
+retrograde|retro~prefix~backward or back in time~a69;grad~base~to step~-;e~silent~silent e~-
+counterclockwise|counter~prefix~against or opposite~a70;clockwise~word~the way a clock's hands turn~-
+counterattack|counter~prefix~against or opposite~a70;attack~word~a strong move against the other side~-
+counterpart|counter~prefix~against or opposite~a70;part~word~a piece of something~-
+counterbalance|counter~prefix~against or opposite~a70;balance~word~to keep steady~-
+counteract|counter~prefix~against or opposite~a70;act~word~to do something~-
+counterweight|counter~prefix~against or opposite~a70;weight~word~how heavy something is~-
+counterfeit|counter~prefix~against or opposite~a70;feit~base~made~-
+counterproductive|counter~prefix~against or opposite~a70;pro~prefix~forward~a48;duct~base~to lead~l19;ive~suffix~causing or making~a25
+memorize|memor~base~memory~-;ize~suffix~to make or become~a71
+organize|organ~base~tool or working part~-;ize~suffix~to make or become~a71
+apologize|apolog~base~apology~-;ize~suffix~to make or become~a71
+visualize|vis~base~to see~l16;u~connector~connecting letter~-;al~suffix~relating to~a35;ize~suffix~to make or become~a71
+realize|real~word~true or actual~-;ize~suffix~to make or become~a71
+modernize|modern~word~new and up to date~-;ize~suffix~to make or become~a71
+summarize|summar~base~summary~-;ize~suffix~to make or become~a71
+criticize|critic~word~a person who judges~-;ize~suffix~to make or become~a71
+friendship|friend~word~a person you like and trust~-;ship~suffix~state, skill, or position of~a72
+leadership|lead~word~to guide~-;er~suffix~one who~a4;ship~suffix~state, skill, or position of~a72
+championship|champion~word~a winner~-;ship~suffix~state, skill, or position of~a72
+citizenship|citizen~word~a member of a country~-;ship~suffix~state, skill, or position of~a72
+membership|member~word~a person who belongs~-;ship~suffix~state, skill, or position of~a72
+ownership|own~word~to have~-;er~suffix~one who~a4;ship~suffix~state, skill, or position of~a72
+sportsmanship|sports~word~games and athletic contests~-;man~word~a person~-;ship~suffix~state, skill, or position of~a72
+relationship|re~prefix~back or again~a11;lat~base~carried~-;ion~suffix~act or result of~a16;ship~suffix~state, skill, or position of~a72
+backward|back~word~the rear~-;ward~suffix~in the direction of~a73
+forward|for~prefix~before or in front of~a10;ward~suffix~in the direction of~a73
+upward|up~word~higher~-;ward~suffix~in the direction of~a73
+downward|down~word~lower~-;ward~suffix~in the direction of~a73
+homeward|home~word~where you live~-;ward~suffix~in the direction of~a73
+outward|out~word~outside~-;ward~suffix~in the direction of~a73
+eastward|east~word~the direction of sunrise~-;ward~suffix~in the direction of~a73
+afterward|after~word~later~-;ward~suffix~in the direction of~a73
+aquarium|aqu~base~water~l44;arium~suffix~a place for~-
+aquamarine|aqua~base~water~l44;marine~word~of the sea~-
+aquifer|aqui~base~water~l44;fer~base~to carry~l17
+aquanaut|aqua~base~water~l44;naut~base~sailor~-
+aquaculture|aqua~base~water~l44;culture~word~growing or raising~-
+aqueous|aque~base~water~l44;ous~suffix~full of or having~a37
+territory|terr~base~earth or land~l45;itory~suffix~a place for~-
+terrain|terr~base~earth or land~l45;ain~suffix~relating to~-
+terrarium|terr~base~earth or land~l45;arium~suffix~a place for~-
+terrace|terr~base~earth or land~l45;ace~suffix~made of~-
+terrier|terr~base~earth or land~l45;ier~suffix~one that~-
+terrestrial|terr~base~earth or land~l45;estr~suffix~belonging to~-;ial~suffix~relating to~a35
+territorial|terr~base~earth or land~l45;itori~suffix~a place for~-;al~suffix~relating to~a35
+inspire|in~prefix~in or into~a7;spir~base~to breathe~l46;e~silent~silent e~-
+inspiration|in~prefix~in or into~a7;spir~base~to breathe~l46;at~suffix~make~a59;ion~suffix~act or result of~a16
+respiration|re~prefix~back or again~a11;spir~base~to breathe~l46;at~suffix~make~a59;ion~suffix~act or result of~a16
+respiratory|re~prefix~back or again~a11;spir~base~to breathe~l46;at~suffix~make~a59;ory~suffix~relating to~-
+perspire|per~prefix~through~-;spir~base~to breathe~l46;e~silent~silent e~-
+expire|ex~prefix~out or away~a53;pir~base~to breathe~l46;e~silent~silent e~-
+spirit|spir~base~to breathe~l46;it~connector~from Latin spiritus, breath~-
+transpiration|trans~prefix~across~a28;pir~base~to breathe~l46;at~suffix~make~a59;ion~suffix~act or result of~a16
+manual|manu~base~hand~l47;al~suffix~relating to~a35
+manually|manu~base~hand~l47;al~suffix~relating to~a35;ly~suffix~in a way~a15
+manicure|mani~base~hand~l47;cure~base~care~-
+manicurist|mani~base~hand~l47;cur~base~care~-;ist~suffix~one who practices~a39
+manufacture|manu~base~hand~l47;fact~base~to make~-;ure~suffix~act or process~a65
+manipulate|mani~base~hand~l47;pul~base~to fill (a handful)~-;ate~suffix~make~a59
+maneuver|man~base~hand~l47;euver~base~to work~-
+century|cent~base~hundred~l48;ury~suffix~a group of~-
+percent|per~prefix~by or for each~-;cent~base~hundred~l48
+percentage|per~prefix~by or for each~-;cent~base~hundred~l48;age~suffix~amount or relationship~a62
+centennial|cent~base~hundred~l48;enn~base~year~-;ial~suffix~relating to~a35
+bicentennial|bi~prefix~two~a51;cent~base~hundred~l48;enn~base~year~-;ial~suffix~relating to~a35
+centigrade|centi~base~hundred~l48;grade~base~step~-
+centenarian|cent~base~hundred~l48;enar~connector~linking letters~-;ian~suffix~a person who~-
+philosophy|philo~base~love~g44;soph~base~wisdom~-;y~suffix~study or state of~-
+philosopher|philo~base~love~g44;soph~base~wisdom~-;er~suffix~one who~a4
+philosophical|philo~base~love~g44;soph~base~wisdom~-;ic~suffix~of or relating to~a40;al~suffix~relating to~a35
+philanthropy|phil~base~love~g44;anthrop~base~human~-;y~suffix~state or act of~-
+philharmonic|phil~base~love~g44;harmon~base~harmony~-;ic~suffix~of or relating to~a40
+hydrophilic|hydro~base~water~g11;phil~base~love~g44;ic~suffix~of or relating to~a40
+audiophile|aud~base~to hear~l10;io~connector~linking letters~-;phil~base~lover~g44;e~silent~silent e~-
+polygon|poly~base~many~g45;gon~base~angle~-
+polyhedron|poly~base~many~g45;hedron~base~face or side~-
+polyester|poly~base~many~g45;ester~word~a chemical compound~-
+polynomial|poly~base~many~g45;nomi~base~name or term~-;al~suffix~relating to~a35
+polyglot|poly~base~many~g45;glot~base~tongue or language~-
+polysyllabic|poly~base~many~g45;syllab~base~syllable~-;ic~suffix~of or relating to~a40
+polygraph|poly~base~many~g45;graph~base~write or draw~g1
+chromatic|chromat~base~color~g46;ic~suffix~of or relating to~a40
+monochrome|mono~base~one~g29;chrom~base~color~g46;e~silent~silent e~-
+monochromatic|mono~base~one~g29;chromat~base~color~g46;ic~suffix~of or relating to~a40
+chromosome|chromo~base~color~g46;some~base~body~-
+chromatography|chromato~base~color~g46;graph~base~write or draw~g1;y~suffix~process or act of~-
+achromatic|a~prefix~not or without~a14;chromat~base~color~g46;ic~suffix~of or relating to~a40
+polychrome|poly~base~many~g45;chrom~base~color~g46;e~silent~silent e~-
 `;
 const MORPH={};
 MRAW.trim().split("\n").forEach(l=>{const i=l.indexOf('|');if(i<0)return;const w=l.slice(0,i);
@@ -11848,6 +12090,689 @@ C|c3227|It picks up electric signals from the heart for the machine, so an elect
 C|c3228|The sentence says they are salts that help carry electric signals, and sweat washes them out, so electrolytes carry signals in the body.
 C|c3229|Touching it gave a shock, so an electrified fence has electricity running through it.
 C|c3230|The crowd suddenly jumped up cheering, so to electrify a crowd is to excite it as if with a jolt.
+W|circumnavigate|to sail or travel all the way around something
+W|circumstances|the conditions or facts that surround an event or situation
+W|circumpolar|circling around or found all around the North or South Pole
+W|circumscribe|to draw a line around something; also, to set limits around something
+W|circumstantial|based on surrounding clues and facts instead of direct proof
+W|circumnavigated|sailed or traveled all the way around something
+W|circumscribed|drawn around another shape so it touches its corners
+W|extraordinary|far beyond what is usual or ordinary; amazing
+W|extracurricular|done outside of regular school classes, like clubs and sports
+W|extraterrestrial|from beyond or outside Earth; also, a being from another planet
+W|extravagant|going far beyond what is needed or sensible, often fancy or costly
+W|extrasensory|beyond the normal five senses
+W|extrasolar|outside our solar system
+W|extraordinarily|far more than usually; in an amazing way
+W|extravehicular|done outside a spacecraft, like a spacewalk
+W|extraterrestrials|beings from beyond Earth
+W|omnivore|an animal that eats both plants and meat
+W|omnivores|animals that eat both plants and meat
+W|omnivorous|eating both plants and animals
+W|omnipresent|present everywhere at the same time
+W|omnipotent|having unlimited power; able to do anything
+W|omnidirectional|working in all directions, like a light or speaker that reaches all around it
+W|omnipresence|the state of being everywhere at once
+W|retrofit|to add new parts or features to something old
+W|retroactive|applying back to an earlier time, not just from now on
+W|retrorocket|a small rocket that fires against a spacecraft's motion to slow it down
+W|retrorockets|small rockets that fire against a spacecraft's motion to slow it down
+W|retrograde|moving or turning backward; also, going back to a worse condition
+W|retrospective|looking back on the past; also, a show that looks back over someone's work
+W|retrofitted|given new parts or features added to something old
+W|retroactively|in a way that applies back to an earlier time
+W|counterclockwise|turning the opposite way from the way a clock's hands move
+W|counterattack|a quick move right back against the other side after defending
+W|counterpart|a person or thing that matches or has the same job as another
+W|counterbalance|to balance something with an equal weight on the other side
+W|counteract|to work against something and weaken its effect
+W|counterweight|a weight that balances another weight on the opposite side
+W|counterargument|a reason given against someone else's argument
+W|counterfeit|fake, made to look like the real thing; also, to make a fake copy to trick people
+W|counterproductive|working against the goal you are trying to reach
+W|countermeasure|an action taken to stop or work against a problem
+W|counterintuitive|going against what you would expect to be true
+W|counteroffer|an offer made in answer to someone else's offer
+W|memorize|to learn something so well that you can remember it exactly
+W|organize|to put things in order; also, to plan and set up an event
+W|apologize|to say you are sorry
+W|realize|to suddenly understand or notice something
+W|summarize|to tell the main points in a short way
+W|visualize|to picture something in your mind
+W|modernize|to make something more up to date
+W|criticize|to point out what is wrong with something
+W|fertilize|to add food to soil so plants grow better
+W|vaporize|to turn into gas or steam
+W|minimize|to make something as small as possible
+W|emphasize|to show that something is especially important
+W|prioritize|to decide which things are most important and do them first
+W|sterilize|to make something completely free of germs
+W|categorize|to sort things into groups by type
+W|jeopardize|to put something in danger of being lost or harmed
+W|immunize|to protect someone from a disease, usually with a shot
+W|alphabetize|to put things in ABC order
+W|harmonize|to sing or play different notes that sound good together
+W|energize|to give energy to someone
+W|friendship|the state of being friends
+W|championship|the final contest that decides the winner; also, the title of being the winner
+W|leadership|the skill or position of a leader who guides a group
+W|membership|the state of belonging to a group or club; also, all the people who belong
+W|ownership|the state of owning something; also, taking care of something as if it were your own job
+W|partnership|the state of working together as partners
+W|citizenship|the state of being a citizen of a country
+W|sportsmanship|fair and kind behavior when playing games or sports
+W|hardship|something that makes life hard
+W|relationship|the way two or more people or things are connected
+W|scholarship|money given to a student to help pay for school
+W|penmanship|the skill of handwriting
+W|apprenticeship|a time of learning a job by working with an expert
+W|craftsmanship|the skill of making things carefully by hand
+W|companionship|the state of having a friend or company nearby
+W|internship|a short job, often for students, to learn about a kind of work
+W|authorship|the state of being the writer of something
+W|upward|toward a higher place
+W|downward|toward a lower place
+W|backward|toward the back; also, in reverse order
+W|backwards|toward the back or in reverse order; also, with the back part in front
+W|forward|toward the front; ahead
+W|homeward|toward home
+W|westward|toward the west
+W|eastward|toward the east
+W|northward|toward the north
+W|inward|toward the inside; also, kept inside yourself instead of shown
+W|outward|toward the outside; away from the center
+W|skyward|toward the sky
+W|afterward|at a later time; after that
+W|onward|continuing forward; ahead
+W|seaward|toward the sea
+W|leeward|on the side sheltered from the wind
+W|windward|facing the wind; on the side the wind blows toward
+W|heavenward|upward toward the sky
+W|aquarium|a glass tank of water where fish and other water animals live; also, a building where people go to see fish and other water animals
+W|aquamarine|a light blue-green color like clear seawater; also, a clear blue-green gemstone
+W|aquifer|a layer of underground rock or sand that holds water
+W|aquanaut|a person who lives and works underwater for days at a time
+W|aquaculture|raising fish, shellfish, or water plants on a farm
+W|aqueous|made with or containing water
+W|aquarist|a person who takes care of the animals and tanks at an aquarium
+W|aquatics|sports and activities done in water, like swimming and diving
+W|terrarium|a glass container with soil and plants where small land animals or plants live
+W|terrain|the kind of land in an area, such as hills, rocks, or sand
+W|territory|an area of land that an animal or group claims as its own; also, an area of land that belongs to a country but is not a state
+W|terrier|a small, lively dog first bred to dig into the earth after burrowing animals
+W|terrace|a flat, level strip of land cut into a hillside; also, a flat outdoor patio
+W|territorial|protective of the area it thinks of as its own
+W|inspire|to make someone want to do something good or creative
+W|inspiration|something that gives you an idea or makes you want to do something
+W|respiration|breathing; taking in oxygen and letting out used air
+W|perspire|to sweat
+W|perspiration|sweat
+W|expire|to come to an end or stop being good to use
+W|aspire|to hope for and work toward a big goal
+W|spirit|a feeling of pride, energy, and good mood, especially in a group
+W|respiratory|having to do with breathing
+W|transpiration|the way plants give off water vapor through tiny holes in their leaves
+W|respirator|a mask or machine that helps a person breathe clean air
+W|conspire|to work together, as if by a secret plan, to make something happen
+W|spiracle|one of the tiny breathing holes on the side of an insect
+W|expired|past the date when it can safely be used
+W|dispirited|sad and without hope or energy
+W|spirited|full of energy and liveliness
+W|manual|worked or done by hand; also, a small book of instructions
+W|manicure|a care treatment for your hands and fingernails
+W|manually|by hand instead of by machine
+W|manufacture|to make things in large amounts, usually in a factory
+W|manipulate|to move or control something skillfully, often with the hands; also, to control or influence someone in a sneaky way
+W|maneuver|to move or steer something carefully and with skill; also, a skillful move
+W|manufacturer|a company that makes products
+W|manicurist|a person whose job is caring for people's hands and nails
+W|emancipate|to set free from the control of others
+W|maneuverable|easy to steer and move
+W|manicured|trimmed and cared for very neatly
+W|cent|one hundredth of a dollar; a penny
+W|century|a period of one hundred years
+W|percent|out of every hundred
+W|percentage|a part of a whole, counted out of one hundred
+W|centennial|a celebration of one hundred years
+W|centenarian|a person who is one hundred years old or older
+W|centigrade|a temperature scale with one hundred degrees between freezing and boiling water
+W|percentile|a rank that shows how many out of every hundred are below you
+W|philosophy|the study of big questions about life, truth, and right and wrong; also, a set of beliefs about how to live
+W|philosopher|a person who thinks deeply about big questions
+W|philharmonic|a large orchestra that plays classical music
+W|philanthropy|giving time or money to help other people
+W|philosophical|thinking deeply about big questions
+W|philodendron|a leafy houseplant whose vines like to climb
+W|hydrophilic|attracted to water and quick to soak it up
+W|audiophile|a person who loves high-quality sound
+W|philanthropic|generous; helping others with gifts of time or money
+W|polygon|a flat, closed shape with three or more straight sides
+W|polyester|a strong, stretchy fabric made from plastic
+W|polyhedron|a solid shape with many flat faces
+W|polyglot|a person who speaks many languages
+W|polysyllabic|having many syllables
+W|polychrome|having many colors
+W|polynomial|a math expression made of several terms added or subtracted
+W|polyp|a tiny tube-shaped sea animal with many waving arms
+W|polygraph|a machine that records many body signals at the same time
+W|polymer|a substance made of many small units joined in long chains
+W|monochromatic|using only one color, in lighter and darker shades
+W|chromatic|having bright colors; also, in music, moving through every note, including the sharps and flats
+W|chromosome|a tiny threadlike part of a cell that carries genes
+W|polychromatic|having many colors
+W|chromatography|a way to separate a mixture, like ink, into its different colors
+W|achromatic|without color, like black, white, and gray
+W|heterochromia|having eyes of two different colors
+L|a66|circumference|The prefix circum- means “around.” The circumference is the distance around a circle or a round object.
+L|a66|circumnavigate|The prefix circum- means “around.” To circumnavigate is to sail or travel (navigate) all the way around something.
+L|a66|circumstances|The prefix circum- means “around.” Circumstances are the conditions that stand around an event.
+L|a66|circumvent|The prefix circum- means “around,” and vent means “to come.” To circumvent something is to come around it instead of through it.
+L|a66|circumpolar|The prefix circum- means “around.” Circumpolar stars and animals are found around the North or South Pole.
+L|a66|circumscribe|The prefix circum- means “around,” and scrib means “to write.” To circumscribe is to draw a line around something.
+L|a66|circumspect|The prefix circum- means “around,” and spect means “to look.” A circumspect person looks around carefully before acting.
+L|a66|circumstantial|The prefix circum- means “around.” Circumstantial evidence comes from the facts around an event, not from seeing it happen.
+L|a66|circumnavigated|The prefix circum- means “around.” Someone who circumnavigated the globe sailed all the way around it.
+L|a66|circumscribed|The prefix circum- means “around,” and scrib means “to write.” A circumscribed circle is drawn around another shape.
+L|a67|extraordinary|The prefix extra- means “beyond or outside of.” Something extraordinary is beyond ordinary.
+L|a67|extracurricular|The prefix extra- means “beyond or outside of.” Extracurricular activities happen outside the curriculum, the regular classes.
+L|a67|extraterrestrial|The prefix extra- means “beyond or outside of,” and terr means “earth.” Something extraterrestrial comes from beyond Earth.
+L|a67|extravagant|The prefix extra- means “beyond or outside of,” and vag means “to wander.” Something extravagant wanders beyond what is sensible.
+L|a67|extrasensory|The prefix extra- means “beyond or outside of.” Extrasensory means beyond the senses of sight, hearing, touch, taste, and smell.
+L|a67|extrasolar|The prefix extra- means “beyond or outside of,” and sol means “sun.” An extrasolar planet is outside our sun's family of planets.
+L|a67|extraordinarily|The prefix extra- means “beyond or outside of.” Extraordinarily means in a way that is far beyond ordinary.
+L|a67|extravehicular|The prefix extra- means “beyond or outside of.” Extravehicular work happens outside the vehicle, the spacecraft.
+L|a67|extraterrestrials|The prefix extra- means “beyond or outside of,” and terr means “earth.” Extraterrestrials are beings from beyond Earth.
+L|a68|omnivore|The prefix omni- means “all,” and vor means “to eat.” An omnivore eats all kinds of food, plants and meat.
+L|a68|omnivores|The prefix omni- means “all,” and vor means “to eat.” Omnivores eat all kinds of food, plants and meat.
+L|a68|omnivorous|The prefix omni- means “all,” and vor means “to eat.” An omnivorous animal eats all kinds of food.
+L|a68|omnipresent|The prefix omni- means “all.” Something omnipresent is present in all places.
+L|a68|omniscient|The prefix omni- means “all,” and sci means “to know.” Someone omniscient knows all things.
+L|a68|omnipotent|The prefix omni- means “all,” and pot means “powerful.” Someone omnipotent has all the power.
+L|a68|omnidirectional|The prefix omni- means “all.” Something omnidirectional works in all directions.
+L|a68|omnipresence|The prefix omni- means “all.” Omnipresence is being present in all places at once.
+L|a69|retrospect|The prefix retro- means “backward or back in time,” and spect means “to look.” In retrospect means looking back at the past.
+L|a69|retrofit|The prefix retro- means “backward or back in time.” To retrofit is to go back to something old and fit it with new parts.
+L|a69|retroactive|The prefix retro- means “backward or back in time.” A retroactive rule acts back in time on things that already happened.
+L|a69|retrorocket|The prefix retro- means “backward or back in time.” A retrorocket fires backward against a spacecraft's motion to slow it.
+L|a69|retrorockets|The prefix retro- means “backward or back in time.” Retrorockets fire backward against a spacecraft's motion to slow it.
+L|a69|retrograde|The prefix retro- means “backward or back in time,” and grad means “to step.” Retrograde means stepping or moving backward.
+L|a69|retrospective|The prefix retro- means “backward or back in time,” and spect means “to look.” A retrospective looks back over past work or events.
+L|a69|retrofitted|The prefix retro- means “backward or back in time.” Something retrofitted is an old thing fitted with new parts.
+L|a69|retroactively|The prefix retro- means “backward or back in time.” Retroactively means in a way that reaches back to an earlier time.
+L|a70|counterclockwise|The prefix counter- means “against or opposite.” Counterclockwise is the opposite of clockwise, turning the other way from a clock's hands.
+L|a70|counterattack|The prefix counter- means “against or opposite.” A counterattack goes back against the other side right after they attack.
+L|a70|counterpart|The prefix counter- means “against or opposite.” A counterpart is the matching part on the opposite side, like a person with the same job in another group.
+L|a70|counterbalance|The prefix counter- means “against or opposite.” To counterbalance is to add weight on the opposite side so things balance.
+L|a70|counteract|The prefix counter- means “against or opposite.” To counteract is to act against something so its effect gets weaker.
+L|a70|counterweight|The prefix counter- means “against or opposite.” A counterweight is a weight on the opposite side that balances the load.
+L|a70|counterargument|The prefix counter- means “against or opposite.” A counterargument is an argument against someone else's argument.
+L|a70|counterfeit|The prefix counter- means “against or opposite.” Counterfeit comes from counter- plus a root meaning “made”: something made as an opposite copy of the real thing, a fake.
+L|a70|counterproductive|The prefix counter- means “against or opposite.” Something counterproductive works against being productive, so it pulls you away from your goal.
+L|a70|countermeasure|The prefix counter- means “against or opposite.” A countermeasure is a step taken against a problem to stop it.
+L|a70|counterintuitive|The prefix counter- means “against or opposite.” Something counterintuitive goes against your intuition, the guess your mind makes first.
+L|a70|counteroffer|The prefix counter- means “against or opposite.” A counteroffer is an offer made back against someone else's offer.
+L|a71|memorize|The suffix -ize means “to make or become.” To memorize is to make something part of your memory.
+L|a71|organize|The suffix -ize means “to make or become.” To organize is to make things orderly, with each part in its place, or to set up an event that way.
+L|a71|apologize|The suffix -ize means “to make or become.” To apologize is to make an apology, which means saying you are sorry.
+L|a71|realize|The suffix -ize means “to make or become.” To realize is to make something real in your mind, so you suddenly understand it.
+L|a71|summarize|The suffix -ize means “to make or become.” To summarize is to make a summary, a short telling of the main points.
+L|a71|visualize|The suffix -ize means “to make or become.” To visualize is to make something visual, so you can see it in your mind.
+L|a71|modernize|The suffix -ize means “to make or become.” To modernize is to make something modern, or up to date.
+L|a71|criticize|The suffix -ize means “to make or become.” To criticize is to act as a critic, pointing out what is wrong.
+L|a71|fertilize|The suffix -ize means “to make or become.” To fertilize is to make soil fertile, full of food for plants.
+L|a71|vaporize|The suffix -ize means “to make or become.” To vaporize is to become vapor, which is gas or steam.
+L|a71|minimize|The suffix -ize means “to make or become.” To minimize is to make something as small as possible, the minimum.
+L|a71|emphasize|The suffix -ize means “to make or become.” To emphasize is to give something emphasis, making it stand out as important.
+L|a71|prioritize|The suffix -ize means “to make or become.” To prioritize is to make things into priorities, putting the most important first.
+L|a71|sterilize|The suffix -ize means “to make or become.” To sterilize is to make something sterile, or free of germs.
+L|a71|categorize|The suffix -ize means “to make or become.” To categorize is to put things into categories, or groups.
+L|a71|jeopardize|The suffix -ize means “to make or become.” To jeopardize is to put something in jeopardy, which means danger.
+L|a71|immunize|The suffix -ize means “to make or become.” To immunize is to make someone immune, or protected from a disease.
+L|a71|alphabetize|The suffix -ize means “to make or become.” To alphabetize is to make a list follow the alphabet, in ABC order.
+L|a71|harmonize|The suffix -ize means “to make or become.” To harmonize is to make harmony, notes that sound good together.
+L|a71|energize|The suffix -ize means “to make or become.” To energize is to fill someone with energy.
+L|a72|friendship|The suffix -ship means “state, skill, or position of.” Friendship is the state of being friends.
+L|a72|championship|The suffix -ship means “state, skill, or position of.” A championship decides who holds the position of champion.
+L|a72|leadership|The suffix -ship means “state, skill, or position of.” Leadership is the skill and position of a leader.
+L|a72|membership|The suffix -ship means “state, skill, or position of.” Membership is the state of being a member of a group.
+L|a72|ownership|The suffix -ship means “state, skill, or position of.” Ownership is the state of being the owner of something.
+L|a72|partnership|The suffix -ship means “state, skill, or position of.” A partnership is the state of being partners who work together.
+L|a72|citizenship|The suffix -ship means “state, skill, or position of.” Citizenship is the state of being a citizen of a country.
+L|a72|sportsmanship|The suffix -ship means “state, skill, or position of.” Sportsmanship is the skill of being a good sport, playing fair and kind.
+L|a72|hardship|The suffix -ship means “state, skill, or position of.” A hardship is a state of things being hard.
+L|a72|relationship|The suffix -ship means “state, skill, or position of.” A relationship is the state of being related, or connected.
+L|a72|scholarship|The suffix -ship means “state, skill, or position of.” A scholarship supports the position of a scholar, or student, by helping pay for school.
+L|a72|penmanship|The suffix -ship means “state, skill, or position of.” Penmanship is the skill of a person with a pen: good handwriting.
+L|a72|apprenticeship|The suffix -ship means “state, skill, or position of.” An apprenticeship is the position of an apprentice, someone learning a job from an expert.
+L|a72|craftsmanship|The suffix -ship means “state, skill, or position of.” Craftsmanship is the skill of a craftsman, a person who makes things carefully by hand.
+L|a72|companionship|The suffix -ship means “state, skill, or position of.” Companionship is the state of having a companion, a friend to keep you company.
+L|a72|internship|The suffix -ship means “state, skill, or position of.” An internship is the position of an intern, someone learning a job.
+L|a72|authorship|The suffix -ship means “state, skill, or position of.” Authorship is the state of being the author who wrote something.
+L|a73|upward|The suffix -ward (or -wards) means “in the direction of.” Upward means in the direction of up.
+L|a73|downward|The suffix -ward (or -wards) means “in the direction of.” Downward means in the direction of down.
+L|a73|backward|The suffix -ward (or -wards) means “in the direction of.” Backward means in the direction of your back, or going in reverse.
+L|a73|backwards|The suffix -ward (or -wards) means “in the direction of.” Backwards means in the direction of the back, so things go in reverse or face the wrong way.
+L|a73|forward|The suffix -ward (or -wards) means “in the direction of.” Forward comes from fore (in front) + -ward: in the direction of the front.
+L|a73|homeward|The suffix -ward (or -wards) means “in the direction of.” Homeward means in the direction of home.
+L|a73|westward|The suffix -ward (or -wards) means “in the direction of.” Westward means in the direction of the west.
+L|a73|eastward|The suffix -ward (or -wards) means “in the direction of.” Eastward means in the direction of the east.
+L|a73|northward|The suffix -ward (or -wards) means “in the direction of.” Northward means in the direction of the north.
+L|a73|inward|The suffix -ward (or -wards) means “in the direction of.” Inward means in the direction of the inside.
+L|a73|outward|The suffix -ward (or -wards) means “in the direction of.” Outward means in the direction of the outside.
+L|a73|skyward|The suffix -ward (or -wards) means “in the direction of.” Skyward means in the direction of the sky.
+L|a73|afterward|The suffix -ward (or -wards) means “in the direction of.” Afterward points in the direction of after, meaning later in time.
+L|a73|onward|The suffix -ward (or -wards) means “in the direction of.” Onward means on and on in the same direction, continuing ahead.
+L|a73|seaward|The suffix -ward (or -wards) means “in the direction of.” Seaward means in the direction of the sea.
+L|a73|leeward|The suffix -ward (or -wards) means “in the direction of.” Leeward means in the direction of the lee, the side sheltered from the wind.
+L|a73|windward|The suffix -ward (or -wards) means “in the direction of.” Windward means in the direction the wind comes from, facing the wind.
+L|a73|heavenward|The suffix -ward means “in the direction of.” Heavenward means in the direction of the sky, or upward.
+L|l44|aquarium|The Latin root aqu means “water.” An aquarium is a place for water, where fish and other water animals live.
+L|l44|aquatic|The Latin root aqu means “water.” Aquatic animals and plants live in water, and aquatic sports are played in water.
+L|l44|aqueduct|The Latin root aqu means “water.” Aqueduct = aque (water) + duct (to lead): a channel that leads water from place to place.
+L|l44|aquamarine|The Latin root aqu means “water.” Aquamarine = aqua (water) + marine (of the sea): the blue-green color of seawater.
+L|l44|aquifer|The Latin root aqu means “water.” Aquifer = aqui (water) + fer (to carry): underground rock that carries and holds water.
+L|l44|aquanaut|The Latin root aqu means “water.” Aquanaut = aqua (water) + naut (sailor): a person who explores and lives underwater.
+L|l44|aquaculture|The Latin root aqu means “water.” Aquaculture = aqua (water) + culture (growing or raising): farming fish and plants in water.
+L|l44|aqueous|The Latin root aqu means “water.” An aqueous solution is made with water.
+L|l44|aquarist|The Latin root aqu means “water.” An aquarist is a person who cares for the water animals in an aquarium.
+L|l44|aquatics|The Latin root aqu means “water.” Aquatics are sports and activities done in water.
+L|l45|terrarium|The Latin root terr means “earth or land.” A terrarium is a place for a bit of land, with soil and plants, inside a glass box.
+L|l45|terrain|The Latin root terr means “earth or land.” Terrain is what the land is like in a place, whether it is rocky, hilly, or flat.
+L|l45|territory|The Latin root terr means “earth or land.” A territory is an area of land that belongs to someone.
+L|l45|terrier|The Latin root terr means “earth or land.” Terriers were bred to dig into the earth after animals that live in burrows.
+L|l45|terrace|The Latin root terr means “earth or land.” A terrace is a flat strip of land, like a big step cut into a hill.
+L|l45|terrestrial|The Latin root terr means “earth or land.” Terrestrial animals live on land, and terrestrial planets have solid ground like Earth.
+L|l45|extraterrestrial|The Latin root terr means “earth or land.” Extraterrestrial = extra (outside) + terrestrial (of the earth): from beyond Earth.
+L|l45|subterranean|The Latin root terr means “earth or land.” Subterranean = sub (under) + terran (earth): under the ground.
+L|l45|territorial|The Latin root terr means “earth or land.” A territorial animal guards the land it thinks of as its own.
+L|l46|inspire|The Latin root spir means “to breathe.” To inspire = in (into) + spire (breathe): to breathe a new idea or feeling into someone.
+L|l46|inspiration|The Latin root spir means “to breathe.” An inspiration is something that breathes a new idea into you.
+L|l46|respiration|The Latin root spir means “to breathe.” Respiration = re (again) + spir (breathe): breathing in and out, again and again.
+L|l46|perspire|The Latin root spir means “to breathe.” Perspire = per (through) + spire (breathe): your skin lets sweat out, as if breathing through it.
+L|l46|perspiration|The Latin root spir means “to breathe.” Perspiration is the sweat that comes out through your skin, as if your skin were breathing.
+L|l46|expire|The Latin root spir means “to breathe.” Expire = ex (out) + (s)pire (breathe): to breathe out a last breath, so to come to an end.
+L|l46|aspire|The Latin root spir means “to breathe.” Aspire = a (toward) + spire (breathe): to breathe toward a goal, or long for it.
+L|l46|spirit|The Latin root spir means “to breathe.” Spirit first meant breath, and now it means the lively feeling that fills a person or group.
+L|l46|respiratory|The Latin root spir means “to breathe.” The respiratory system is the set of body parts you breathe with.
+L|l46|transpiration|The Latin root spir means “to breathe.” Transpiration = trans (across) + (s)pir (breathe): plants breathe water vapor out across their leaves.
+L|l46|respirator|The Latin root spir means “to breathe.” A respirator is a mask or machine that helps you breathe.
+L|l46|conspire|The Latin root spir means “to breathe.” Conspire = con (together) + spire (breathe): to breathe together, or work together on a plan.
+L|l46|spiracle|The Latin root spir means “to breathe.” A spiracle is a tiny hole an insect breathes through.
+L|l46|expired|The Latin root spir means “to breathe.” Something expired has breathed its last breath, so it is no longer good to use.
+L|l46|dispirited|The Latin root spir means “to breathe.” Dispirited = dis (away) + spirit: with your lively spirit taken away.
+L|l46|spirited|The Latin root spir means “to breathe.” Spirited means full of spirit, the lively feeling that once meant breath.
+L|l47|manual|The Latin root man means “hand.” Manual work is done by hand, and a manual is a small book you hold in your hand.
+L|l47|manicure|The Latin root man means “hand.” Manicure = mani (hand) + cure (care): care for your hands and nails.
+L|l47|manually|The Latin root man means “hand.” Doing something manually means doing it by hand.
+L|l47|manufacture|The Latin root man means “hand.” Manufacture = manu (hand) + fact (to make): long ago, things were made by hand, and now factories make them.
+L|l47|manuscript|The Latin root man means “hand.” Manuscript = manu (hand) + script (written): something written by hand.
+L|l47|manipulate|The Latin root man means “hand.” To manipulate something is to work it with your hands, and to manipulate a person is to handle them in a sneaky way.
+L|l47|maneuver|The Latin root man means “hand.” Maneuver comes from words meaning to work by hand, so it means to steer or move with skill.
+L|l47|manufacturer|The Latin root man means “hand.” A manufacturer is a company that manufactures, or makes, things.
+L|l47|manicurist|The Latin root man means “hand.” A manicurist is a person who cares for people's hands and nails.
+L|l47|emancipate|The Latin root man means “hand.” Emancipate = e (out) + man (hand) + cip (to take): to take someone out of another's hand, or set them free.
+L|l47|maneuverable|The Latin root man means “hand.” Something maneuverable is easy to steer and move, as if guided by hand.
+L|l47|manicured|The Latin root man means “hand.” A manicured lawn is trimmed and cared for as neatly as hands after a manicure.
+L|l48|cent|The Latin root cent means “hundred.” A cent is one of the hundred parts that make up a dollar.
+L|l48|century|The Latin root cent means “hundred.” A century is a group of one hundred years.
+L|l48|percent|The Latin root cent means “hundred.” Percent = per (for each) + cent (hundred): how many out of every hundred.
+L|l48|percentage|The Latin root cent means “hundred.” A percentage tells how big a part is, counted out of one hundred.
+L|l48|centipede|The Latin root cent means “hundred.” Centipede = centi (hundred) + ped (foot): a “hundred-footed” crawler with many legs.
+L|l48|centimeter|The Latin root cent means “hundred.” A centimeter is one hundredth of a meter.
+L|l48|centennial|The Latin root cent means “hundred.” Centennial = cent (hundred) + enn (year): a celebration of one hundred years.
+L|l48|bicentennial|The Latin root cent means “hundred.” Bicentennial = bi (two) + cent (hundred) + enn (year): a celebration of two hundred years.
+L|l48|centenarian|The Latin root cent means “hundred.” A centenarian is a person who has lived one hundred years or more.
+L|l48|centigrade|The Latin root cent means “hundred.” Centigrade = centi (hundred) + grade (step): a scale with one hundred steps from freezing to boiling.
+L|l48|percentile|The Latin root cent means “hundred.” Percentile = per (for each) + cent (hundred): it ranks you out of every hundred people.
+L|g44|bibliophile|The Greek root phil means “love.” Bibliophile = biblio (book) + phil (love): a person who loves books.
+L|g44|philosophy|The Greek root phil means “love.” Philosophy = philo (love) + soph (wisdom): the love of wisdom and big ideas.
+L|g44|philanthropist|The Greek root phil means “love.” Philanthropist = phil (love) + anthrop (human): a person who loves people and gives to help them.
+L|g44|philosopher|The Greek root phil means “love.” A philosopher = philo (love) + soph (wisdom): a person who loves wisdom and big questions.
+L|g44|philharmonic|The Greek root phil means “love.” Philharmonic = phil (love) + harmon (harmony): an orchestra that “loves harmony.”
+L|g44|philanthropy|The Greek root phil means “love.” Philanthropy = phil (love) + anthrop (human): love for people, shown by giving to help them.
+L|g44|philosophical|The Greek root phil means “love.” Philosophical comes from philosophy, the love of wisdom, so it means thinking deeply about big questions.
+L|g44|philodendron|The Greek root phil means “love.” Philodendron = philo (love) + dendron (tree): a “tree-loving” plant that likes to climb.
+L|g44|hydrophilic|The Greek root phil means “love.” Hydrophilic = hydro (water) + phil (love): something that “loves” water and soaks it up.
+L|g44|audiophile|The Greek root phil means “love.” Audiophile = audio (hearing) + phil (love): a person who loves great sound.
+L|g44|philanthropic|The Greek root phil means “love.” Philanthropic = phil (love) + anthrop (human): showing love for people by helping them.
+L|g45|polygon|The Greek root poly means “many.” Polygon = poly (many) + gon (angle): a flat shape with many angles and sides.
+L|g45|polyester|The Greek root poly means “many.” Polyester is a plastic fabric made of many small chemical pieces linked together.
+L|g45|polyhedron|The Greek root poly means “many.” Polyhedron = poly (many) + hedron (face): a solid shape with many flat faces.
+L|g45|polyglot|The Greek root poly means “many.” Polyglot = poly (many) + glot (tongue): a person who speaks many languages.
+L|g45|polysyllabic|The Greek root poly means “many.” A polysyllabic word has many syllables.
+L|g45|polychrome|The Greek root poly means “many.” Polychrome = poly (many) + chrome (color): having many colors.
+L|g45|polynomial|The Greek root poly means “many.” A polynomial is a math expression made of many terms.
+L|g45|polyp|The Greek root poly means “many.” Polyp comes from Greek words meaning “many feet,” because of its many waving arms.
+L|g45|polygraph|The Greek root poly means “many.” Polygraph = poly (many) + graph (write): a machine that writes down many body signals at once.
+L|g45|polymer|The Greek root poly means “many.” Polymer = poly (many) + mer (part): a substance built from many small parts linked together.
+L|g46|monochrome|The Greek root chrom means “color.” Monochrome = mono (one) + chrom (color): having just one color.
+L|g46|monochromatic|The Greek root chrom means “color.” Monochromatic = mono (one) + chromat (color) + ic: using only one color.
+L|g46|chromatic|The Greek root chrom means “color.” Chromatic means full of color; in music, a chromatic scale uses every note, like using every color.
+L|g46|chromosome|The Greek root chrom means “color.” Chromosome = chromo (color) + some (body): “colored bodies,” named because they soak up dye and show up under a microscope.
+L|g46|polychromatic|The Greek root chrom means “color.” Polychromatic = poly (many) + chromat (color): having many colors.
+L|g46|chromatography|The Greek root chrom means “color.” Chromatography = chromato (color) + graph (write): a way to separate a mixture so its colors appear on paper.
+L|g46|achromatic|The Greek root chrom means “color.” Achromatic = a (without) + chromat (color): having no color.
+L|g46|heterochromia|The Greek root chrom means “color.” Heterochromia = hetero (different) + chrom (color): eyes of different colors.
+C|c3231|We measured a string wrapped all the way around the edge, so the circumference is the distance around a circle.
+C|c3232|It takes four kids to reach around the trunk, so the circumference is the distance around it.
+C|c3233|The sentence explains it: sailing all the way around the world, so to circumnavigate is to travel all the way around.
+C|c3234|Normal conditions are contrasted with a storm, so circumstances are the conditions around what happens.
+C|c3235|A trip all the way around Earth is that many miles, so the circumference is the distance around it.
+C|c3236|She rides the whole trail around the lake, so to circumnavigate is to go all the way around.
+C|c3237|The rain and the broken bus are conditions around the trip, so circumstances are the facts surrounding a situation.
+C|c3238|They sailed all the way around the shore, so to circumnavigate is to sail around something.
+C|c3239|The flat tire, closed road, and detour are the conditions around the trip, so circumstances are what surrounds a situation.
+C|c3240|They walked around the tree through the meadow, so to circumvent is to go around something in your way.
+C|c3241|They wheel around the North Star and never set, so circumpolar stars circle around the pole.
+C|c3242|The water trickles around the rocks instead of through them, so to circumvent is to get around a block.
+C|c3243|Their colonies ring the whole coast around the South Pole, so circumpolar means around a pole.
+C|c3244|Instead of climbing past the guard, it came another way, from above, so to circumvent is to get around an obstacle.
+C|c3245|The circle is drawn around the triangle, touching each corner, so to circumscribe is to draw around something.
+C|c3246|He tests each stone and looks around before every step, so circumspect means careful and watchful.
+C|c3247|She watched carefully before speaking up, so circumspect means cautious and watchful.
+C|c3248|The rules mark a boundary around where we may play, so to circumscribe is to draw limits around something.
+C|c3249|The clues around the scene point to someone, but no one saw it happen, so circumstantial evidence comes from surrounding facts.
+C|c3250|The sticky fingers hint at an answer but could have another explanation, so circumstantial proof is not direct proof.
+C|c3251|The tricks were far beyond anything seen before, so extraordinary means beyond ordinary.
+C|c3252|A normal day is contrasted with a rare whale leap, so extraordinary means far beyond usual.
+C|c3253|The sentence says they happen outside regular class time, so extracurricular means outside the usual classes.
+C|c3254|Robotics club meets after school, not during class, so extracurricular means outside regular classes.
+C|c3255|The visitor came from another planet, so extraterrestrial means from beyond Earth.
+C|c3256|It was better than any project in twenty years, so extraordinary means far beyond the usual.
+C|c3257|Swimming and clubs keep her busy after school, so extracurricular activities happen outside regular classes.
+C|c3258|The life would be on planets far from Earth, so extraterrestrial means from beyond Earth.
+C|c3259|It traveled through space before landing here, so extraterrestrial means from beyond Earth.
+C|c3260|Way more than any cat needs shows it went beyond what is sensible, so extravagant means too much.
+C|c3261|She knows without seeing, touching, or shaking, so extrasensory means beyond the normal senses.
+C|c3262|Dad thinks one pair is plenty, so seven pairs is beyond what is needed; extravagant means too much.
+C|c3263|Gold railings and a giant chandelier go far beyond what a lobby needs, so extravagant means lavish beyond need.
+C|c3264|They are contrasted with planets that circle our sun, so extrasolar means outside our solar system.
+C|c3265|She claimed to sense hidden things without seeing them but failed, so extrasensory means beyond the ordinary senses.
+C|c3266|Ten minutes is contrasted with the usual ten seconds, so extraordinarily means far more than usual.
+C|c3267|The planet circles a distant star far from our sun, so extrasolar means beyond our solar system.
+C|c3268|She floated outside the station to work, so extravehicular means outside the vehicle.
+C|c3269|The work happens after they leave the ship, so extravehicular means outside the spacecraft.
+C|c3270|Surviving months without rain is far beyond what most flowers can do, so extraordinarily means far more than usual.
+C|c3271|It eats both plants and animals, so an omnivore eats all kinds of food.
+C|c3272|He eats both vegetables and meat, so an omnivore eats plants and animals.
+C|c3273|They eat fruit and also bugs and eggs, so omnivores eat both plants and animals.
+C|c3274|The pig is contrasted with animals that eat only plants or only meat, so an omnivore eats both.
+C|c3275|They eat seeds and also worms, so omnivores eat both plants and animals.
+C|c3276|They eat seeds and fruit and also insects, so omnivorous means eating both plants and animals.
+C|c3277|The smell was there no matter where they walked, so omnipresent means everywhere.
+C|c3278|A lunch with both veggies and meat fits people, so omnivorous means eating plants and animals.
+C|c3279|They are on every roof, lamppost, and boat, so omnipresent means found everywhere.
+C|c3280|The narrator knows the thoughts of every character, so omniscient means all-knowing.
+C|c3281|It could control everything, even time, so omnipotent means all-powerful.
+C|c3282|It sprays every way at once, so omnidirectional means working in all directions.
+C|c3283|The list of things she can do makes her seem able to do anything, so omnipotent means all-powerful.
+C|c3284|She knows the answer to every question, so omniscient means knowing everything.
+C|c3285|The lantern is contrasted with a one-direction flashlight, so omnidirectional means working in all directions.
+C|c3286|The jerseys showed up in shops, on cars, and on kids, so omnipresent means seen everywhere.
+C|c3287|The storm loses power over cold water or land, so it lacks unlimited power; omnipotent means all-powerful.
+C|c3288|Even experts do not know everything, so omniscient means knowing all.
+C|c3289|The bits turn up in oceans, soil, rain, and snow, so omnipresence means being everywhere.
+C|c3290|Its meals include grass and berries as well as fish and insects, so omnivorous means eating plants and animals.
+C|c3291|The words looking back on the day tell you that retrospect means looking back at the past.
+C|c3292|They add new parts to an old building, so to retrofit is to update something old.
+C|c3293|The sentence says it reaches back to last month, so retroactive means applying to an earlier time.
+C|c3294|Dana thought back on the game, so retrospect means looking back at the past.
+C|c3295|He adds a new motor to an old bike, so to retrofit is to add new parts to something old.
+C|c3296|They got extra pay for months already passed, so retroactive means reaching back in time.
+C|c3297|She looks at old photos years later, so retrospect means looking back on the past.
+C|c3298|The rocket pushed against the fall to slow the capsule, so a retrorocket fires backward against motion.
+C|c3299|They add new supports to old bridges, so to retrofit is to add new parts to something old.
+C|c3300|A quiz from two weeks ago now counts, so retroactive means applying back to an earlier time.
+C|c3301|They blast against the lander's motion to slow it, so retrorockets push backward.
+C|c3302|Venus turns backward compared with Earth, so retrograde means moving backward.
+C|c3303|Mars slides the opposite of its usual way, so retrograde means moving backward.
+C|c3304|The show covers her whole past, from childhood to now, so a retrospective looks back over someone's work.
+C|c3305|The old buses got new parts instead of being replaced, so retrofitted means given new parts added to something old.
+C|c3306|Without it the probe would land too fast, so a retrorocket slows a spacecraft by firing against its motion.
+C|c3307|Skills going backward instead of forward shows that retrograde means moving backward.
+C|c3308|The article traces a hundred years of history, so retrospective means looking back at the past.
+C|c3309|The judges changed results from a week before, so retroactively means reaching back to an earlier time.
+C|c3310|Modern lights and power were added to an old lighthouse, so retrofitted means given new parts added to something old.
+C|c3311|It says the globe turned the opposite way from a clock's hands, so counterclockwise means turning the other way.
+C|c3312|Right after defending, the team stole the ball and raced the other way, so a counterattack is a move back against the other side.
+C|c3313|Opening needs the opposite turn from closing, so counterclockwise means turning the other way.
+C|c3314|As soon as the other team missed, our team went right back at them and scored, so a counterattack hits back.
+C|c3315|She is in the same grade with the same hobby, so a counterpart is someone who matches you.
+C|c3316|She added weight on her side to even out his side, so counterbalance means to balance with weight on the opposite side.
+C|c3317|The sentence says they moved opposite to a clock's hands, so counterclockwise is the reverse of the clock's direction.
+C|c3318|The other person is also a mayor, so a counterpart has the same job in another place.
+C|c3319|Sweet honey works against the sour taste, so counteract means to work against something.
+C|c3320|It moves the opposite way from the car and balances the load, so a counterweight is a balancing weight.
+C|c3321|The pole keeps her from tipping one way, so counterbalance means to even out weight on the other side.
+C|c3322|Ben gave a reason against Ava's idea, so a counterargument argues the opposite side.
+C|c3323|Real bills have the stripe and this one did not, so a counterfeit bill is a fake copy.
+C|c3324|Staying up to study made him do worse, so counterproductive means working against your own goal.
+C|c3325|The medicine made the swelling go down, so to counteract is to work against an effect.
+C|c3326|The heavy block on the other end kept the crane from tipping, so a counterweight balances weight on the opposite side.
+C|c3327|Strapping the lids was done to stop the raccoon problem, so a countermeasure is an action against a problem.
+C|c3328|Those special features exist to stop copies, so to counterfeit is to make fakes that look real.
+C|c3329|Most people expect the heavy ball to land first, so counterintuitive means opposite to what you would guess.
+C|c3330|The yelling made the puppy less likely to come, so counterproductive means working against your goal.
+C|c3331|They needed to say it without looking, so memorize means to learn it by heart.
+C|c3332|Putting things in cups and neat stacks is the example, so organize means to put things in order.
+C|c3333|He told her he was sorry, so apologize means to say sorry.
+C|c3334|After repeating it, he no longer needs the note, so memorize means to learn it so you remember it.
+C|c3335|The thought about the lunch came to him suddenly on the way, so realize means to suddenly notice something.
+C|c3336|Planning who does each job is how you set up the sale, so organize means to plan an event.
+C|c3337|She said sorry for what she did, so apologize means to tell someone you are sorry.
+C|c3338|You tell only the most important parts in two sentences, so summarize means to give the main points briefly.
+C|c3339|With eyes closed you can only see it in your mind, so visualize means to picture it.
+C|c3340|New computers and lights make the old library newer, so modernize means to make something up to date.
+C|c3341|A long article squeezed into three sentences keeps only the main points, so summarize means to retell briefly.
+C|c3342|It is the opposite of pointing out what went well, so criticize means to point out what is wrong.
+C|c3343|The plants got healthier after compost was added, so fertilize means to feed the soil.
+C|c3344|The water disappeared and steam was left, so vaporize means to turn into vapor, or gas.
+C|c3345|The newspapers keep the mess small, so minimize means to make something as small as you can.
+C|c3346|Big red letters and underlining make the date stand out, so emphasize means to show it is important.
+C|c3347|He had too many jobs and chose the most important one first, so prioritize means to put things in order of importance.
+C|c3348|Boiling water kills germs before the tweezers touch a wound, so sterilize means to make something germ-free.
+C|c3349|Each kind of book goes to its own shelf, so categorize means to sort things into groups.
+C|c3350|Being tired could ruin your chance on the test, so jeopardize means to put something at risk.
+C|c3351|They are best friends, so their friendship is the state of being friends.
+C|c3352|The trophy goes to the best team, so the championship is the title of the winner.
+C|c3353|Sharing and helping are things friends do, so friendship is being friends.
+C|c3354|The game decides who is number one, so the championship decides the champion.
+C|c3355|Running meetings and helping the group is what a leader does, so leadership is the skill of leading.
+C|c3356|The card comes from joining the club, so membership is belonging to a group.
+C|c3357|The tag shows who the puppy belongs to, so ownership is being the owner.
+C|c3358|They work together as a team, so a partnership is being partners.
+C|c3359|Passing the test made him a citizen, so citizenship is the state of being a citizen.
+C|c3360|She was kind to the winner even after losing, so sportsmanship is fair play in sports.
+C|c3361|Losing crops with no rain made life difficult, so a hardship is a hard time.
+C|c3362|Bees and flowers each help the other, so a relationship is how two things are connected.
+C|c3363|Her good grades earned her money for classes, so a scholarship helps pay for school.
+C|c3364|His teacher can now read his letters easily, so penmanship is the skill of writing by hand.
+C|c3365|Tia guided the whole group to safety, so leadership is the skill of guiding others.
+C|c3366|She learned by working next to an expert before going on her own, so an apprenticeship is training on the job.
+C|c3367|Joints that fit perfectly show great skill, so craftsmanship is the skill of a careful maker.
+C|c3368|The lonely cat got happier with a friend to stay close to, so companionship is having company.
+C|c3369|She helped at the zoo to learn what the work is like, so an internship is a job for learning.
+C|c3370|The draft with her name proved who wrote it, so authorship is being the author.
+C|c3371|It ended up high in the sky, so upward means toward a higher place.
+C|c3372|They faced the start while moving to the finish, so backward means moving toward what is behind you.
+C|c3373|It went from the top to the bottom, so downward means toward a lower place.
+C|c3374|He moved to the front of the line, so forward means toward the front.
+C|c3375|They wanted to sleep in their own beds, so homeward means toward home.
+C|c3376|Counting from ten down to one goes the reverse way, so backward means in reverse order.
+C|c3377|The sun sets in the west, and the geese flew toward it, so westward means toward the west.
+C|c3378|It opens into the room, so inward means toward the inside.
+C|c3379|The circles grow wider away from the middle, so outward means away from the center.
+C|c3380|Fireworks light up the night sky, so looking skyward means looking up at the sky.
+C|c3381|The Atlantic Ocean is east of Kansas, so eastward means toward the east.
+C|c3382|Reading time came after the test was done, so afterward means at a later time.
+C|c3383|She kept going step after step to the top, so onward means continuing ahead.
+C|c3384|The log moved away from the beach into deeper water, so seaward means toward the sea.
+C|c3385|It is the contrast with forward and reads from last letter to first, so backwards means in reverse order.
+C|c3386|The United States and Canada are north of Mexico, so northward means toward the north.
+C|c3387|The crowd looked up to follow the rocket into the clouds, so heavenward means upward toward the sky.
+C|c3388|He kept his feelings to himself instead of speaking, so inward means turned toward the inside.
+C|c3389|That side had the wind blocked and calm water, so leeward means away from the wind.
+C|c3390|It is the side the wind hits first, so windward means facing the wind.
+C|c3391|It is a glass tank of water where goldfish live, so an aquarium is a home for water animals.
+C|c3392|It holds water and pet fish, so an aquarium is a fish tank.
+C|c3393|The sentence says these animals live in water, so aquatic means living in water.
+C|c3394|Visitors walk through it to see sharks and sea turtles in water, so this aquarium is a building for water animals.
+C|c3395|A pool, a diving board, and a water slide are all for water fun, so aquatic means having to do with water.
+C|c3396|The sentence calls it a blue-green color like ocean water, so aquamarine is the color of seawater.
+C|c3397|The plants float on ponds with roots in the water, so aquatic plants grow in water.
+C|c3398|It is a gem that sparkles blue-green like the sea, so an aquamarine is a sea-colored gemstone.
+C|c3399|It was built to carry water from the mountains to the city, so an aqueduct carries water a long way.
+C|c3400|It brought river water across a dry valley to the fields, so an aqueduct is a channel that moves water.
+C|c3401|The bugs were found swimming in pond water, so aquatic insects live in water.
+C|c3402|The water was between blue and green, so aquamarine is a light blue-green color.
+C|c3403|It is compared to an astronaut but lives on the sea floor, so an aquanaut is an underwater explorer.
+C|c3404|It is underground and soaks up rain like a sponge, so an aquifer is rock or sand that holds water.
+C|c3405|Instead of catching wild fish, they raise salmon in pens, so aquaculture is farming in water.
+C|c3406|The city got its water from a lake far away through it, so an aqueduct carries water a long distance.
+C|c3407|The solution was made by mixing salt into water, so aqueous means made with water.
+C|c3408|Wells pump water out of it and rain refills it, so an aquifer is an underground store of water.
+C|c3409|She had spent ten days living underwater, so an aquanaut is a person who lives and works under the sea.
+C|c3410|Oyster farms raise shellfish in the bay, so aquaculture is farming animals that live in water.
+C|c3411|The sentence says it is a glass tank with soil and plants, so a terrarium is a little piece of land in a box.
+C|c3412|The jar holds dirt and growing plants, so a terrarium is a glass container of soil and plants.
+C|c3413|It is rough, rocky ground, so terrain is the kind of land in a place.
+C|c3414|That area belongs to the fourth graders, so a territory is land that a group claims.
+C|c3415|The dog digs into the ground after a burrowing animal, so a terrier is a digging dog.
+C|c3416|It is the land that belongs to the pack, so a territory is an area an animal group claims.
+C|c3417|Steep, snowy ground is described, so terrain is what the land is like.
+C|c3418|The small dog loves digging in the dirt, so a terrier is a dog bred to dig into the earth.
+C|c3419|It is a flat step of land on a hill, so a terrace is level land cut into a slope.
+C|c3420|The adults spend their days on dry land instead of in water, so terrestrial means living on land.
+C|c3421|It belonged to the country but was not yet a state, so a territory is land that is not a state.
+C|c3422|The wheels roll over rocks and sand, so terrain is the kind of ground in a place.
+C|c3423|Its home is another planet, so an extraterrestrial is a being from outside Earth.
+C|c3424|Moles rarely see sunlight because their tunnels are below the ground, so subterranean means underground.
+C|c3425|Elephants are contrasted with sea animals and live on land, so terrestrial means living on land.
+C|c3426|She tries to chase another cat out of her yard, so territorial means guarding your own area.
+C|c3427|The life they hope to find is beyond our planet, so extraterrestrial means from outside Earth.
+C|c3428|The river flows in darkness far below the fields, so subterranean means under the ground.
+C|c3429|It was carved into a slope to make level ground for crops, so a terrace is a flat strip of land on a hill.
+C|c3430|These planets have solid ground like Earth, unlike the gas giants, so terrestrial means rocky like Earth.
+C|c3431|Our shirts get soaked with sweat on hot days, so to perspire is to sweat.
+C|c3432|Watching makes kids want to swim, so to inspire is to make someone want to do something.
+C|c3433|Wearing school colors and cheering show pride, so spirit is a feeling of pride and energy.
+C|c3434|The leaves gave Leo the idea for his painting, so an inspiration is something that gives you an idea.
+C|c3435|The drops were sweat wiped away after running, so perspiration is sweat.
+C|c3436|After that date the milk should not be used, so to expire is to stop being good to use.
+C|c3437|It tells what the kids hope to become, so to aspire is to hope for a big goal.
+C|c3438|Her sister made Rosa want to study hard, so to inspire is to make someone want to do something good.
+C|c3439|Gills do the job lungs do, taking in oxygen, so respiration is breathing.
+C|c3440|It must be renewed before the end of the year, so to expire is to come to an end.
+C|c3441|The team stayed cheerful after losing, so spirit is a group's energy and good mood.
+C|c3442|The body makes sweat to cool down, so to perspire is to sweat.
+C|c3443|The nose, windpipe, and lungs are parts you breathe with, so respiratory means having to do with breathing.
+C|c3444|It speeds up into faster, deeper breaths, so respiration is breathing.
+C|c3445|Omar hoped for a lead role and practiced to get it, so to aspire is to work toward a big goal.
+C|c3446|The story made Sam want to keep trying, so an inspiration is something that pushes you to do something.
+C|c3447|The tree lets water vapor out through holes in its leaves, almost like breathing out, so transpiration is how plants give off water.
+C|c3448|It goes over the nose and mouth when the air is hard to breathe, so a respirator helps you breathe clean air.
+C|c3449|Several things seemed to work together to spoil the trip, so to conspire is to work together as if by plan.
+C|c3450|Coughing and wheezing are breathing troubles, so respiratory means having to do with breathing.
+C|c3451|I work the pump with my hands, so manual means worked by hand.
+C|c3452|Her fingernails were shaped and painted, so a manicure is care for the hands and nails.
+C|c3453|The sentence says it is a little book of instructions, so a manual is a handbook.
+C|c3454|Dad took care of his nails, so a manicure is a treatment for hands and nails.
+C|c3455|He used his hands because the motor broke, so manually means by hand.
+C|c3456|A factory makes thousands of bikes, so to manufacture is to make things in large amounts.
+C|c3457|It is the copy of the book before printing, so a manuscript is an unprinted copy of a book.
+C|c3458|All the examples are jobs done with your hands, so manual work is hand work.
+C|c3459|Jamal carefully controls the robot arm's moves, so to manipulate is to move or control something with skill.
+C|c3460|The bus had to be steered carefully around cars, so to maneuver is to move something with skill.
+C|c3461|It was written by hand long ago, so a manuscript is a handwritten book or paper.
+C|c3462|They make crayons by the millions, so to manufacture is to make things in large amounts.
+C|c3463|Twisting and turning toys in their hands are examples, so to manipulate is to handle and move something.
+C|c3464|She steered the kayak carefully around rocks, so to maneuver is to move something with skill.
+C|c3465|The broken tablet went back to whoever made it, so a manufacturer is a company that makes products.
+C|c3466|This person files and paints nails as a job, so a manicurist cares for hands and nails.
+C|c3467|The ad used a trick to make kids want the toy, so to manipulate someone is to control them in a sneaky way.
+C|c3468|Without computers they wrote everything by hand, so manually means by hand instead of by machine.
+C|c3469|Slipping between two cars took skill, so a maneuver is a skillful move.
+C|c3470|The goal was to set people free from others' control, so to emancipate is to free someone.
+C|c3471|It takes a hundred of them to make a dollar, so a cent is one hundredth of a dollar.
+C|c3472|The sentence says it is one hundred years, so a century is a period of one hundred years.
+C|c3473|Getting every question right means a perfect score, so one hundred percent means all one hundred out of every hundred.
+C|c3474|It crawled on more legs than you could count, so a centipede is a crawling animal with many legs.
+C|c3475|The school turned one hundred years old, so a full century is one hundred years.
+C|c3476|One hundred of the marks make a meter, so a centimeter is one hundredth of a meter.
+C|c3477|A ninety out of a hundred chance means almost sure, so percent means out of every hundred.
+C|c3478|Ninety-nine of them plus one more make a dollar, so a cent is one hundredth of a dollar.
+C|c3479|Sixty out of one hundred kids is a part of the whole group, so a percentage is a part counted out of one hundred.
+C|c3480|The parade honored one hundred years, so a centennial is a celebration of one hundred years.
+C|c3481|It could still be alive one hundred years from now, so a century is one hundred years.
+C|c3482|Three plus the other ninety-seven make a hundred, so percent means out of every hundred.
+C|c3483|Her cake needed one hundred candles, so a centenarian is a person who is one hundred years old.
+C|c3484|From 1776 to 1976 is two hundred years, so a bicentennial celebrates two hundred years.
+C|c3485|Ninety out of every hundred games is the part we won, so a percentage is a part counted out of one hundred.
+C|c3486|A cake shaped like the number 100 shows the park was turning one hundred, so a centennial celebrates one hundred years.
+C|c3487|The scale is split into a hundred steps between freezing and boiling, so centigrade means having a hundred degrees.
+C|c3488|He lived past one hundred, to 103, so a centenarian is a person at least one hundred years old.
+C|c3489|From 1826 to 2026 is two hundred years, so a bicentennial celebrates two hundred years.
+C|c3490|Long before great-grandparents were born is about one hundred years or more, so a century is one hundred years.
+C|c3491|She loves books and reads every night, so a bibliophile is a person who loves books.
+C|c3492|The club talks about big questions, so philosophy is the study of big questions about life.
+C|c3493|She loved helping people and gave money for a playground, so a philanthropist gives to help others.
+C|c3494|The sentence says it is a person who loves to think about big questions, so that is what a philosopher is.
+C|c3495|She gave money to help strangers out of love for people, so a philanthropist is someone who gives to help others.
+C|c3496|The sentence calls it a big orchestra with many instruments, so a philharmonic is a large orchestra.
+C|c3497|He fills every room with books, so a bibliophile is a person who loves books.
+C|c3498|They gave money each year to help shelters and food banks, so philanthropy is giving to help others.
+C|c3499|He spent his days asking about how to live a good life, so a philosopher thinks about big questions.
+C|c3500|She started wondering about a deep question, so being philosophical means thinking deeply about big ideas.
+C|c3501|Someone paid for laptops so students could have them, so a philanthropist gives money to help others.
+C|c3502|The rules after the colon are her beliefs about how to live, so a philosophy can be a set of beliefs.
+C|c3503|It has leafy vines that climb up the shelf, so a philodendron is a climbing houseplant.
+C|c3504|She spent her savings helping villages instead of getting rich, so philanthropy is giving to help others.
+C|c3505|More than eighty players following a conductor make an orchestra, so a philharmonic is a large orchestra.
+C|c3506|Instead of a quick answer, he asked a deep question about fairness, so philosophical means thinking deeply.
+C|c3507|Paper towels soak up water, unlike the raincoat, so hydrophilic means attracted to water.
+C|c3508|He wants every note to sound perfect and buys the best speakers, so an audiophile loves great sound.
+C|c3509|The project raised money to buy coats for families in need, so philanthropic means helping others with gifts.
+C|c3510|She questions every answer from every side, so a philosopher is someone who thinks deeply.
+C|c3511|Triangles, squares, and hexagons are the examples, and the sentence says it has straight sides, so a polygon is a flat shape with many sides.
+C|c3512|The sentence says it is a stretchy fabric made from plastic, so polyester is a kind of fabric.
+C|c3513|The shape has eight straight sides, so a polygon is a flat shape with many straight sides.
+C|c3514|The sentence says it is a solid shape with many flat faces, like a cube.
+C|c3515|He speaks five languages, so a polyglot is a person who speaks many languages.
+C|c3516|The pyramid is a solid with five flat faces, so a polyhedron is a solid shape with many faces.
+C|c3517|The shape must be closed with straight sides, so a polygon is a closed shape made of straight lines.
+C|c3518|It is called a slick plastic fabric, so polyester is a fabric made from plastic.
+C|c3519|Unlike one-syllable “cat,” the long word has five syllables, so polysyllabic means having many syllables.
+C|c3520|It was painted in many colors, unlike the plain white vase, so polychrome means having many colors.
+C|c3521|Growing up in three countries let her switch languages easily, so a polyglot speaks many languages.
+C|c3522|Dice are solid shapes, and the sentence counts their flat faces, so a polyhedron is a solid with many faces.
+C|c3523|The example has several terms joined by plus and minus, so a polynomial is an expression with many terms.
+C|c3524|It is described as a tiny animal with many arms, so a polyp is a small sea animal with many tentacles.
+C|c3525|The machine tracked many signals at once, so a polygraph records many body signals.
+C|c3526|A circle is left out because it has no straight sides, so a polygon must have straight sides.
+C|c3527|It is built from many small pieces linked in chains, so a polymer is made of many joined units.
+C|c3528|The example words are long with lots of syllables, so polysyllabic means having many syllables.
+C|c3529|Instead of one shade, it has every rainbow color, so polychrome means having many colors.
+C|c3530|The guide answered people from many places in their own languages, so a polyglot speaks many languages.
+C|c3531|Everything was black, white, and gray with no other colors, so monochrome means just one color or its shades.
+C|c3532|Everything she wore was blue, in shades of one color, so monochromatic means using one color.
+C|c3533|He used only green in light and dark shades, so monochrome means one color.
+C|c3534|Red, blue, and yellow are the bright examples, so chromatic means having bright color.
+C|c3535|It is like an instruction book inside your cells, so a chromosome carries the instructions for your body.
+C|c3536|Every color in the room was a kind of green, so monochromatic means using only one color.
+C|c3537|The gem flashed many colors, unlike the gray rock, so polychromatic means having many colors.
+C|c3538|The bright paints are kept apart from the grays and whites, so chromatic means having bright color.
+C|c3539|The black ink split into separate colors, so chromatography is a way to separate a mixture's colors.
+C|c3540|They are tiny threads inside a cell that show up when dyed, so a chromosome is a threadlike part of a cell.
+C|c3541|They have no hue at all, so achromatic means without color.
+C|c3542|The bright garden turned black and white, so monochrome means shades of one color.
+C|c3543|One eye is blue and the other is brown, so heterochromia means eyes of different colors.
+C|c3544|It is plain gray, unlike the bright playground, so achromatic means without color.
+C|c3545|Water carried the ink until its colors separated, so chromatography separates a mixture into colors.
+C|c3546|Swirls of pink, gold, and blue slide across it, so polychromatic means having many colors.
+C|c3547|It explains why you get traits from each parent, so a chromosome carries the genes passed down from parents.
+C|c3548|Every white and black key was played in a row, so a chromatic scale uses every note, a full set of musical “colors.”
+C|c3549|A single blue made lighter and darker instead of a rainbow means monochromatic uses only one color.
+C|c3550|There were only whites and grays with no bright hue, so achromatic means without color.
 `;
 const XDEF={},XLINK={},XCLUE={};
 XRAW.trim().split("\n").forEach(l=>{const f=l.split("|");if(f[0]==='W')XDEF[f[1].toLowerCase()]=f[2];else if(f[0]==='L')XLINK[f[1]+'|'+f[2].toLowerCase()]=f[3];else if(f[0]==='C')XCLUE[f[1]]=f[2]});
@@ -15084,6 +16009,326 @@ g43|electrode|The nurse stuck a small [electrode] on Grandpa's chest so the mach
 g43|electrolytes|After the sweaty race, the runner drank a sports drink to replace her [electrolytes], the salts that help carry electric signals in the body.|salts in the body that help carry tiny electric signals|5
 g43|electrified|The fence around the cow pasture was [electrified], so any cow that touched it felt a small shock and stepped back.|having electricity running through it|5
 g43|electrify|The singer's amazing high note seemed to [electrify] the crowd, and everyone leaped to their feet cheering.|to excite people suddenly, as if with a jolt of electricity|5
+a66|circumference|To find the [circumference] of the pizza, we wrapped a string all the way around its edge and then measured the string.|the distance around a circle|1
+a66|circumference|Our oak tree is so wide that it takes four kids holding hands to reach around its whole [circumference].|the distance around something round|1
+a66|circumnavigate|The sailors plan to [circumnavigate] the globe, sailing all the way around the world and back to the same harbor.|to sail or travel all the way around|1
+a66|circumstances|Coach said that under normal [circumstances] we practice outside, but when it storms, we move into the gym.|the conditions or facts around a situation|1
+a66|circumference|Earth's [circumference] at the equator is about 25,000 miles, so a trip all the way around would take a very long time.|the distance around a circle or sphere|2
+a66|circumnavigate|Mia wants to [circumnavigate] the lake on her bike, riding the whole trail around it in one afternoon.|to travel all the way around|2
+a66|circumstances|The field trip is canceled unless the [circumstances] change, like the rain stopping or the bus getting fixed.|the conditions or facts around a situation|2
+a66|circumnavigate|It took Grandpa and Grandma two days to [circumnavigate] the island in their small sailboat, going all the way around its rocky shore.|to sail all the way around|2
+a66|circumstances|Given the [circumstances], a flat tire, a closed road, and a long detour, being only ten minutes late felt like a win.|the conditions or facts around a situation|3
+a66|circumvent|When a fallen tree blocked the trail, the hikers found a way to [circumvent] it by walking around through the meadow.|to get around something that blocks you|3
+a66|circumpolar|From our backyard, the [circumpolar] stars near the North Star never set; they just wheel around it all night long.|circling around the North or South Pole without setting|3
+a66|circumvent|The stream could not push through the pile of rocks, so the water began to [circumvent] them, trickling around both sides.|to get around something that blocks you|3
+a66|circumpolar|Adélie penguins are [circumpolar]; their colonies are spread all along the icy coast that rings the South Pole.|living all around the North or South Pole|4
+a66|circumvent|The clever squirrel managed to [circumvent] the cone-shaped guard on our bird feeder: instead of climbing up the pole, it dropped down from a branch above.|to get around an obstacle by finding another way|4
+a66|circumscribe|In math class, we learned to [circumscribe] a circle around a triangle, drawing it so the circle touches all three corners.|to draw a shape around another shape|4
+a66|circumspect|Crossing the slippery rocks in the stream, Dad was [circumspect], testing each stone with his foot and looking all around before every step.|careful, looking around before acting|4
+a66|circumspect|The new student was [circumspect] on her first day, quietly watching how the class worked before she shared any of her own ideas.|careful and watchful before acting or speaking|5
+a66|circumscribe|The playground rules [circumscribe] where we can go at recess: the blacktop and the field, but never past the fence.|to set limits around something|5
+a66|circumstantial|The detective had only [circumstantial] evidence, muddy footprints and an open window, but nobody had actually seen who ate the pie.|based on surrounding clues instead of direct proof|5
+a66|circumstantial|Jake's sticky fingers were only [circumstantial] proof that he took the cookies, since he might have just eaten a jelly sandwich.|based on surrounding clues instead of direct proof|5
+a67|extraordinary|The magic show was [extraordinary]; the magician did tricks far beyond anything we had ever seen before.|far beyond what is usual; amazing|1
+a67|extraordinary|A normal day at the beach is fun, but seeing a whale leap out of the water was truly [extraordinary].|far beyond what is usual; amazing|1
+a67|extracurricular|Soccer, band, and chess club are [extracurricular] activities that kids do outside of regular class time.|done outside of regular school classes|1
+a67|extracurricular|My favorite [extracurricular] activity is robotics club, which meets after school instead of during class.|done outside of regular school classes|1
+a67|extraterrestrial|In the movie, an [extraterrestrial] visitor from another planet lands in a farmer's cornfield.|a being from beyond Earth|2
+a67|extraordinary|Our teacher said Sam's science project was [extraordinary], better than any she had seen in twenty years of teaching.|far beyond what is usual; amazing|2
+a67|extracurricular|Because Nia does so many [extracurricular] activities, like swimming, art club, and student council, she rarely gets home before five.|done outside of regular school classes|2
+a67|extraterrestrial|Scientists use giant antennas to listen for radio signals that might come from [extraterrestrial] life on planets far from Earth.|from beyond or outside Earth|2
+a67|extraterrestrial|The meteorite in the museum is [extraterrestrial]; it drifted through space for millions of years before it fell to the ground.|coming from outside Earth|3
+a67|extravagant|For her cat's birthday, Aunt Rosa threw an [extravagant] party with a tiny crown, a fish cake, and fifty balloons, way more than any cat needs.|going far beyond what is needed or sensible|3
+a67|extrasensory|Ella jokes that she has [extrasensory] powers because she always knows what is inside a present without seeing, touching, or shaking it.|beyond the normal five senses|3
+a67|extravagant|Buying a new pair of sneakers for every day of the week seemed [extravagant] to Dad, who said one good pair was plenty.|going far beyond what is needed or sensible|3
+a67|extravagant|The hotel lobby was [extravagant], with gold railings, a waterfall wall, and a chandelier bigger than our car.|fancy far beyond what is needed|4
+a67|extrasolar|Mars and Jupiter circle our own sun, but [extrasolar] planets orbit distant stars far outside our solar system.|outside our solar system|4
+a67|extrasensory|The fortune-teller at the fair claimed to have [extrasensory] abilities, yet she could not guess the number on the card hidden in my pocket.|beyond the normal five senses|4
+a67|extraordinarily|The puppy was [extraordinarily] patient, sitting still for ten whole minutes while we brushed her, when most puppies cannot sit still for ten seconds.|far more than usually|4
+a67|extrasolar|When the space telescope saw a distant star dim for a moment, scientists realized an [extrasolar] planet was passing in front of it, trillions of miles from our sun.|outside our solar system|5
+a67|extravehicular|During the [extravehicular] mission, the astronaut floated outside the space station in her spacesuit to repair a solar panel.|done outside a spacecraft|5
+a67|extravehicular|Before any [extravehicular] work, astronauts check every seal on their suits, because once they leave the ship, the suit is all that protects them.|done outside a spacecraft|5
+a67|extraordinarily|The desert flower is [extraordinarily] tough: it can survive months without rain and still bloom after a single storm.|far more than usually|5
+a68|omnivore|A bear is an [omnivore] because it eats all kinds of food, both plants like berries and animals like fish.|an animal that eats both plants and meat|1
+a68|omnivore|My little brother is a real [omnivore]: he eats everything, from broccoli to chicken to fish sticks.|an animal that eats both plants and meat|1
+a68|omnivores|Raccoons are [omnivores] that will eat almost anything, including fruit, bugs, eggs, and even our leftover pizza.|animals that eat both plants and meat|1
+a68|omnivore|A cow eats only plants and a lion eats only meat, but a pig is an [omnivore] that eats both.|an animal that eats both plants and meat|1
+a68|omnivores|Chickens are [omnivores]; they peck at seeds and grain, but they also gobble up worms and beetles.|animals that eat both plants and meat|2
+a68|omnivorous|Crows are [omnivorous] birds that eat seeds, fruit, insects, and scraps from the trash.|eating both plants and animals|2
+a68|omnipresent|At the fair, the smell of popcorn was [omnipresent]; no matter where we walked, we could smell it.|present everywhere at the same time|2
+a68|omnivorous|Since people are [omnivorous], a healthy lunch can include veggies, fruit, and beans along with meat or fish.|eating both plants and animals|2
+a68|omnipresent|In our beach town, the seagulls are [omnipresent], perched on every roof, every lamppost, and every boat at the dock.|present everywhere at the same time|3
+a68|omniscient|The story has an [omniscient] narrator who knows what every single character is thinking and feeling.|knowing everything|3
+a68|omnipotent|In the video game, the final boss seemed [omnipotent], able to control the weather, the ground, and even time itself.|having unlimited power; able to do anything|3
+a68|omnidirectional|The [omnidirectional] sprinkler in the middle of the lawn sprays water every way at once, so the whole circle of grass gets wet.|working in all directions|3
+a68|omnipotent|Little Leo thinks his big sister is [omnipotent], since she can reach the top shelf, ride a bike with no training wheels, and fix his broken toys.|seeming able to do anything; all-powerful|4
+a68|omniscient|Our librarian seems almost [omniscient]: whatever we ask her, from volcanoes to ancient Egypt, she already knows the answer.|knowing everything|4
+a68|omnidirectional|Unlike a flashlight, which shines in just one direction, a camping lantern is [omnidirectional], spreading light all around the tent.|working in all directions|4
+a68|omnipresent|During the town's soccer tournament, the team's bright green jerseys were [omnipresent], hanging in shop windows, flying from cars, and worn by nearly every kid at school.|present everywhere at the same time|4
+a68|omnipotent|Even the strongest hurricane is not [omnipotent]; once it moves over cold water or land, it loses its power and fades away.|having unlimited power; able to do anything|5
+a68|omniscient|No scientist is [omniscient]; even the top experts admit there is still a lot they do not know about the deep ocean.|knowing everything|5
+a68|omnipresence|The [omnipresence] of tiny plastic bits, found in oceans, soil, rain, and even mountain snow, worries many scientists.|the state of being everywhere|5
+a68|omnivorous|Because the black bear is [omnivorous], its menu changes with the seasons: fresh grass in spring, berries in summer, and fish or insects in fall.|eating both plants and animals|5
+a69|retrospect|In [retrospect], looking back on the day, I should have packed an umbrella for the field trip.|looking back on the past|1
+a69|retrofit|Workers came to [retrofit] our old school, adding new parts like solar panels and better windows to the old building.|to add new parts to something old|1
+a69|retroactive|The new rule is [retroactive], which means it reaches back in time and also counts for homework turned in last month.|applying back to an earlier time|1
+a69|retrospect|In [retrospect], when Dana thought back on the game, she realized passing the ball would have been smarter.|looking back on the past|1
+a69|retrofit|Dad decided to [retrofit] his old bike with a small electric motor so it would be easier to ride up hills.|to add new parts to something old|2
+a69|retroactive|The pay raise was [retroactive] to January, so in March the workers got extra money for the months they had already worked.|applying back to an earlier time|2
+a69|retrospect|Looking at her old school photos years later, Mom laughed and said that in [retrospect], her giant bangs were a funny choice.|looking back on the past|2
+a69|retrorocket|As the space capsule came down, it fired a [retrorocket] that pushed against its fall and slowed it down for a soft landing.|a small rocket that fires against a spacecraft's motion to slow it down|2
+a69|retrofit|The city plans to [retrofit] its old bridges with strong steel supports so they can stand up to earthquakes.|to add new parts to something old|3
+a69|retroactive|Mr. Lee made the new extra-credit policy [retroactive], so even the quiz we took two weeks ago could earn bonus points.|applying back to an earlier time|3
+a69|retrorockets|To slow down before touching the moon, the lander fired its [retrorockets], blasting against the direction it was moving.|small rockets that fire against a spacecraft's motion to slow it down|3
+a69|retrograde|Most planets spin the same way, but Venus has a [retrograde] spin, turning backward compared with Earth.|moving or turning backward|3
+a69|retrograde|For a few weeks each year or two, Mars seems to drift [retrograde] across the night sky, sliding west instead of its usual east.|moving or turning backward|4
+a69|retrospective|The art museum held a [retrospective] of the painter's work, showing everything from her first childhood drawings to her newest paintings.|a look back over past work or events|4
+a69|retrofitted|Instead of being replaced, the old school buses were [retrofitted] with seat belts and cleaner engines.|given new parts added to something old|4
+a69|retrorocket|Without its [retrorocket] to slow the fall, the probe would have reached the surface of Mars far too fast.|a small rocket that fires against a spacecraft's motion to slow it down|4
+a69|retrograde|Coach warned that skipping practice all summer would be a [retrograde] step, sending our skills backward instead of forward.|moving backward to a worse condition|5
+a69|retrospective|For the yearbook, the editors wrote a [retrospective] article that traced the school's hundred-year history, from its one-room beginnings to today.|looking back on the past|5
+a69|retroactively|A week after the science fair, the judges found a scoring mistake, so they [retroactively] changed the results and gave Kai the blue ribbon he had earned.|in a way that applies back to an earlier time|5
+a69|retrofitted|Engineers [retrofitted] the century-old lighthouse with LED bulbs and solar power, so its beam still shines but uses far less energy.|given new parts added to something old|5
+a70|counterclockwise|A clock's hands turn one way, but Ms. Park spun the globe [counterclockwise], the opposite way, to show how Earth really turns.|turning the opposite way from the way a clock's hands move|1
+a70|counterattack|Our team was stuck on defense until Leo stole the ball and started a fast [counterattack] that raced the other way down the field.|a quick move right back against the other side after defending|1
+a70|counterclockwise|To open the jar, turn the lid [counterclockwise], the opposite way from how you turn it to close it.|turning the opposite way from the way a clock's hands move|1
+a70|counterattack|After the other team missed their shot, our players ran back toward their goal in a quick [counterattack] and scored.|a quick move right back against the other side after defending|1
+a70|counterpart|My pen pal in Japan is my [counterpart]: she is also a fifth grader who plays the violin, just like me.|a person who matches or has the same role as another|2
+a70|counterbalance|Maya was much lighter than her big brother, so she held a heavy backpack on the seesaw to [counterbalance] his weight.|to balance something with an equal weight on the other side|2
+a70|counterclockwise|The ice skaters all glided around the rink [counterclockwise], moving the opposite way from a clock's hands.|turning the opposite way from the way a clock's hands move|2
+a70|counterpart|The mayor of our town met her [counterpart], the mayor of our sister city in Mexico, to plan a student trip.|a person who matches or has the same role as another|2
+a70|counteract|Lemon juice is very sour, so Dad stirred in a spoonful of honey to [counteract] the sour taste.|to work against something and weaken its effect|3
+a70|counterweight|The old elevator has a heavy [counterweight] that slides down as the car goes up, pulling against it to balance the load.|a weight that balances another weight on the opposite side|3
+a70|counterbalance|The tightrope walker carried a long pole to help [counterbalance] her body whenever she started to tip to one side.|to balance something with an equal weight on the other side|3
+a70|counterargument|In debate class, Ava said school should start later, and then Ben gave a [counterargument]: students would get home too late for sports.|a reason given against someone else's argument|3
+a70|counterfeit|The cashier held the twenty-dollar bill up to the light, and when the hidden stripe was missing, she knew it was [counterfeit] and would not take it.|fake, made to look like the real thing|4
+a70|counterproductive|Cramming all night before the test was [counterproductive], because Jamal was so tired that he forgot answers he actually knew.|working against the goal you are trying to reach|4
+a70|counteract|The nurse gave Lily allergy medicine to [counteract] the bee sting, and soon the swelling went down.|to work against something and weaken its effect|4
+a70|counterweight|The crane would have tipped over while lifting the steel beam if not for the giant concrete [counterweight] on its other end.|a weight that balances another weight on the opposite side|4
+a70|countermeasure|When raccoons kept tipping over our garbage cans, we took a [countermeasure] and strapped the lids down with bungee cords.|an action taken to stop or work against a problem|5
+a70|counterfeit|Modern bills have tiny printed threads and color-shifting ink, which make them very hard to [counterfeit].|to make a fake copy of something to trick people|5
+a70|counterintuitive|It sounds [counterintuitive], but a heavy bowling ball and a light tennis ball dropped at the same moment hit the ground at about the same time.|going against what you would expect to be true|5
+a70|counterproductive|Yelling at the puppy turned out to be [counterproductive], since it got so scared that it hid under the bed instead of coming when called.|working against the goal you are trying to reach|5
+a71|memorize|Our class had to [memorize] the poem so we could say it out loud without looking at the paper.|to learn something so well that you can remember it exactly|1
+a71|organize|Before school starts, I [organize] my desk by putting pencils in one cup and books in a neat stack.|to put things in order|1
+a71|apologize|When Tom bumped into Zoe and spilled her juice, he stopped to [apologize] and told her he was sorry.|to say you are sorry|1
+a71|memorize|I said my locker combination over and over to [memorize] it, and now I can open the lock without my note.|to learn something so well that you can remember it exactly|1
+a71|realize|Halfway to school, I started to [realize] that I had left my lunch on the kitchen table.|to suddenly understand or notice something|2
+a71|organize|Our class will [organize] a bake sale, planning who brings treats, who makes signs, and who handles the money.|to plan and set up an event|2
+a71|apologize|Mia knew she should [apologize] for breaking her sister's crayon, so she said sorry and gave her a new one.|to say you are sorry|2
+a71|summarize|In just two sentences, [summarize] the story by telling only the most important things that happened.|to tell the main points in a short way|2
+a71|visualize|Before the big race, the coach told us to close our eyes and [visualize] ourselves crossing the finish line.|to picture something in your mind|3
+a71|modernize|The school plans to [modernize] the old library by adding new computers, bright lights, and comfy reading chairs.|to make something more up to date|3
+a71|summarize|After reading the long article about volcanoes, Jada had to [summarize] it in just three sentences for her class.|to tell the main points in a short way|3
+a71|criticize|A good coach does not just [criticize] mistakes; she also points out what her players did well.|to point out what is wrong with something|3
+a71|fertilize|Our tomato plants were small and pale until we began to [fertilize] the soil with compost every week.|to add food to soil so plants grow better|4
+a71|vaporize|The water in the pot boiled for so long that it all seemed to [vaporize], leaving a dry pan and a cloud of steam.|to turn into gas or steam|4
+a71|minimize|To [minimize] the mess, we spread old newspapers on the table before we started painting.|to make something as small as possible|4
+a71|emphasize|Ms. Reed wrote the date in big red letters and underlined it twice to [emphasize] that the project was due Friday.|to show that something is especially important|4
+a71|prioritize|With soccer practice, a book report, and a math test all this week, Owen had to [prioritize] and study for the test first.|to decide which things are most important and do them first|5
+a71|sterilize|Before cleaning the splinter out of my finger, the nurse would [sterilize] the tweezers in boiling water.|to make something completely free of germs|5
+a71|categorize|The librarians [categorize] every new book, so mysteries end up on one shelf and science books on another.|to sort things into groups by type|5
+a71|jeopardize|Staying up late playing games could [jeopardize] your chance to do well on tomorrow's test.|to put something in danger of being lost or harmed|5
+a72|friendship|Emma and Lily have been best friends since kindergarten, and their [friendship] keeps growing stronger every year.|the state of being friends|1
+a72|championship|Our soccer team won every game this season and took home the [championship] trophy for being the best team.|the title of being the winner of a contest|1
+a72|friendship|Sharing snacks and helping each other with homework is a big part of our [friendship].|the state of being friends|1
+a72|championship|The two best teams in the league will play in the [championship] game to decide who is number one.|the final contest that decides the winner|1
+a72|leadership|As class president, Jordan showed great [leadership] by running meetings and helping everyone share ideas.|the skill of guiding a group|2
+a72|membership|When I joined the swim club, I got a [membership] card that lets me use the pool any day.|the state of belonging to a group or club|2
+a72|ownership|The tag on the dog's collar shows [ownership], because it says the puppy belongs to the Garcia family.|the state of owning something|2
+a72|partnership|Ana and Raj formed a [partnership] for the science fair, working together as a team on one project.|the state of working together as partners|2
+a72|citizenship|Mr. Ali studied American history for months to pass the test for his [citizenship], and now he is officially a citizen of the United States.|the state of being a citizen of a country|3
+a72|sportsmanship|Even though she lost the match, Maya showed good [sportsmanship] by shaking hands and congratulating the winner.|fair and kind behavior when playing games or sports|3
+a72|hardship|The long drought was a [hardship] for the farmers, who watched their crops dry up with no rain.|something that makes life hard|3
+a72|relationship|Scientists study the [relationship] between bees and flowers: the bees get sweet nectar, and the flowers get their pollen spread.|the way two or more things are connected|3
+a72|scholarship|Because Rosa earned top grades and wrote a strong essay, the college gave her a [scholarship] that pays for her classes.|money given to a student to help pay for school|4
+a72|penmanship|Lucas's [penmanship] improved so much that his teacher could finally read every letter without squinting.|the skill of handwriting|4
+a72|leadership|When the hiking group got lost, it was Tia's calm [leadership] that got everyone to follow the map and stay together.|the skill of guiding a group|4
+a72|apprenticeship|During her [apprenticeship], the young baker worked beside the head chef for two years, learning every recipe before opening her own shop.|a time of learning a job by working with an expert|4
+a72|craftsmanship|The old wooden chair shows such fine [craftsmanship] that every joint fits perfectly without a single nail.|the skill of making things carefully by hand|5
+a72|companionship|The lonely old cat seemed much happier after the shelter gave it the [companionship] of a friendly kitten to curl up with.|the state of having a friend nearby|5
+a72|internship|Over the summer, my cousin did an [internship] at the zoo, helping the keepers so she could see what the job is really like.|a short job, often for students, to learn about a kind of work|5
+a72|authorship|The two classes argued over the [authorship] of the funny poem until a teacher found the first draft with Ava's name on it.|the state of being the writer of something|5
+a73|upward|The balloon slipped out of my hand and floated [upward] until it was a tiny dot high in the sky.|toward a higher place|1
+a73|backward|In the silly relay race, we had to walk [backward], facing the starting line while we stepped toward the finish.|toward the back; in the direction behind you|1
+a73|downward|The ball rolled [downward] from the top of the hill all the way to the bottom.|toward a lower place|1
+a73|forward|When the teacher called my name, I stepped [forward] to the front of the line.|toward the front; ahead|1
+a73|homeward|After a long day at the beach, we packed the car and headed [homeward], ready to sleep in our own beds.|toward home|2
+a73|backward|Can you count [backward] from ten to one, like the countdown before a rocket launch?|in reverse order, from end to start|2
+a73|westward|As the sun set, the geese flew [westward], straight toward the glowing orange sky where the sun went down.|toward the west|2
+a73|inward|The classroom door swings [inward], so you push it into the room instead of pulling it out into the hall.|toward the inside|2
+a73|outward|The ripples spread [outward] from the spot where the pebble hit the pond, growing into wider and wider circles.|toward the outside; away from the center|3
+a73|skyward|Every kid at the fireworks show turned their face [skyward] when the first big boom lit up the night.|toward the sky|3
+a73|eastward|The weather map showed the storm moving [eastward], from Kansas toward the Atlantic Ocean.|toward the east|3
+a73|afterward|We finished our science test first, and [afterward] we got ten minutes of free reading time.|at a later time; after that|3
+a73|onward|Even though her legs were tired, the hiker pushed [onward], one step after another, until she reached the top of the mountain.|continuing forward; ahead|4
+a73|seaward|When the tide turned, the current pulled the floating log [seaward], away from the beach and out into deeper water.|toward the sea|4
+a73|backwards|The word level is spelled the same way forward and [backwards], from the last letter to the first.|in reverse order, from end to start|4
+a73|northward|Each spring, monarch butterflies flutter [northward] from Mexico into the United States and Canada.|toward the north|4
+a73|heavenward|As the rocket roared off the launch pad, the crowd tipped their heads back to follow its fiery trail [heavenward] until it vanished into the clouds.|upward toward the sky|5
+a73|inward|When the class laughed at his mistake, Sam turned his feelings [inward] and quietly wrote about them in his journal instead of saying anything.|kept inside yourself instead of shown|5
+a73|leeward|The sailors anchored on the [leeward] side of the island, where the hills blocked the wind and the water stayed calm.|on the side sheltered from the wind|5
+a73|windward|Rain clouds drop most of their water on the [windward] side of the mountains, the side the wind blows against first.|facing the wind; the side the wind blows toward|5
+l44|aquarium|Our class keeps three goldfish in an [aquarium], a glass tank full of water on the back counter.|a glass tank of water where fish and other water animals live|1
+l44|aquarium|Every Friday, Leo changes some of the water in his [aquarium] so his pet fish stay healthy.|a glass tank of water where fish and other water animals live|1
+l44|aquatic|Fish, whales, and octopuses are all [aquatic] animals because they live in water.|living or growing in water|1
+l44|aquarium|At the city [aquarium], we walked through a glass tunnel while sharks and sea turtles swam in the water all around us.|a building where people go to see fish and other water animals|1
+l44|aquatic|The new [aquatic] center has a big swimming pool, a diving board, and a water slide.|having to do with water or water sports|2
+l44|aquamarine|Maya painted the sea a bright [aquamarine], a blue-green color like clear ocean water.|a light blue-green color like clear seawater|2
+l44|aquatic|Water lilies are [aquatic] plants that float on ponds with their roots down in the water.|living or growing in water|2
+l44|aquamarine|My birthstone is an [aquamarine], a clear gem that sparkles blue-green like the sea.|a clear blue-green gemstone|2
+l44|aqueduct|Long ago, the Romans built a stone [aqueduct] with tall arches to carry water from the mountains into the city.|a channel or bridge built to carry water a long way|3
+l44|aqueduct|The fields stayed green all summer because an [aqueduct] brought river water to them across the dry valley.|a channel or bridge built to carry water a long way|3
+l44|aquatic|Our science class studied [aquatic] insects by scooping pond water into a tray and looking for bugs that swim.|living or growing in water|3
+l44|aquamarine|The swimming pool looked [aquamarine] in the bright sunlight, not quite blue and not quite green.|a light blue-green color like clear seawater|3
+l44|aquanaut|Just as an astronaut lives in space, an [aquanaut] lives and works for days inside a lab on the sea floor.|a person who lives and works underwater for days at a time|4
+l44|aquifer|Our town pumps its drinking water from an [aquifer], a layer of sand and rock deep underground that soaks up rain like a sponge.|a layer of underground rock or sand that holds water|4
+l44|aquaculture|Instead of catching wild fish at sea, the company practices [aquaculture], raising thousands of salmon in big floating pens.|raising fish, shellfish, or water plants on a farm|4
+l44|aqueduct|During the dry summer, the city depended on an [aqueduct] that carried water two hundred miles from a snowy mountain lake.|a channel or bridge built to carry water a long way|4
+l44|aqueous|In chemistry class, we stirred salt into water to make an [aqueous] solution that looked clear even though the salt was still there.|made with or containing water|5
+l44|aquifer|When too many wells pumped water out faster than rain could refill the [aquifer], the wells began to run dry.|a layer of underground rock or sand that holds water|5
+l44|aquanaut|After ten days in the underwater lab, the [aquanaut] rose to the surface slowly so her body could adjust to the change in water pressure.|a person who lives and works underwater for days at a time|5
+l44|aquaculture|Oyster farms are a kind of [aquaculture] that can help clean the bay, since each oyster filters gallons of water a day.|raising fish, shellfish, or water plants on a farm|5
+l45|terrarium|Our class lizard lives in a [terrarium], a glass tank filled with soil, rocks, and small plants.|a glass container with soil and plants where small land animals or plants live|1
+l45|terrarium|Jada built a tiny [terrarium] in a glass jar with dirt, moss, and a small fern growing inside.|a glass container with soil and plants where small land animals or plants live|1
+l45|terrain|The bike trail has bumpy, rocky [terrain], so riders need wide tires to roll over the rough ground.|the kind of land in an area, such as hills, rocks, or sand|1
+l45|territory|This side of the playground is the fourth graders' [territory], so the younger kids play on the other side.|an area of land that an animal or group claims as its own|1
+l45|terrier|The farmer's [terrier] dug deep into the ground to chase a gopher out of its burrow.|a small, lively dog first bred to dig into the earth after burrowing animals|2
+l45|territory|A wolf pack marks its [territory] so other wolves know which land belongs to that pack.|an area of land that an animal or group claims as its own|2
+l45|terrain|Hikers in the mountains must be ready for steep, snowy [terrain] that is hard to walk on.|the kind of land in an area, such as hills, rocks, or sand|2
+l45|terrier|My uncle's little [terrier] digs in the garden so fast that dirt flies everywhere.|a small, lively dog first bred to dig into the earth after burrowing animals|2
+l45|terrace|On the steep hillside, farmers built each [terrace] like a giant flat stair step of land so rice could grow without the soil washing away.|a flat, level strip of land cut into a hillside|3
+l45|terrestrial|Tadpoles live in water, but adult toads are mostly [terrestrial], spending their days hopping around on dry land.|living on land rather than in water|3
+l45|territory|Before it became a state, Alaska was a [territory] that belonged to the United States but did not have its own star on the flag.|an area of land that belongs to a country but is not a state|3
+l45|terrain|The rover's six big wheels let it drive across the rocky, sandy [terrain] of Mars.|the kind of land in an area, such as hills, rocks, or sand|3
+l45|extraterrestrial|The movie was about a friendly [extraterrestrial] who landed on Earth by accident and wanted to go back to its home planet.|a being or thing from outside Earth|4
+l45|subterranean|Moles live in [subterranean] tunnels, so they rarely come up to see the sunlight.|under the ground|4
+l45|terrestrial|Unlike whales and dolphins, elephants are [terrestrial] mammals that spend their whole lives on land.|living on land rather than in water|4
+l45|territorial|Our cat gets very [territorial] when a new cat walks into the yard; she hisses and puffs up her tail until it leaves.|protective of the area it thinks of as its own|4
+l45|extraterrestrial|Scientists use giant radio dishes to listen for signals that might prove [extraterrestrial] life exists somewhere beyond our planet.|coming from beyond Earth|5
+l45|subterranean|The cave tour took us deep into a [subterranean] river that flowed through the darkness far below the farm fields.|under the ground|5
+l45|terrace|In the Andes Mountains, ancient farmers carved each [terrace] into the slope and held it up with stone walls so crops could grow on level ground.|a flat, level strip of land cut into a hillside|5
+l45|terrestrial|Mercury, Venus, Earth, and Mars are called [terrestrial] planets because they have solid, rocky ground, unlike gas giants such as Jupiter.|having solid, rocky ground like Earth|5
+l46|perspire|On hot days at soccer practice, we [perspire] so much that our shirts get soaked with sweat.|to sweat|1
+l46|inspire|Watching the swimmers race on TV can [inspire] kids to want to learn to swim, too.|to make someone want to do something good or creative|1
+l46|spirit|Our class showed great school [spirit] by wearing our school colors and cheering at every game.|a feeling of pride, energy, and good mood, especially in a group|1
+l46|inspiration|The colorful fall leaves were the [inspiration] for Leo's painting; he got the idea while walking to school.|something that gives you an idea or makes you want to do something|1
+l46|perspiration|After running the mile, drops of [perspiration] rolled down my forehead, so I wiped the sweat away with a towel.|sweat|2
+l46|expire|The milk will [expire] on Friday, so after that date it might taste sour and should not be used.|to come to an end or stop being good to use|2
+l46|aspire|Many kids who love animals [aspire] to become veterinarians when they grow up.|to hope for and work toward a big goal|2
+l46|inspire|Seeing her big sister graduate helped [inspire] Rosa to study hard so she could go to college, too.|to make someone want to do something good or creative|2
+l46|respiration|Fish do not have lungs, so their [respiration] happens through gills that take oxygen from the water.|breathing; taking in oxygen and letting out used air|3
+l46|expire|My library card will [expire] at the end of the year, so I need to renew it before then.|to come to an end or stop being good to use|3
+l46|spirit|Even after losing three games in a row, the team kept its [spirit] up, laughing and cheering each other on.|a feeling of pride, energy, and good mood, especially in a group|3
+l46|perspire|Your body starts to [perspire] when it gets too warm, because sweat drying on your skin helps cool you down.|to sweat|3
+l46|respiratory|The [respiratory] system, which includes your nose, windpipe, and lungs, brings fresh air into your body.|having to do with breathing|4
+l46|respiration|During a hard workout, your [respiration] speeds up, and you take faster, deeper breaths to get more oxygen.|breathing; taking in oxygen and letting out used air|4
+l46|aspire|Although he had never been on a stage before, Omar began to [aspire] to a lead role in the school play and practiced his lines every night.|to hope for and work toward a big goal|4
+l46|inspiration|Hearing how the inventor failed many times before she succeeded became an [inspiration] to Sam, who decided to keep fixing his robot instead of giving up.|something that gives you an idea or makes you want to do something|4
+l46|transpiration|On a warm day, a big tree can release hundreds of gallons of water vapor through tiny holes in its leaves, a process called [transpiration].|the way plants give off water vapor through tiny holes in their leaves|5
+l46|respirator|Because the smoke from the forest fire made the air hard to breathe, the firefighters wore a [respirator] over their nose and mouth.|a mask or machine that helps a person breathe clean air|5
+l46|conspire|The rain, the wind, and a flat tire seemed to [conspire] against us, all working together to spoil our trip to the beach.|to work together, as if by a secret plan, to make something happen|5
+l46|respiratory|Doctors say that smoky air can cause [respiratory] problems, such as coughing and wheezing, especially in people with asthma.|having to do with breathing|5
+l47|manual|My bike pump is [manual], so I push the handle up and down with my hands to fill the tires with air.|worked or done by hand|1
+l47|manicure|At the salon, Aunt Rosa got a [manicure], and the worker shaped and painted her fingernails.|a care treatment for your hands and fingernails|1
+l47|manual|The new board game came with a [manual], a little book of instructions that tells you how to play.|a small book of instructions|1
+l47|manicure|Before the party, Dad trimmed, cleaned, and filed his nails, giving himself a quick [manicure].|a care treatment for your hands and fingernails|1
+l47|manually|When the electric garage door broke, Dad had to open it [manually] by pulling it up with his hands.|by hand instead of by machine|2
+l47|manufacture|That factory uses big machines to [manufacture] thousands of bicycles every year.|to make things in large amounts, usually in a factory|2
+l47|manuscript|The author mailed the [manuscript] of her new book to the publisher before it was printed.|a handwritten or typed copy of a book or paper before it is printed|2
+l47|manual|Raking leaves, washing dishes, and carrying boxes are all kinds of [manual] work you do with your hands.|worked or done by hand|2
+l47|manipulate|With the remote control, Jamal could [manipulate] the robot's arm to pick up a block and set it down gently.|to move or control something skillfully, often with the hands|3
+l47|maneuver|The driver had to [maneuver] the big bus slowly around the parked cars on the narrow street.|to move or steer something carefully and with skill|3
+l47|manuscript|At the museum, we saw an old [manuscript] that monks had written by hand with feather pens and colorful ink.|a handwritten or typed copy of a book or paper before it is printed|3
+l47|manufacture|Workers at the plant [manufacture] crayons by melting wax, adding color, and pouring it into molds by the millions.|to make things in large amounts, usually in a factory|3
+l47|manipulate|Babies learn by trying to [manipulate] their toys, twisting, squeezing, and turning them over in their tiny hands.|to move or control something skillfully, often with the hands|4
+l47|maneuver|To get the kayak through the rocky rapids, the guide had to [maneuver] it left and right with quick strokes of her paddle.|to move or steer something carefully and with skill|4
+l47|manufacturer|When the tablet's screen stopped working after one week, we mailed it back to its [manufacturer] for a free replacement.|a company that makes products|4
+l47|manicurist|The [manicurist] filed each of Grandma's nails into a smooth curve and then brushed on two coats of pink polish.|a person whose job is caring for people's hands and nails|4
+l47|manipulate|The ad tried to [manipulate] kids into begging for the toy by making it look much bigger than it really was.|to control or influence someone in a sneaky way|5
+l47|manually|When the computers stopped working, the librarians checked out books [manually], writing each title and name on a paper list.|by hand instead of by machine|5
+l47|maneuver|On the final lap, the racer pulled off a clever [maneuver], slipping between two cars to take the lead.|a skillful move|5
+l47|emancipate|In history class, we read about people who worked to [emancipate] enslaved people and set them free from the control of others.|to set free from the control of others|5
+l48|cent|One penny is worth one [cent], and it takes a hundred of them to make a dollar.|one hundredth of a dollar|1
+l48|century|A [century] is a very long time: one hundred years, longer than most people live.|a period of one hundred years|1
+l48|percent|Lena got every question right on her spelling quiz, so her score was one hundred [percent].|out of every hundred|1
+l48|centipede|The [centipede] crawled across the garden path on so many tiny legs that I couldn't count them all.|a small crawling animal with a long body and many legs|1
+l48|century|Our school had a big birthday party when it turned one hundred years old, a full [century] since it first opened.|a period of one hundred years|2
+l48|centimeter|Each tiny mark on my ruler is one [centimeter], and one hundred of them make a meter.|a unit of length; one hundred of them make a meter|2
+l48|percent|The weather report said there was a ninety [percent] chance of rain, so we were almost sure it would pour.|out of every hundred|2
+l48|cent|The eraser cost 99 cents, just one [cent] less than a whole dollar.|one hundredth of a dollar|2
+l48|percentage|Out of the 100 kids in fourth grade, 60 picked pizza as their favorite lunch, so pizza got the biggest [percentage] of the votes.|a part of a whole, counted out of one hundred|3
+l48|centennial|The town's [centennial] parade celebrated exactly one hundred years since the first families settled by the river.|a celebration of one hundred years|3
+l48|century|Some giant tortoises live for more than a [century], so a tortoise hatched today could still be alive one hundred years from now.|a period of one hundred years|3
+l48|percent|Only about three [percent] of the water on Earth is fresh; the other ninety-seven out of every hundred drops are salty.|out of every hundred|3
+l48|centenarian|Great-Grandma Rose became a [centenarian] this spring, and her birthday cake needed one hundred candles!|a person who is one hundred years old or older|4
+l48|bicentennial|The United States celebrated its [bicentennial] in 1976, two hundred years after it declared independence in 1776.|a celebration of two hundred years|4
+l48|percentage|Even though our team lost two games, we won a high [percentage] of our matches, about ninety out of every hundred.|a part of a whole, counted out of one hundred|4
+l48|centennial|The national park held a [centennial] festival with old-time music and a giant cake shaped like the number 100.|a celebration of one hundred years|4
+l48|centigrade|On the [centigrade] scale, water freezes at zero degrees and boils at one hundred, so the space between is split into a hundred steps.|a temperature scale with one hundred degrees between freezing and boiling water|5
+l48|centenarian|Thanks to healthy meals and daily walks, Mr. Ito lived to 103 and was the oldest [centenarian] in town.|a person who is one hundred years old or older|5
+l48|bicentennial|The old stone bridge was finished in 1826, so in 2026 the city held a [bicentennial] festival to honor its long life.|a celebration of two hundred years|5
+l48|century|The giant oak in the park has stood for more than a [century], since long before anyone's great-grandparents were born.|a period of one hundred years|5
+g44|bibliophile|My big sister is a true [bibliophile]: she loves books so much that she reads every night and visits the library each week.|a person who loves books|1
+g44|philosophy|In [philosophy] club, we talk about big questions like “What makes a good friend?” and “What is fair?”|the study of big questions about life, truth, and right and wrong|1
+g44|philanthropist|The kind [philanthropist] loved helping people, so she gave money to build a new playground for the whole town.|a person who gives time or money to help other people|1
+g44|philosopher|A [philosopher] is a person who loves to think about big questions, like what is true and what is right.|a person who thinks deeply about big questions|1
+g44|philanthropist|The [philanthropist] gave a huge gift of money to the children's hospital because she loved helping people she had never met.|a person who gives time or money to help other people|2
+g44|philharmonic|We went to hear the city [philharmonic], a big orchestra with violins, flutes, and drums all playing together.|a large orchestra that plays classical music|2
+g44|bibliophile|Grandpa is such a [bibliophile] that his house has shelves of books in every single room, even the kitchen.|a person who loves books|2
+g44|philanthropy|Through [philanthropy], the family gave money each year to help animal shelters and food banks.|giving time or money to help other people|2
+g44|philosopher|The ancient Greek [philosopher] spent his days asking people questions about what it means to live a good life.|a person who thinks deeply about big questions|3
+g44|philosophical|After the movie, Zoe got [philosophical] and wondered aloud whether robots could ever really have feelings.|thinking deeply about big questions|3
+g44|philanthropist|Because a local [philanthropist] paid for new laptops, every student at our school can now take one home.|a person who gives time or money to help other people|3
+g44|philosophy|Grandma's [philosophy] is simple: be kind, work hard, and always share your snacks.|a set of beliefs about how to live|3
+g44|philodendron|The [philodendron] in our classroom loves to climb, so its leafy vines have crept all the way up the bookshelf toward the window.|a leafy houseplant whose vines like to climb|4
+g44|philanthropy|Her [philanthropy] didn't make her rich; instead, she spent her savings building wells so faraway villages could have clean water.|giving time or money to help other people|4
+g44|philharmonic|The [philharmonic] filled the concert hall with music from more than eighty players, each one following the conductor.|a large orchestra that plays classical music|4
+g44|philosophical|Instead of answering quickly, Dev gave a [philosophical] reply, asking what “fair” even means before deciding who should get the last cookie.|thinking deeply about big questions|4
+g44|hydrophilic|Paper towels are [hydrophilic], so they soak up a spill quickly, while a raincoat's slick surface makes water bead up and roll off.|attracted to water and quick to soak it up|5
+g44|audiophile|My uncle is an [audiophile] who saves up for the best speakers, because he wants every note of his favorite songs to sound perfect.|a person who loves high-quality sound|5
+g44|philanthropic|The club's [philanthropic] project raised money to buy warm coats for families who couldn't afford them.|generous; helping others with gifts of time or money|5
+g44|philosopher|Like a true [philosopher], Ava refused to accept an answer until she had questioned it from every side.|a person who thinks deeply about big questions|5
+g45|polygon|A triangle, a square, and a hexagon are each a [polygon], a flat shape with straight sides.|a flat, closed shape with three or more straight sides|1
+g45|polyester|My soccer jersey is made of [polyester], a stretchy fabric made from plastic that dries fast.|a strong, stretchy fabric made from plastic|1
+g45|polygon|For art class, we cut out a red [polygon] with eight straight sides to make a stop sign.|a flat, closed shape with three or more straight sides|1
+g45|polyhedron|A cube is a [polyhedron], a solid shape with many flat faces.|a solid shape with many flat faces|1
+g45|polyglot|Mr. Diaz is a [polyglot] who can speak five languages: English, Spanish, French, Arabic, and Chinese.|a person who speaks many languages|2
+g45|polyhedron|The pyramid on our math worksheet is a [polyhedron] because it is a solid with five flat faces.|a solid shape with many flat faces|2
+g45|polygon|Ms. Lee asked us to draw any [polygon] we liked, as long as every side was a straight line and the shape was closed.|a flat, closed shape with three or more straight sides|2
+g45|polyester|This jacket is soft cotton on the inside but [polyester] on the outside, a slick plastic fabric that keeps out the rain.|a strong, stretchy fabric made from plastic|2
+g45|polysyllabic|“Cat” has just one syllable, but “hippopotamus” is [polysyllabic], with five syllables to clap out.|having many syllables|3
+g45|polychrome|The museum's [polychrome] vase was painted in red, blue, gold, and green, unlike the plain white one beside it.|having many colors|3
+g45|polyglot|Because she grew up in three different countries, Amira became a [polyglot] who switches languages without thinking.|a person who speaks many languages|3
+g45|polyhedron|Each game die is a [polyhedron]; the twenty-sided one has the most flat faces of all.|a solid shape with many flat faces|3
+g45|polynomial|In algebra, an expression like 3x + 2y - 5 is a [polynomial] because it is made of several terms added or subtracted together.|a math expression made of several terms added or subtracted|4
+g45|polyp|Each coral [polyp] is a tiny tube-shaped animal with many little arms waving around its mouth to catch food.|a tiny tube-shaped sea animal with many waving arms|4
+g45|polygraph|The science museum had a [polygraph] exhibit, a machine that tracked many body signals at once, like your heartbeat, breathing, and sweat.|a machine that records many body signals at the same time|4
+g45|polygon|A circle is not a [polygon], because it has no straight sides and no corners at all.|a flat, closed shape with three or more straight sides|4
+g45|polymer|Plastic is a [polymer], made of huge molecules built from many small pieces linked together in long chains.|a substance made of many small units joined in long chains|5
+g45|polysyllabic|The spelling bee's final words were long and [polysyllabic], like “encyclopedia” and “onomatopoeia.”|having many syllables|5
+g45|polychrome|Instead of using a single shade, the artist chose a [polychrome] design, with stripes of every color in the rainbow.|having many colors|5
+g45|polyglot|Visitors from all over the world asked the tour guide for help, and the [polyglot] answered each of them in their own language.|a person who speaks many languages|5
+g46|monochrome|The old movie was in [monochrome], so everything on the screen was black, white, and gray, with no other colors.|in only one color, or shades of one color|1
+g46|monochromatic|Ella's outfit was [monochromatic]: a blue shirt, blue pants, and blue shoes, all in shades of just one color.|using only one color, in lighter and darker shades|1
+g46|monochrome|Leo painted a [monochrome] picture using only one color, green, in light and dark shades.|in only one color, or shades of one color|1
+g46|chromatic|Our art teacher said [chromatic] colors are the bright ones, like red, blue, and yellow, not gray, black, or white.|having bright colors|1
+g46|chromosome|Each [chromosome] in your cells is like a tiny instruction book that helps decide things like what color your eyes will be.|a tiny threadlike part of a cell that carries genes|2
+g46|monochromatic|The bedroom was [monochromatic], painted in pale green, mint green, and dark green, with no other colors.|using only one color, in lighter and darker shades|2
+g46|polychromatic|Unlike the plain gray rock next to it, the [polychromatic] gem flashed red, green, and violet in the sunlight.|having many colors|2
+g46|chromatic|The paint store put the [chromatic] paints, like red, orange, and purple, on one wall and the grays and whites on another.|having bright colors|2
+g46|chromatography|In science class, we tried [chromatography]: we dipped a coffee filter with a black marker dot in water and watched the ink split into blue, purple, and yellow.|a way to separate a mixture, like ink, into its different colors|3
+g46|chromosome|Scientists stained each [chromosome] with a special dye so the tiny threads inside the cell would show up under the microscope.|a tiny threadlike part of a cell that carries genes|3
+g46|achromatic|Black, white, and gray are [achromatic] colors because they have no bright hue at all.|without color, like black, white, and gray|3
+g46|monochrome|The photographer switched her camera to [monochrome] mode, and suddenly the bright garden looked like an old black-and-white picture.|in only one color, or shades of one color|3
+g46|heterochromia|Our husky has [heterochromia], so one of her eyes is blue and the other is brown.|having eyes of two different colors|4
+g46|achromatic|While the rest of the playground was bright red and yellow, the new bench was [achromatic], just plain gray concrete.|without color, like black, white, and gray|4
+g46|chromatography|To find out which pen wrote the secret note, the class used [chromatography], letting water carry each ink up a paper strip until its hidden colors separated.|a way to separate a mixture, like ink, into its different colors|4
+g46|polychromatic|A soap bubble is [polychromatic]; as it floats, swirls of pink, gold, and blue slide across its surface.|having many colors|4
+g46|chromosome|Every [chromosome] pair in your body has one half from your mom and one half from your dad, which is why you might have your dad's curly hair and your mom's nose.|a tiny threadlike part of a cell that carries genes|5
+g46|chromatic|The pianist played a [chromatic] scale, pressing every white and black key in a row, one tiny step at a time.|in music, moving through every note, including the sharps and flats in between|5
+g46|monochromatic|Instead of using a rainbow of paints, the artist made a [monochromatic] seascape from a single tube of blue, mixed with white and black.|using only one color, in lighter and darker shades|5
+g46|achromatic|The snowy field under the cloudy sky looked [achromatic], a world of whites and grays without a single bright hue.|without color, like black, white, and gray|5
 `;
 const CTX=CRAW.trim().split("\n").map((l,i)=>{const [id,w,sent,def,lv]=l.split("|");return{sid:'c'+i,c:BYID[id],w,sent,def:xdef(w,def),lv:Math.min(5,Math.max(1,+lv||3))}}).filter(x=>x.c&&x.sent&&x.sent.includes('['+x.w+']'));
 /* Level 6 (Master): one hidden-clue sentence per card, plus two-word sentences.
@@ -15688,6 +16933,70 @@ g43|electrician|Before the new lights could go up, the [electrician] ran fresh w
 g43|electromagnetic|Radio waves, microwaves, and even the light you see are all kinds of [electromagnetic] waves, energy made of electric and magnetic forces.|having to do with both electricity and magnetism
 g43|electronics|Mateo loves [electronics]; he takes apart old radios to study their circuit boards and tiny wires.|devices with tiny electric parts like chips and circuits, or the study of them
 g43|electrifying|The final seconds of the game were [electrifying]: the crowd held its breath, then exploded with noise when the last shot swished in.|very exciting, as if charged with electricity
+a66|circumnavigated|After 312 days at sea, the sailor's small boat glided back into the very harbor it had left, heading in from the opposite direction: she had [circumnavigated] the globe.|sailed all the way around
+a66|circumference|Leo looped the measuring tape around the giant redwood's trunk until its two ends met, then read the number: forty feet was the tree's [circumference].|the distance around something round
+a66|circumvent|Our dog could not dig under the new fence, so she trotted to the far corner of the yard and slipped out through the gap by the gate, finding a way to [circumvent] it.|to get around something that blocks you
+a66|circumscribed|Using a compass, Priya drew a circle that touched all four corners of the square, so the square sat perfectly inside the [circumscribed] circle.|drawn around another shape so it touches its corners
+a67|extravagant|When Marco got his allowance, he spent every cent in one afternoon on a giant sundae with twelve toppings, gold sprinkles, and a sparkler on top, a truly [extravagant] treat.|going far beyond what is needed or sensible
+a67|extracurricular|The final bell rang, but the school stayed busy: the drama kids rehearsed on stage while the debate team practiced in the library, all part of the [extracurricular] program.|done outside of regular school classes
+a67|extraterrestrials|Night after night, the huge radio dish swept the sky, hoping to catch a message sent by [extraterrestrials] living on some distant world.|beings from beyond Earth
+a67|extraordinary|Out of the whole garden, one sunflower grew taller than the garage roof, and people drove over from three towns away just to take its picture; it was [extraordinary].|far beyond what is usual; amazing
+a68|omnivorous|In one night, the opossum in our backyard munched fallen apples, crunched a few beetles, and slurped up a snail, a perfectly [omnivorous] feast.|eating both plants and animals
+a68|omnipresent|At school, at the grocery store, and even at the park, Lily heard the same catchy song all week long; it was [omnipresent].|present everywhere at the same time
+a68|omniscient|Grandma always knew who left the cookie jar open, who forgot to feed the cat, and who hid the broccoli under a napkin; to us kids she seemed [omniscient].|knowing everything
+a68|omnidirectional|The speaker in the middle of the room sounded just as loud to the kids behind it and beside it as to the kids in front, because it was [omnidirectional].|sending or picking up sound in all directions
+a69|retrograde|Every night for a month, the tiny dot of Mars in Ella's star photos crept a little farther east, until suddenly it began sliding back the way it had come, in [retrograde] motion.|moving or turning backward
+a69|retroactive|When the town lowered the dog license fee in June, it mailed refund checks to everyone who had paid the higher price back in January, because the change was [retroactive].|applying back to an earlier time
+a69|retrospect|Ben spent all morning building a sandcastle right at the water's edge; by noon the tide had washed it away, and in [retrospect], he wished he had built it farther up the beach.|looking back on the past
+a69|retrofitted|The old wooden rowboat now has a quiet electric motor on its back and a small solar panel on its seat; Grandpa [retrofitted] it himself last spring.|given new parts added to something old
+a70|counterpart|At the robotics meet, our team captain shook hands with her [counterpart] from the other school, and then the two captains chose who would go first.|a person who has the same role in another group
+a70|counteroffer|The seller wanted forty dollars for the bike, so Theo made a [counteroffer] of thirty, and they finally settled on thirty-five.|an offer made in answer to someone else's offer
+a70|counterbalance|Each time the rowboat tipped toward Grandpa's side, Nora scooted to the far edge to [counterbalance] it.|to balance something with an equal weight on the other side
+a70|counterclockwise|Kai turned the wrench clockwise to tighten the bolt, but to loosen it, he had to turn it [counterclockwise].|turning the opposite way from the way a clock's hands move
+a71|immunize|Every fall, the school nurse sets up a clinic to [immunize] students with flu shots, and afterward far fewer kids miss school in the winter.|to protect someone from a disease, usually with a shot
+a71|alphabetize|Leo had to [alphabetize] the spelling cards, so apple went first, then banana, then cherry.|to put things in ABC order
+a71|harmonize|The choir practiced for weeks until their voices could [harmonize], each person singing a different note that blended into one sweet sound.|to sing or play different notes that sound good together
+a71|energize|A short dance break in the middle of the long test day seemed to [energize] the whole class, and everyone came back bouncing and ready to work.|to give energy to someone
+a72|sportsmanship|After the final whistle, the losing team lined up to clap for the winners, and the referee praised them for their [sportsmanship].|fair and kind behavior when playing games or sports
+a72|ownership|When the class garden got weedy, Jamal took [ownership] of the problem, coming in early every morning to pull the weeds himself.|taking care of something as if it were your own job
+a72|membership|The chess club's [membership] doubled this year, growing from ten students to twenty.|all the people who belong to a group
+a72|citizenship|On the day Grandma took her oath at the courthouse, she proudly waved a small flag, because after forty years in the country her [citizenship] was finally official.|the state of being a citizen of a country
+a73|homeward|When the dismissal bell rang, the buses filled up and rolled out of the parking lot, carrying every student [homeward] for the weekend.|toward home
+a73|outward|From the center of the sunflower, the seeds spiral [outward] in a beautiful pattern until they reach the yellow petals.|toward the outside; away from the center
+a73|forward|On the crowded bus, everyone lurched [forward] in their seats when the driver suddenly hit the brakes.|toward the front; ahead
+a73|backwards|Sara put her sweater on [backwards], and everyone could see the tag sticking out right under her chin.|with the back part in front
+l44|aquarist|Every morning before visitors arrive, the [aquarist] tests the water in each tank, feeds the jellyfish, and checks that the coral is growing.|a person who takes care of the animals and tanks at an aquarium
+l44|aquatics|The camp's [aquatics] director taught swimming lessons in the morning and ran water polo games in the afternoon.|sports and activities done in water
+l44|aquifer|After years of heavy pumping for farms, the [aquifer] under the valley sank so low that people had to drill their wells twice as deep.|a layer of underground rock or sand that holds water
+l44|aqueduct|The ancient [aqueduct] sloped downhill so gently, only a few inches every mile, that gravity alone kept water flowing to the city fountains.|a channel or bridge built to carry water a long way
+l45|terrain|The jeep bounced over sharp rocks, sank into soft sand, and then climbed a steep, muddy slope; the driver said this was the toughest [terrain] in the whole park.|the kind of land in an area, such as hills, rocks, or sand
+l45|extraterrestrial|The astronauts packed boxes of Moon rocks for the trip home, so scientists on Earth could study [extraterrestrial] rocks up close.|coming from beyond Earth
+l45|terrarium|Every few weeks, Priya lifts the glass lid of her [terrarium], trims the moss, and adds a few drops of water to the soil around the tiny ferns.|a glass container with soil and plants where small land animals or plants live
+l45|territorial|Each spring, the [territorial] blackbird perched on the tallest reed and puffed out his red shoulders whenever another male flew too close to his patch of marsh.|protective of the area it thinks of as its own
+l46|spiracle|A caterpillar has no nose; instead, each little [spiracle] along its side lets air flow into tubes inside its body.|one of the tiny breathing holes on the side of an insect
+l46|expired|The lifeguard checked the bottom of the sunscreen bottle, saw that its date had already passed, and dropped the [expired] bottle in the bin.|past the date when it can safely be used
+l46|dispirited|After rain canceled the field trip for the third time, the whole class sat [dispirited], slumped at their desks with no one saying a word.|sad and without hope or energy
+l46|spirited|Grandma's [spirited] dance at the party had everyone laughing and clapping as she twirled across the floor.|full of energy and liveliness
+l47|manuscript|Before printing presses, every copy of a book was a [manuscript], so a single book could take a scribe months of careful pen work.|a handwritten or typed copy of a book or paper before it is printed
+l47|manipulate|Hidden behind the curtain, the puppeteer used thin rods to [manipulate] the puppet's arms so it waved to the audience.|to move or control something skillfully, often with the hands
+l47|maneuverable|The tiny sailboat was so [maneuverable] that Ella could zip around the buoys and turn sharply without slowing down.|easy to steer and move
+l47|manicured|The park had perfectly [manicured] lawns, trimmed so neatly that every blade of grass looked the same height.|trimmed and cared for very neatly
+l48|century|The time capsule buried under the school in 1926 was opened this fall, a [century] later, revealing letters from kids who would now be great-great-grandparents.|a period of one hundred years
+l48|centennial|All week during the town's [centennial], the bakery sold cakes shaped like the number 100, and photos from 1926 hung in every shop window.|a celebration of one hundred years
+l48|percentile|Jayden's height was in the ninetieth [percentile], which meant he was taller than ninety out of every hundred kids his age.|a rank that shows how many out of every hundred are below you
+l48|centimeter|Mia's bean sprout grew about one [centimeter] a day, so after a week it was roughly as long as her pinky finger.|a unit of length; one hundred of them make a meter
+g44|bibliophile|Lucy brought a novel to soccer practice, read under the covers with a flashlight, and asked for bookstore gift cards every birthday; she was a born [bibliophile].|a person who loves books
+g44|philanthropist|Years after selling his bakery, the [philanthropist] quietly paid off the school lunch bills of every family in the district.|a person who gives time or money to help other people
+g44|philharmonic|Tickets to hear the [philharmonic] sold out fast, and when the cellos and trumpets swelled together, the whole audience held its breath.|a large orchestra that plays classical music
+g44|philosophical|Staring up at the stars during the campout, Leo grew quiet and [philosophical], wondering how big the universe is and whether it ever ends.|thinking deeply about big questions
+g45|polygon|Jamal traced the edges of the shape and counted six straight sides that met in a closed loop, so he labeled it a [polygon].|a flat, closed shape with three or more straight sides
+g45|polyglot|At the airport, the helpful agent said hello in Spanish, gave directions in Japanese, and told a joke in Italian; she was a true [polyglot].|a person who speaks many languages
+g45|polyhedron|Priya folded paper into a solid with twelve flat faces, then covered her sparkly [polyhedron] with glitter for the math fair.|a solid shape with many flat faces
+g45|polymer|When we mixed glue with a special solution, the tiny molecules linked into long chains and turned into a stretchy [polymer] we called slime.|a substance made of many small units joined in long chains
+g46|chromatography|When Rosa dripped water onto the green marker line, the ink slowly crept up the paper and split into yellow and blue bands; her [chromatography] experiment worked.|a way to separate a mixture, like ink, into its different colors
+g46|chromosome|Under the microscope, the dyed [chromosome] looked like a dark X, tightly packed with the genes that pass traits from parents to children.|a tiny threadlike part of a cell that carries genes
+g46|heterochromia|The puppy blinked up at us with one sky-blue eye and one chocolate-brown eye, a striking case of [heterochromia].|having eyes of two different colors
+g46|monochromatic|Every part of the winter display, from the walls to the chairs to the lamps, glowed in different shades of icy blue, a perfectly [monochromatic] design.|using only one color, in lighter and darker shades
 `;
 const C6PRAW=`
 a8|misinterpreted|understood something in the wrong way|a43|offended|hurt or upset by something someone said or did|Lily [misinterpreted] her friend's joke as an insult and felt [offended] all afternoon, until she learned he had meant it kindly.
@@ -15776,6 +17085,38 @@ g36|octopus|a sea animal with a soft body and eight long arms|a36|curiosity|a st
 l43|decade|a span of ten years|a48|progress|moving forward or getting better at something|In just one [decade], the town made remarkable [progress], growing from a dirt crossroads into a busy village with a library, a school, and a park.
 g43|electrician|a person whose job is to fix and install electric wiring|g11|hydroelectric|making electricity from the force of moving water|The [electrician] explained that every outlet in our town gets its power from the [hydroelectric] dam, where rushing river water turns giant turbines.
 g43|electronic|using tiny electric parts, like computer chips|g6|microscopic|so tiny that you need a strong lens to see it|Inside the [electronic] tablet are chips covered with [microscopic] switches, each far too small to see without a powerful lens.
+a66|circumference|the distance around a circle|g15|diameter|a straight line across a circle through its center|The [diameter] of the bike wheel, the straight line across its middle, is two feet, so its [circumference], the distance around the tire, is a little more than six feet.
+a66|circumpolar|circling around the North or South Pole|g4|telescope|a tool that makes faraway things look closer|Through her [telescope], which made faraway stars look close, Ana watched the [circumpolar] stars spin slowly around the North Star without ever setting.
+a67|extraterrestrial|from beyond or outside Earth|g4|telescope|a tool that makes faraway things look closer|Scientists use a huge [telescope] to see far-off planets clearly, hoping to spot signs of [extraterrestrial] life, living things from beyond Earth.
+a67|extracurricular|done outside of regular school classes|g10|biology|the study of living things|Ava loves [biology], the study of living things, so much that she joined an [extracurricular] garden club that meets after school to grow plants and raise butterflies.
+a68|omnivore|an animal that eats both plants and meat|g10|biologist|a scientist who studies living things|The [biologist], who studies wild animals, watched the bear eat berries in the morning and catch salmon at night, proving it is an [omnivore].
+a68|omnidirectional|working in all directions|g2|microphone|a device that picks up sound to record it or make it louder|We placed the [omnidirectional] [microphone] in the center of the table so it could catch voices from every side and make them loud enough for the whole room.
+a69|retrorocket|a small rocket that fires against a spacecraft's motion to slow it down|g22|astronaut|a person trained to travel in space|The [astronaut], who had spent six months living in space, felt a gentle push as the capsule's [retrorocket] fired against its fall to slow the landing.
+a69|retrofit|to add new parts to something old|g16|thermostat|a device that senses temperature and controls heating or cooling|The school plans to [retrofit] its old heating system with a smart [thermostat], a device that senses heat and keeps each classroom at the right temperature.
+a70|counterclockwise|turning the opposite way from the way a clock's hands move|g23|cyclone|a huge storm with winds that spin in a circle|In the Northern Hemisphere, the winds of a [cyclone] swirl [counterclockwise] around the calm eye of the storm, spinning the opposite way from a clock's hands.
+a70|counteract|to work against something and weaken its effect|a31|antibiotic|a medicine that kills germs that make you sick|The doctor gave Sam an [antibiotic] to [counteract] the infection, killing the germs that made his throat so sore.
+a71|memorize|to learn something so well that you can remember it exactly|l8|script|the written words that actors say in a play|Each actor had to [memorize] every line of the [script] before opening night, because no one was allowed to read from paper on stage.
+a71|visualize|to picture something in your mind|g3|photograph|a picture taken with a camera|Even without a [photograph] to look at, Grandma could [visualize] her childhood home, picturing every room in her mind.
+a72|friendship|the state of being friends|a46|childhood|the time when a person is a child|Their [friendship] began in early [childhood], back when they were both four years old and building sandcastles together.
+a72|championship|the title of being the winner of a contest|a39|cyclist|a person who rides a bicycle|The fastest [cyclist] in the state pedaled across the finish line first and won the [championship], earning the title of best rider.
+a73|upward|toward a higher place|g3|photosynthesis|the way plants use sunlight to make their own food|A plant's stem grows [upward] toward the sun because its leaves need bright light for [photosynthesis], turning sunlight into food.
+a73|downward|toward a lower place|g16|thermometer|a tool that measures how hot or cold something is|On the coldest night of the year, the red line in the [thermometer] crept [downward] until it dropped below zero.
+l44|aquarium|a glass tank of water where fish and other water animals live|g16|thermometer|a tool that measures how hot or cold something is|The tropical fish [aquarium] has a small [thermometer] stuck to the glass, so we can check that the water stays warm enough.
+l44|aquatic|living or growing in water|g10|biologist|a scientist who studies living things|The [biologist] spent the summer counting frogs, fish, and other [aquatic] animals that live in the lake.
+l45|terrain|the kind of land in an area, such as hills, rocks, or sand|g14|geologist|a scientist who studies rocks and the earth|The [geologist] studied the steep, rocky [terrain] of the canyon to learn how the river had cut through layers of earth over millions of years.
+l45|territory|an area of land that belongs to a country but is not a state|g14|geography|the study of the earth's land, places, and maps|In [geography] class, we traced a map that showed how each [territory] in the West later became a state.
+l46|respiration|breathing; taking in oxygen and letting out used air|g8|stethoscope|a tool doctors use to listen to your heart and lungs|The doctor pressed a cold [stethoscope] to my chest to hear my heart and check my [respiration] as I took slow, deep breaths.
+l46|perspire|to sweat|g16|thermostat|a device that controls the temperature of a room|When someone set the classroom [thermostat] too high, we all began to [perspire] and fan ourselves with our papers.
+l47|manual|worked or done by hand|g5|automatic|working by itself without a person controlling it|Most new cars shift gears with an [automatic] transmission, but Grandpa's old truck has a [manual] one that he shifts by hand with a lever.
+l47|manufacture|to make things in large amounts, usually in a factory|l5|construct|to build|Workers [manufacture] steel beams in a factory, and then trucks carry them to the river, where crews use them to [construct] a new bridge.
+l48|century|a period of one hundred years|l43|decade|a period of ten years|The museum's toy timeline covered a whole [century], split into ten sections, one for each [decade].
+l48|percent|out of every hundred|a51|bilingual|able to speak two languages|On the class survey, about sixty [percent] of us said we were [bilingual], able to speak both English and another language at home.
+g44|philosopher|a person who thinks deeply about big questions|g20|psychology|the study of the mind and how people think and act|A [philosopher] asks what makes a life good, while [psychology] studies how the mind actually works when we feel happy or sad.
+g44|philanthropist|a person who gives time or money to help other people|g4|telescope|a tool that makes faraway things look closer|The [philanthropist] donated a huge [telescope] to our school so students could see faraway planets up close.
+g45|polygon|a flat, closed shape with three or more straight sides|g33|pentagon|a flat shape with five sides|A [pentagon] has five sides and an octagon has eight, but each one is a [polygon] because its sides are straight.
+g45|polyglot|a person who speaks many languages|g2|microphone|a device that makes your voice louder or records sound|The [polyglot] spoke into the [microphone] in four different languages so everyone in the giant crowd could hear her welcome.
+g46|monochrome|in only one color, or shades of one color|g3|photograph|a picture made with a camera|The old [photograph] on Grandma's wall is [monochrome], showing her as a little girl in shades of black, white, and gray.
+g46|chromosome|a tiny threadlike part of a cell that carries genes|g6|microscope|a tool that makes tiny things look much bigger|We could only see the [chromosome] through a powerful [microscope], because the dyed thread was far too tiny for our eyes.
 `;
 const CTX6=C6RAW.trim().split("\n").map((l,i)=>{const [id,w,sent,def]=l.split("|");return{sid:'s'+i,c:BYID[id],w,sent,def:xdef(w,def),lv:6}}).filter(x=>x.c&&x.sent&&x.sent.includes('['+x.w+']'));
 const CTX6P=C6PRAW.trim().split("\n").map((l,i)=>{const [id,w,def,id2,w2,def2,sent]=l.split("|");return{sid:'p'+i+'a',sid2:'p'+i+'b',c:BYID[id],w,def:xdef(w,def),c2:BYID[id2],w2,def2:xdef(w2,def2),sent,lv:6,pair:true}}).filter(x=>x.c&&x.c2&&x.sent&&x.sent.includes('['+x.w+']')&&x.sent.includes('['+x.w2+']'));
