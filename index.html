@@ -1209,6 +1209,24 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 .scard.sel{border:2px solid var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 22%,transparent),0 2px 8px rgba(20,30,50,.1)}
 .scard.locked{box-shadow:none}
 .wmap.simple .rd-edge{stroke:color-mix(in srgb,var(--roadedge) 70%,transparent)}
+/* flashcards-first gate */
+.fcgate .fg-card{text-align:center;align-items:center;gap:10px;padding:22px 18px}
+.fcgate .fg-ico{font-size:2.6rem;line-height:1}
+.fcgate h2{margin:0;font-family:var(--display);font-size:1.45rem}
+.fcgate .fg-sub{margin:0;color:var(--muted);max-width:30em}
+.fg-bar,.fcs-bar{display:block;width:100%;max-width:340px;height:12px;border-radius:999px;background:var(--line);overflow:hidden}
+.fg-bar i,.fcs-bar i{display:block;height:100%;background:var(--good,#2F9E44);border-radius:999px;transition:width .3s}
+.fcgate .fg-n{margin:0}
+.fcgate .fg-chips{justify-content:center;max-width:34em}
+.fcgate .chip.todo{opacity:.45}.fcgate .chip.half{opacity:.75;outline:2px dashed color-mix(in srgb,var(--ink) 30%,transparent);outline-offset:1px}
+.fcgate .chip.ok{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ink) 35%,transparent)}
+.fcstrip{display:flex;flex-direction:column;gap:6px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--good,#2F9E44) 10%,var(--card));border:1.5px solid color-mix(in srgb,var(--good,#2F9E44) 35%,var(--line))}
+.fcstrip .fcs-txt{font-size:.88rem}.fcstrip .fcs-bar{max-width:none;height:8px}
+.modetabs button.gated{position:relative}
+.modetabs button.gated .ti{opacity:.4}
+.modetabs button.gated::after{content:"";position:absolute;top:5px;right:9px;width:14px;height:14px;border-radius:50%;background:var(--muted) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2' fill='white'/%3E%3Cpath d='M9 11V8a3 3 0 0 1 6 0v3'/%3E%3C/svg%3E") center/9px no-repeat}
+.fcdone{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:60;transform:translate(-50%,20px);opacity:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--ink);color:var(--card);padding:10px 18px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:opacity .25s,transform .25s;text-align:center;max-width:calc(100vw - 32px)}
+.fcdone.show{opacity:1;transform:translate(-50%,0)}.fcdone span{font-size:.86rem;opacity:.9}
 /* ---------- Phones: fit each activity on one screen ---------- */
 .lvtoggle{display:none}
 @media (max-width:700px){
@@ -1378,6 +1396,7 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
     </div>
 
     <section id="home"><div id="homeBody"></div></section>
+    <section id="fcGate" class="fcgate" hidden aria-live="polite"></section>
     <section id="cards" hidden>
       <div id="cardsTop" class="cardstop"></div>
       <div id="cardArea">
@@ -1752,7 +1771,7 @@ function readyHTML(w,compact){const got=actsFor(w),n=Math.min(got.length,READY);
     <span class="rdots" aria-label="${n} of ${READY} done">${dots}<em>${n} of ${READY} done</em></span>
     ${got.length?`<span class="rgot">${got.map(k=>`<span>✓ ${ACTN[k]||k}</span>`).join('')}</span>`:''}
     <details class="rrule"><summary>What counts?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}</details></div></div>`}
-function startCheckin(w){setMode('quiz',true);startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})}
+function startCheckin(w){fcBypass=true;try{setMode('quiz',true)}finally{fcBypass=false}startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})}
 const chosen=()=>{
   if(studyWeeks.length){const ids=new Set();studyWeeks.forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id))}
   if(selected)return BANK.filter(c=>selected.has(c.id));
@@ -1847,7 +1866,8 @@ function renderCardsTop(){
     if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">All weeks (${pool().length})</button>`}
   /* Top: one slim line. A ready check-in also gets a slim line; the progress card sits below the flashcards. */
   const ns=nextStepHTML('cards'),ready=ns.includes('class="nextstep');
-  let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
+  const fg=fcGate();let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
+  if(!fg.ok)top+=`<div class="fcstrip"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> week ${fg.w} cards. Flip every card to unlock the activities.</span><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
   if(ready){const fw=frontierWeek();top+=`<div class="nextstep slim"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><b>Week ${fw} check-in is ready!</b></div><button class="btn primary small ns-btn" data-checkin="${fw}">Take it →</button></div>`}
   el.innerHTML=top;
   const bot=$('cardsBottom');if(bot)bot.innerHTML=(ready?'':ns)+(note?`<p class="note">${esc(note)}</p>`:'');
@@ -1880,13 +1900,14 @@ function renderCard(){
     <div class="tchart" style="grid-template-columns:repeat(${n},1fr)">${c.cols.map(col=>`<div class="col">${col.map(w=>`<span>${hl(w,c)}</span>`).join('')}</div>`).join('')}</div>
     <div class="foot">${wkOf?`<span class="wktag">Week ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
   $('known').setAttribute('aria-pressed',known.has(c.id));
+  if(mode==='cards')setTimeout(()=>fcMark('f'),0);
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});
   try{const w=frontierWeek(),need=weekIds(w,PLAN[w-1].review),seen=new Set();for(const k in HIST.days)((HIST.days[k].cards||{}).ids||[]).forEach(i=>seen.add(i));if(need.every(i=>seen.has(i)))doneActivity('cards')}catch(e){}};
 $('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join(', ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
-$('flash').onclick=()=>{$('flash').classList.toggle('flipped');seenCard()};
+$('flash').onclick=()=>{$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
 $('prev').onclick=()=>{idx=(idx-1+deck.length)%deck.length;renderCard();seenCard()};
 $('shuffle').onclick=()=>{deck=shuf(deck);idx=0;renderCard()};
@@ -1960,7 +1981,28 @@ function results(){
 }
 
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
-function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;MODES.forEach(x=>{$(x).hidden=x!==m;$('tab-'+x).setAttribute('aria-selected',x===m)});
+/* ---------- Flashcards first: every card of the newest week, seen on both sides, before the activities ---------- */
+const FC_FREE=['cards','home','plan','progress'];let fcBypass=false;/* check-ins have their own gate on the Plan page */
+function fcSides(){const f=new Set(),b=new Set();for(const k in HIST.days){const x=HIST.days[k].fc;if(x){(x.f||[]).forEach(i=>f.add(i));(x.b||[]).forEach(i=>b.add(i))}}return{f,b}}
+function fcGate(){try{
+  const w=frontierWeek(),p=PLAN[w-1];if(canTeach||questDone()||!p||p.review)return{w,ok:true,ids:[],done:0};
+  const {f,b}=fcSides(),ids=p.ids,done=ids.filter(i=>f.has(i)&&b.has(i)).length;return{w,ids,f,b,done,ok:done>=ids.length}}catch(e){return{ok:true,ids:[],done:0}}}
+function fcMark(side){const c=deck[idx];if(!c||mode!=='cards')return;const {f,b}=fcSides();if((side==='f'?f:b).has(c.id))return;
+  const was=fcGate().ok;rec(d=>{const o=sub(d,'fc');o[side]=o[side]||[];if(!o[side].includes(c.id))o[side].push(c.id)});
+  const g=fcGate();updateFcTabs();try{renderCardsTop()}catch(e){}
+  if(!was&&g.ok){try{FX.play('win');FX.shower&&FX.shower()}catch(e){}fcUnlockedNote(g.w)}}
+function fcUnlockedNote(w){let el=$('fcDone');if(!el){el=document.createElement('div');el.id='fcDone';el.className='fcdone';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.innerHTML=`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200)}
+function updateFcTabs(){const g=fcGate();MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
+function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.ids.length,pct=n?Math.round(g.done/n*100):100;
+  el.innerHTML=`<div class="wcard fg-card"><div class="fg-ico" aria-hidden="true">🗂️</div><p class="hkick">Week ${g.w}</p><h2>First, study the flashcards</h2>
+    <p class="fg-sub">Look at <b>both sides</b> of every week ${g.w} card: the word part, then tap to flip and read what it means. Then all the activities open up.</p>
+    <div class="fg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${g.done}" aria-label="Cards studied on both sides"><i style="width:${pct}%"></i></div>
+    <p class="fg-n"><b>${g.done} of ${n}</b> cards studied on both sides</p>
+    <div class="chipset fg-chips">${g.ids.map(id=>{const c=BYID[id],both=g.f.has(id)&&g.b.has(id),half=!both&&(g.f.has(id)||g.b.has(id));return`<span class="chip c-${c.kind} ${both?'ok':half?'half':'todo'}" style="background:var(--fc)">${both?'✓ ':''}${esc(c.main)}</span>`}).join('')}</div>
+    <button class="btn primary big" id="fgGo">${g.done?'Keep going with the flashcards':'Go to the flashcards'} →</button></div>`;
+  $('fgGo').onclick=()=>{cardsAll=false;if(studyWeeks.length)setStudyWeeks([]);setMode('cards');deck=g.ids.map(i=>BYID[i]).filter(Boolean);const k=deck.findIndex(c=>!(g.f.has(c.id)&&g.b.has(c.id)));idx=k<0?0:k;renderCard();scrollTo({top:0})}}
+function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;const fcLocked=!fcBypass&&!FC_FREE.includes(m)&&!fcGate().ok;MODES.forEach(x=>{$(x).hidden=x!==m||fcLocked;$('tab-'+x).setAttribute('aria-selected',x===m)});if($('fcGate')){$('fcGate').hidden=!fcLocked;if(fcLocked)renderFcGate()}updateFcTabs();
   centerTab(m);document.body.classList.toggle('on-home',m==='home');document.body.classList.toggle('in-act',m!=='home');document.body.classList.toggle('no-study',m==='home'||m==='plan'||m==='progress');requestAnimationFrame(()=>{try{filterEdge()}catch(e){}});try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
