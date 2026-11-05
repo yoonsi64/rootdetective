@@ -1246,6 +1246,7 @@ body.shield:not(.can-copy)::after{content:"Root Detective";position:fixed;inset:
 .lvl.locked b{display:grid;place-items:center}.lvl.locked .slock{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .lvdesc.lvwarn{color:var(--bad);font-weight:700}
 .lvunlock{margin:0;font-weight:800;color:var(--good,#2F9E44);font-size:1.05rem}
+.lvlocked{margin:0;font-weight:800;color:var(--bad,#C92A2A);font-size:1rem}
 /* Home practice buttons show the same lock as the tabs */
 .hgame.gated .ti,.hgame.gated svg{opacity:.4}.hgame.gated span{color:var(--muted)}
 .hgame.gated::after{content:"";position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--muted) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'%3E%3Crect x='6' y='11' width='12' height='9' rx='2' fill='white'/%3E%3Cpath d='M9 11V8a3 3 0 0 1 6 0v3'/%3E%3C/svg%3E") center/11px no-repeat}
@@ -15795,9 +15796,17 @@ const CTX_PASS=7;
 function ctxWeek(){try{return questDone()?0:frontierWeek()||0}catch(e){return 0}}
 function ctxLevelBest(n,w=ctxWeek()){let b=-1;try{for(const k in HIST.days){const c=HIST.days[k].ctx||{};
   const v=w?((c.wk||{})[w]||{})[n]:((c.lv||{})[n]||{}).best;if(v!=null)b=Math.max(b,v)}}catch(e){}return b}
-/* passing a level also counts for every level below it, so students who already play higher levels keep them */
-function ctxUnlocked(n){if(n<=1||canTeach)return true;for(let m=n-1;m<=6;m++)if(ctxLevelBest(m)>=CTX_PASS)return true;return false}
-function ctxTopLevel(){let n=1;while(n<6&&ctxUnlocked(n+1))n++;return n}
+/* Highest open level this week. 7+ on a level opens the next one; CTX_DROP or less on a level locks it again
+   (back down one level), so nobody stays on Master without being able to answer it.
+   Saved per week as ctx.wk[week].t on the day it changes; the latest day wins. */
+const CTX_DROP=4;
+function ctxWeekTop(w=ctxWeek()){
+  const fromBest=get=>{let t=1;for(let m=1;m<=5;m++)if(get(m)>=CTX_PASS)t=Math.max(t,m+1);return t};
+  if(!w)return fromBest(n=>ctxLevelBest(n,0));
+  let t=null;try{Object.keys(HIST.days).sort().forEach(k=>{const x=(((HIST.days[k].ctx||{}).wk)||{})[w];if(x&&x.t!=null)t=x.t})}catch(e){}
+  return t!=null?t:fromBest(n=>ctxLevelBest(n,w))}
+function ctxUnlocked(n){return n<=1||canTeach||n<=ctxWeekTop()}
+function ctxTopLevel(){return canTeach?6:ctxWeekTop()}
 function ctxPool(){const ids=new Set(pool().map(c=>c.id));const xs=CTX.filter(x=>ids.has(x.c.id));
   $('cnote').textContent=xs.length?`${xs.length} sentences use the cards you're practicing.`:'No sentences use the chosen cards yet, so all sentences are used.';
   return xs.length?xs:CTX}
@@ -15955,20 +15964,21 @@ function renderContext(){
   });
 }
 function ctxResults(){
-  const wasNext=C.lev.n<6&&ctxUnlocked(C.lev.n+1),prevBest=ctxLevelBest(C.lev.n),W=ctxWeek();
+  const wasNext=C.lev.n<6&&ctxUnlocked(C.lev.n+1),prevBest=ctxLevelBest(C.lev.n),W=ctxWeek(),t0=W?ctxWeekTop(W):0;
+  let t1=t0;if(W&&!canTeach){if(C.score>=CTX_PASS&&C.lev.n<6)t1=Math.max(t1,C.lev.n+1);if(C.score<=CTX_DROP&&C.lev.n>1&&C.lev.n<=t1)t1=C.lev.n-1}
   rec(d=>{const o=sub(d,'ctx');bump(o,'r');const l=sub(sub(o,'lv'),C.lev.n);bump(l,'r');l.best=Math.max(l.best||0,C.score);
-    if(W){const k=sub(sub(o,'wk'),W);k[C.lev.n]=Math.max(k[C.lev.n]||0,C.score)}});
-  const s=C.score,L=C.lev.n,nb=s>prevBest;if(s>=7)doneActivity('context');
+    if(W){const k=sub(sub(o,'wk'),W);k[C.lev.n]=Math.max(k[C.lev.n]||0,C.score);k.t=t1}});
+  const s=C.score,L=C.lev.n,nb=s>prevBest,dropped=W&&t1<L;if(dropped){CL=t1;store.set('rd-ctx-level',CL)}if(s>=7)doneActivity('context');
   if(s>=7)setTimeout(celebrateWin,150);
-  const up=s>=CTX_PASS&&L<6, down=s<=4&&L>1, newly=up&&!wasNext;
+  const up=s>=CTX_PASS&&L<6, down=s<=CTX_DROP&&L>1, newly=up&&!wasNext;
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span>Level ${L} complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${CN}</p><p class="prompt">${s>=9?'Excellent detective work!':s>=7?'Nice job using the clues!':'Keep practicing. Look for clue words near the underlined word.'}${nb&&s>0?(W?` New best for level ${L} this week!`:' New best for this level!'):''}</p>
-    ${newly?`<p class="lvunlock">🔓 Level ${L+1} unlocked!</p>`:up?`<p class="note" style="margin:0">You're ready for a bigger challenge. Try level ${L+1}.</p>`:L<6&&!ctxUnlocked(L+1)?`<p class="note" style="margin:0">Score ${CTX_PASS} or more out of ${CN} to unlock level ${L+1}${W?' this week':''}.</p>`:down?`<p class="note" style="margin:0">Try level ${L-1} to warm up, then come back.</p>`:''}
+    ${dropped?`<p class="lvlocked">🔒 Level ${L} is locked again. Score ${CTX_PASS} or more out of ${CN} on level ${L-1} to open it.</p>`:newly?`<p class="lvunlock">🔓 Level ${L+1} unlocked!</p>`:up?`<p class="note" style="margin:0">You're ready for a bigger challenge. Try level ${L+1}.</p>`:L<6&&!ctxUnlocked(L+1)?`<p class="note" style="margin:0">Score ${CTX_PASS} or more out of ${CN} to unlock level ${L+1}${W?' this week':''}.</p>`:down?`<p class="note" style="margin:0">Try level ${L-1} to warm up, then come back.</p>`:''}
     ${C.missed.length?`<div><p class="note" style="margin-bottom:8px">Words to review:</p><div class="chips">${C.missed.flatMap(x=>x.pair?[{w:x.w,c:x.c,def:x.def},{w:x.w2,c:x.c2,def:x.def2}]:[x]).map(x=>`<span>${hl(x.w,x.c)} = ${esc(x.def)}</span>`).join('')}</div></div>`:''}
-    <div class="grp">${up?`<button class="btn primary" id="cup">Try level ${L+1}</button><button class="btn" id="cagain">Play level ${L} again</button>`:`<button class="btn primary" id="cagain">Play again</button>`}${down?`<button class="btn" id="cdown">Try level ${L-1}</button>`:''}</div>`;
+    <div class="grp">${up?`<button class="btn primary" id="cup">Try level ${L+1}</button><button class="btn" id="cagain">Play level ${L} again</button>`:`${dropped?'':`<button class="btn primary" id="cagain">Play again</button>`}`}${down?`<button class="btn${dropped?' primary':''}" id="cdown">${dropped?`Go to level ${L-1}`:`Try level ${L-1}`}</button>`:''}</div>`;
   wireLevels();
-  $('cagain').onclick=startContext;
+  if($('cagain'))$('cagain').onclick=startContext;
   if(up)$('cup').onclick=()=>{CL=L+1;store.set('rd-ctx-level',CL);startContext()};
   if(down)$('cdown').onclick=()=>{CL=L-1;store.set('rd-ctx-level',CL);startContext()};
 }
