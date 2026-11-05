@@ -1230,6 +1230,14 @@ html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{disp
 /* dark mode: the yellow marker hid the lower half of light letters; use a thick underline below the letters instead */
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) h1 mark,:root:not([data-theme="light"]) .prompt .r{background:none;text-decoration:underline;text-decoration-color:var(--hi);text-decoration-thickness:.13em;text-underline-offset:.16em;text-decoration-skip-ink:none}}
 :root[data-theme="dark"] h1 mark,:root[data-theme="dark"] .prompt .r{background:none;text-decoration:underline;text-decoration-color:var(--hi);text-decoration-thickness:.13em;text-underline-offset:.16em;text-decoration-skip-ink:none}
+/* ---------- No copying (students): text can't be selected, long-pressed, dragged or printed ---------- */
+body:not(.can-copy){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body:not(.can-copy) input,body:not(.can-copy) textarea,body:not(.can-copy) [contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+body:not(.can-copy) img,body:not(.can-copy) svg{-webkit-user-drag:none;user-drag:none}
+/* when the app goes to the background (app switcher, another tab), hide the content */
+body.shield:not(.can-copy) .wrap{filter:blur(18px);opacity:.35;transition:none}
+body.shield:not(.can-copy)::after{content:"Root Detective";position:fixed;inset:0;display:grid;place-items:center;font:800 1.6rem var(--display);color:var(--ink);z-index:200;pointer-events:none}
+@media print{body:not(.can-copy) *{visibility:hidden!important}body:not(.can-copy)::before{content:"Printing is turned off for Root Detective.";visibility:visible!important;position:fixed;top:40px;left:0;right:0;text-align:center;font:700 18pt sans-serif;color:#000}}
 /* ---------- Phones: fit each activity on one screen ---------- */
 .lvtoggle{display:none}
 @media (max-width:700px){
@@ -2006,6 +2014,22 @@ function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.
     <div class="chipset fg-chips">${g.ids.map(id=>{const c=BYID[id],both=g.f.has(id)&&g.b.has(id),half=!both&&(g.f.has(id)||g.b.has(id));return`<span class="chip c-${c.kind} ${both?'ok':half?'half':'todo'}" style="background:var(--fc)">${both?'✓ ':''}${esc(c.main)}</span>`}).join('')}</div>
     <button class="btn primary big" id="fgGo">${g.done?'Keep going with the flashcards':'Go to the flashcards'} →</button></div>`;
   $('fgGo').onclick=()=>{cardsAll=false;if(studyWeeks.length)setStudyWeeks([]);setMode('cards');deck=g.ids.map(i=>BYID[i]).filter(Boolean);const k=deck.findIndex(c=>!(g.f.has(c.id)&&g.b.has(c.id)));idx=k<0?0:k;renderCard();scrollTo({top:0})}}
+/* ---------- No copying, and screenshot deterrents (students; teachers can copy) ----------
+   A web page cannot stop a phone's or computer's own screenshot buttons. What it can do:
+   block selecting/copying/printing, hide the app in the app switcher, and blank the
+   clipboard after the Print Screen key on computers. */
+(()=>{const free=t=>t&&t.closest&&t.closest('input,textarea,[contenteditable],.allow-copy');
+  const off=()=>document.body.classList.contains('can-copy');
+  ['copy','cut','contextmenu','dragstart','selectstart'].forEach(ev=>document.addEventListener(ev,e=>{if(off()||free(e.target))return;e.preventDefault()},true));
+  document.addEventListener('keydown',e=>{if(off())return;const k=(e.key||'').toLowerCase();
+    if((e.ctrlKey||e.metaKey)&&['c','x','a','p','s'].includes(k)&&!free(e.target)){e.preventDefault()}
+    if(k==='printscreen'){shield(true);setTimeout(()=>shield(false),1200)}},true);
+  document.addEventListener('keyup',e=>{if(off())return;if((e.key||'').toLowerCase()==='printscreen'){try{navigator.clipboard.writeText('Screenshots are turned off in Root Detective.')}catch(_){}}},true);
+  const shield=on=>document.body.classList.toggle('shield',!!on);
+  document.addEventListener('visibilitychange',()=>shield(document.hidden));
+  addEventListener('pagehide',()=>shield(true));addEventListener('pageshow',()=>shield(false));
+  addEventListener('beforeprint',()=>{if(!off())shield(true)});addEventListener('afterprint',()=>shield(false));
+})();
 function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;const fcLocked=!fcBypass&&!FC_FREE.includes(m)&&!fcGate().ok;MODES.forEach(x=>{$(x).hidden=x!==m||fcLocked;$('tab-'+x).setAttribute('aria-selected',x===m)});if($('fcGate')){$('fcGate').hidden=!fcLocked;if(fcLocked)renderFcGate()}updateFcTabs();
   centerTab(m);document.body.classList.toggle('on-home',m==='home');document.body.classList.toggle('in-act',m!=='home');document.body.classList.toggle('no-study',m==='home'||m==='plan'||m==='progress');requestAnimationFrame(()=>{try{filterEdge()}catch(e){}});try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
@@ -16508,6 +16532,7 @@ deck=cardPool();idx=0;renderCard();setMode('home');
   const use=n=>window.claude&&window.claude.use?window.claude.use(n).catch(()=>null):Promise.resolve(null);
   const [db,user]=await Promise.all([use('db'),use('user')]);
   if(user){try{canTeach=await user.canEdit()}catch(e){}}
+  document.body.classList.toggle('can-copy',!!canTeach);
   if(!db)return;
   shared=true;
   initProgressSync(db,user);
