@@ -1333,6 +1333,9 @@ body.shield:not(.can-copy)::after{content:"Root Detective";position:fixed;inset:
 }
 </style>
 
+<script>/* One-time progress reset. Change RESET_ID to wipe every student's saved data (progress, names, settings) the next time they open the app. */
+(function(){var RESET_ID='2026-11-05';try{if(localStorage.getItem('rd-reset')!==RESET_ID){var ks=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('rd-')===0)ks.push(k)}
+ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-reset',RESET_ID)}}catch(e){}})();</script>
 <script>document.documentElement.lang="en";document.documentElement.setAttribute("translate","no");document.documentElement.classList.add("notranslate");</script>
 <canvas id="fx" aria-hidden="true"></canvas>
 <div class="modal" id="repModal" hidden role="dialog" aria-modal="true" aria-labelledby="repTitle">
