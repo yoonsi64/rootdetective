@@ -1900,7 +1900,7 @@ function renderCardsTop(){
   else if(cardsAll&&uw.length>1){main='All my weeks';note=`Showing ${weeksLabel(uw)}.`;btn=`<button class="btn small" id="cardsNewBtn">Week ${w} only</button>`}
   else{main=`Week ${w}${PLAN[w-1].review?' review':''}${uw.length>1?' new cards':''}`;
     note=uw.length>1?'Flashcards show this week\'s new cards. Your other activities mix in every week you have unlocked.':'Finish activities and pass the check-in to unlock week 2.';
-    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">All weeks (${pool().length})</button>`}
+    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">All weeks (${basePool().length})</button>`}
   /* Top: one slim line. A ready check-in also gets a slim line; the progress card sits below the flashcards. */
   const ns=nextStepHTML('cards'),ready=ns.includes('class="nextstep');
   const fg=fcGate();let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
@@ -16484,23 +16484,41 @@ function badgeVals(days,name){
   v.spellBest=A.sp.best;v.spellFirst=A.sp.c;v.sortPerfect=A.so.perfect;v.speedBest=A.sd.best;v.reviews=A.rv;
   {const ch=checkHistory(days);v.growth=Math.max(0,...Object.values(ch).map(h=>h.best-h.first));v.checks=Object.keys(ch).length}
   v.weekDone=PLAN.filter(p=>!p.review&&p.ids.every(i=>A.mastered.includes(i))).length;
+  {const ch=checkHistory(days),ok=w=>!!ch[w]&&ch[w].best>=PASS;
+   v.passed=PLAN.filter(p=>ok(p.w)).length;v.pass8=ok(8)?1:0;v.pass16=ok(WEEKS)?1:0;v.checkBest=Math.max(0,...Object.values(ch).map(h=>h.best||0))}
+  {const f=new Set(),b=new Set();all.forEach(d=>{if(d.fc){(d.fc.f||[]).forEach(i=>f.add(i));(d.fc.b||[]).forEach(i=>b.add(i))}});
+   v.both=[...f].filter(i=>b.has(i)).length;v.fcWeeks=PLAN.filter(p=>!p.review&&p.ids.length&&p.ids.every(i=>f.has(i)&&b.has(i))).length}
+  v.ctxOpen=1+[1,2,3,4,5].filter(L=>((A.x.lv[L]||{}).best||0)>=CTX_PASS).length;
   return v;
 }
 // kind: count (progress toward n), best (a single best result), flag
 const BADGES=[
  {id:'name',name:'Name Tag',desc:'Save your name',cat:'start',sym:'Hi',val:v=>v.name,n:1},
  {id:'first',name:'First Clue',desc:'Practice on your first day',cat:'start',sym:'1',val:v=>v.days,n:1},
+ {id:'fcwk',name:'Card Ready',desc:'Study both sides of every card in a week',cat:'start',sym:'2x',val:v=>v.fcWeeks,n:1},
+ {id:'pass1',name:'Quest Begins',desc:`Pass your first weekly check-in (${PASS}/10 or better)`,cat:'plan',sym:'W1',val:v=>v.passed,n:1},
+ {id:'pass3',name:'Trailblazer',desc:'Pass 3 weekly check-ins',cat:'plan',sym:'W3',val:v=>v.passed,n:3},
+ {id:'pass8',name:'Halfway Hero',desc:'Pass the week 8 review check-in',cat:'plan',sym:'W8',val:v=>v.pass8,n:1},
+ {id:'pass12',name:'Long Haul',desc:'Pass 12 weekly check-ins',cat:'plan',sym:'W12',val:v=>v.passed,n:12},
+ {id:'pass16',name:'Quest Complete',desc:'Pass the final week 16 review check-in',cat:'plan',sym:'W16',val:v=>v.pass16,n:1},
+ {id:'chk10',name:'Perfect Check-in',desc:'Score 10 out of 10 on a weekly check-in',cat:'plan',sym:'10/10',val:v=>v.checkBest,n:10,best:1},
  {id:'run3',name:'On a Roll',desc:'Practice 3 days in a row',cat:'streak',sym:'3',val:v=>v.run,n:3},
  {id:'run5',name:'Five Alive',desc:'Practice 5 days in a row',cat:'streak',sym:'5',val:v=>v.run,n:5},
  {id:'run10',name:'Unstoppable',desc:'Practice 10 days in a row',cat:'streak',sym:'10',val:v=>v.run,n:10},
  {id:'days10',name:'Regular Detective',desc:'Practice on 10 different days',cat:'streak',sym:'10d',val:v=>v.days,n:10},
  {id:'days30',name:'Case Veteran',desc:'Practice on 30 different days',cat:'streak',sym:'30d',val:v=>v.days,n:30},
+ {id:'days60',name:'Season Sleuth',desc:'Practice on 60 different days',cat:'streak',sym:'60d',val:v=>v.days,n:60},
+ {id:'run20',name:'Iron Detective',desc:'Practice 20 days in a row',cat:'streak',sym:'20',val:v=>v.run,n:20},
  {id:'min60',name:'Hour of Roots',desc:'Practice for 60 minutes in all',cat:'streak',sym:'60m',val:v=>v.min,n:60},
  {id:'ans100',name:'Question Crusher',desc:'Answer 100 questions',cat:'quiz',sym:'100',val:v=>v.answered,n:100},
  {id:'ans500',name:'Answer Machine',desc:'Answer 500 questions',cat:'quiz',sym:'500',val:v=>v.answered,n:500},
+ {id:'ans1000',name:'Thousand Club',desc:'Answer 1,000 questions',cat:'quiz',sym:'1000',val:v=>v.answered,n:1000},
  {id:'quiz10',name:'Perfect Quiz',desc:'Score 10 out of 10 on a quiz',cat:'quiz',sym:'10/10',val:v=>v.quizBest,n:10,best:1},
  {id:'quizr10',name:'Quiz Regular',desc:'Finish 10 quiz rounds',cat:'quiz',sym:'Q10',val:v=>v.quizRounds,n:10},
  {id:'ctx1',name:'Clue Finder',desc:'Finish a Context clues round',cat:'clues',sym:'?',val:v=>v.ctxRounds,n:1},
+ {id:'ctxup',name:'Level Up',desc:`Unlock Context clues level 2 (score ${CTX_PASS}+ on level 1)`,cat:'clues',sym:'L2',val:v=>v.ctxOpen,n:2},
+ {id:'ctxm',name:'Master Key',desc:'Unlock the Master level of Context clues',cat:'clues',sym:'M',val:v=>v.ctxOpen,n:6},
+ {id:'ctxr25',name:'Clue Collector',desc:'Finish 25 Context clues rounds',cat:'clues',sym:'25',val:v=>v.ctxRounds,n:25},
  {id:'lv3',name:'Medium Sleuth',desc:'Score 8+ on Context clues level 3 or higher',cat:'clues',sym:'L3',val:v=>v.lv3,n:8,best:1},
  {id:'lv4',name:'Hard Case',desc:'Score 8+ on Context clues level 4 or higher',cat:'clues',sym:'L4',val:v=>v.lv4,n:8,best:1},
  {id:'lv5',name:'Expert Detective',desc:'Score 8+ on Context clues level 5 or higher',cat:'clues',sym:'L5',val:v=>v.lv5,n:8,best:1},
@@ -16513,32 +16531,37 @@ const BADGES=[
  {id:'mem10',name:'Memory Marathon',desc:'Finish 10 Memory rounds',cat:'games',sym:'M10',val:v=>v.memRounds,n:10},
  {id:'build10',name:'Word Builder',desc:'Build 10 words',cat:'games',sym:'B10',val:v=>v.built,n:10},
  {id:'build50',name:'Master Builder',desc:'Build 50 words',cat:'games',sym:'B50',val:v=>v.built,n:50},
+ {id:'parts25',name:'Word Surgeon',desc:'Break down 25 words',cat:'games',sym:'25',val:v=>v.parts,n:25},
+ {id:'parts100',name:'Root Scientist',desc:'Break down 100 words',cat:'games',sym:'100',val:v=>v.parts,n:100},
  {id:'cards50',name:'Card Collector',desc:'Study 50 different flashcards',cat:'cards',sym:'50',val:v=>v.cards,n:50},
- {id:'cards150',name:'Whole Deck',desc:'Study all 150 flashcards',cat:'cards',sym:'150',val:v=>v.cards,n:150},
+ {id:'both25',name:'Flip Side',desc:'Study 25 flashcards on both sides',cat:'cards',sym:'25',val:v=>v.both,n:25},
+ {id:'cards150',name:'Whole Deck',desc:`Study all ${BANK.length} flashcards`,cat:'cards',sym:'All',val:v=>v.cards,n:BANK.length},
  {id:'mast10',name:'Root Rookie',desc:'Master 10 cards',cat:'cards',sym:'10★',val:v=>v.mastered,n:10},
  {id:'mast50',name:'Root Ranger',desc:'Master 50 cards',cat:'cards',sym:'50★',val:v=>v.mastered,n:50},
  {id:'mast100',name:'Root Royalty',desc:'Master 100 cards',cat:'cards',sym:'100★',val:v=>v.mastered,n:100},
+ {id:'mastall',name:'Root Legend',desc:`Master all ${BANK.length} cards`,cat:'cards',sym:'All★',val:v=>v.mastered,n:BANK.length},
  {id:'week',name:'Week Wrapped',desc:'Master every card in one plan week',cat:'cards',sym:'Wk',val:v=>v.weekDone,n:1},
  {id:'rev5',name:'Review Regular',desc:'Do the Daily review on 5 days',cat:'streak',sym:'R5',val:v=>v.reviews,n:5},
+ {id:'rev20',name:'Daily Devotee',desc:'Do the Daily review on 20 days',cat:'streak',sym:'R20',val:v=>v.reviews,n:20},
  {id:'spell10',name:'Spelling Bee',desc:'Spell 10 words right on the first try',cat:'games',sym:'abc',val:v=>v.spellFirst,n:10},
  {id:'spellp',name:'Perfect Speller',desc:'Score 10 out of 10 in Spell it',cat:'games',sym:'10/10',val:v=>v.spellBest,n:10,best:1},
  {id:'sortp',name:'Super Sorter',desc:'Finish a Word sort with no misses',cat:'games',sym:'0x',val:v=>v.sortPerfect,n:1},
  {id:'speed15',name:'Quick Thinker',desc:'Get 15 right in one Speed round',cat:'games',sym:'15',val:v=>v.speedBest,n:15,best:1},
  {id:'speed25',name:'Lightning Brain',desc:'Get 25 right in one Speed round',cat:'games',sym:'25',val:v=>v.speedBest,n:25,best:1},
- {id:'check1',name:'Checked In',desc:'Take a weekly check-in quiz',cat:'quiz',sym:'✔',val:v=>v.checks,n:1},
- {id:'grow3',name:'Growth Spurt',desc:'Raise a check-in score by 3 or more',cat:'quiz',sym:'+3',val:v=>v.growth,n:3,best:1},
+ {id:'check1',name:'Checked In',desc:'Take a weekly check-in quiz',cat:'plan',sym:'✔',val:v=>v.checks,n:1},
+ {id:'grow3',name:'Growth Spurt',desc:'Raise a check-in score by 3 or more',cat:'plan',sym:'+3',val:v=>v.growth,n:3,best:1},
  {id:'pre',name:'Prefix Pro',desc:'80%+ right on prefixes (20+ answers)',cat:'parts',sym:'pre-',val:v=>v.k_prefix>=.8?1:0,n:1,hint:v=>`${v.kt_prefix}/20 answers`},
  {id:'suf',name:'Suffix Star',desc:'80%+ right on suffixes (20+ answers)',cat:'parts',sym:'-suf',val:v=>v.k_suffix>=.8?1:0,n:1,hint:v=>`${v.kt_suffix}/20 answers`},
  {id:'lat',name:'Latin Legend',desc:'80%+ right on Latin bases (20+ answers)',cat:'parts',sym:'Lat',val:v=>v.k_latin>=.8?1:0,n:1,hint:v=>`${v.kt_latin}/20 answers`},
  {id:'grk',name:'Greek Genius',desc:'80%+ right on Greek bases (20+ answers)',cat:'parts',sym:'Grk',val:v=>v.k_greek>=.8?1:0,n:1,hint:v=>`${v.kt_greek}/20 answers`},
 ];
-const BCAT={start:'Getting started',streak:'Practice habits',quiz:'Quiz',clues:'Context clues',games:'Games',cards:'Cards',parts:'Word-part experts'};
+const BCAT={start:'Getting started',plan:'Word Quest',streak:'Practice habits',quiz:'Quiz',clues:'Context clues',games:'Games',cards:'Cards',parts:'Word-part experts'};
 function earnedBadges(days,name){const v=badgeVals(days,name);return{v,ids:BADGES.filter(b=>b.val(v)>=b.n).map(b=>b.id)}}
 /* Badge art: each category has its own shape and colors; locked badges are grey outlines with a lock */
 const BSHAPE=(()=>{const poly=(n,r1,r2,cy,rot=0)=>{const pts=[];for(let i=0;i<n*(r2?2:1);i++){const a=rot+i*Math.PI/(r2?n:n/2),r=r2&&i%2?r2:r1;pts.push((32+r*Math.sin(a)).toFixed(1)+','+(cy-r*Math.cos(a)).toFixed(1))}return`<polygon points="${pts.join(' ')}"`};
   return{start:poly(5,28,14,32),streak:poly(12,26,22.5,30),quiz:poly(6,26,0,30,Math.PI/6),clues:'<rect x="12" y="10" width="40" height="40" rx="9" transform="rotate(45 32 30)"',
-    games:'<path d="M32 4 54 11v19c0 14-10 23-22 28C20 53 10 44 10 30V11z"',cards:'<rect x="12" y="5" width="40" height="50" rx="7" transform="rotate(-6 32 30)"',parts:poly(8,27,0,30,Math.PI/8)}})();
-const BGRAD={start:['#FFE066','#F59F00'],streak:['#FFA94D','#E8590C'],quiz:['#74C0FC','#1C7ED6'],clues:['#B197FC','#6741D9'],games:['#FAA2C1','#D6336C'],cards:['#8CE99A','#2B8A3E']};
+    games:'<path d="M32 4 54 11v19c0 14-10 23-22 28C20 53 10 44 10 30V11z"',cards:'<rect x="12" y="5" width="40" height="50" rx="7" transform="rotate(-6 32 30)"',parts:poly(8,27,0,30,Math.PI/8),plan:'<circle cx="32" cy="30" r="26"'}})();
+const BGRAD={start:['#FFE066','#F59F00'],plan:['#63E6BE','#0B7285'],streak:['#FFA94D','#E8590C'],quiz:['#74C0FC','#1C7ED6'],clues:['#B197FC','#6741D9'],games:['#FAA2C1','#D6336C'],cards:['#8CE99A','#2B8A3E']};
 (()=>{const g=Object.entries(BGRAD).map(([k,[a,b]])=>`<linearGradient id="bg-${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join('');
   const d=document.createElement('div');d.setAttribute('aria-hidden','true');d.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
   d.innerHTML=`<svg width="0" height="0"><defs>${g}<linearGradient id="bg-parts" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F783AC"/><stop offset=".35" stop-color="#4DABF7"/><stop offset=".65" stop-color="#9775FA"/><stop offset="1" stop-color="#51CF66"/></linearGradient><linearGradient id="bg-rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4263EB"/><stop offset="1" stop-color="#364FC7"/></linearGradient></defs></svg>`;
@@ -16549,7 +16572,9 @@ const BEMO={name:['👋'],first:['🔍'],run3:['🔥','3'],run5:['🔥','5'],run
   ctx1:['🧩'],lv3:['🔎','L3'],lv4:['🧠','L4'],lv5:['🕵️','L5'],lv6:['🎩','L6'],ctx10:['🌟'],
   mperf:['🎯'],mfast:['⚡','30s'],mstreak:['🎉','6'],mem:['🐘'],mem10:['🃏','10'],build10:['🧱','10'],build50:['🏗️','50'],
   spell10:['🐝'],spellp:['🏅'],sortp:['📦'],speed15:['🏃','15'],speed25:['🌩️','25'],
-  cards50:['🗂️','50'],cards150:['📚','150'],mast10:['🌱','10'],mast50:['🌳','50'],mast100:['👑','100'],week:['🎁'],rev5:['☀️','5'],
+  cards50:['🗂️','50'],cards150:['📚','All'],both25:['🔄','25'],mastall:['🏆','All'],fcwk:['🗃️'],
+  pass1:['🚩','1'],pass3:['🥾','3'],pass8:['⛰️','8'],pass12:['🧭','12'],pass16:['🏁','16'],chk10:['💎'],
+  ans1000:['🧮','1000'],days60:['🌻','60'],run20:['🛡️','20'],ctxup:['🔓','L2'],ctxm:['🗝️'],ctxr25:['🔦','25'],parts25:['🔬','25'],parts100:['🧪','100'],rev20:['🌞','20'],mast10:['🌱','10'],mast50:['🌳','50'],mast100:['👑','100'],week:['🎁'],rev5:['☀️','5'],
   pre:['🌸','pre-'],suf:['⭐','-suf'],lat:['🏛️','Latin'],grk:['🏺','Greek']};
 function medal(b,on,small){const sh=BSHAPE[b.cat]||BSHAPE.quiz,cy=b.cat==='start'?33:30,[emo,tag]=BEMO[b.id]||[b.sym],hasTag=tag&&!small,ey=hasTag?cy-4:cy+1,tw=tag?Math.max(16,[...tag].length*6.2+8):0;
   const inner=`<g transform="translate(32 ${cy}) scale(.76) translate(-32 -${cy})">${sh} class="bring"/></g>`;
