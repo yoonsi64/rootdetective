@@ -1760,9 +1760,9 @@ function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))
 const READY=4;
 const ACTN={cards:'Flashcards',parts:'Break it down',build:'Build it',quiz:'Quiz',review:'Daily review',context:'Context clues',match:'Match',memory:'Memory',spell:'Spell it',sort:'Word sort',speed:'Speed round'};
 const ACTRULE='Flashcards: see every card · Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
-function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>out.add(x))}}catch(e){}return[...out]}
+function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>{if(x!=='cards')out.add(x)})}}catch(e){}return[...out]}
 function checkReady(w){return canTeach||weekPassed(w)||actsFor(w).length>=READY||!!(checkHistory(HIST.days)[w])}
-function doneActivity(kind){try{
+function doneActivity(kind){try{if(kind==='cards')return;
   const w=frontierWeek();if(weekPassed(w)||questDone())return;
   const before=actsFor(w);if(before.includes(kind))return;
   rec(d=>{const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind)});
@@ -1927,8 +1927,7 @@ function renderCard(){
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
-const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});
-  try{const w=frontierWeek(),need=weekIds(w,PLAN[w-1].review),seen=new Set();for(const k in HIST.days)((HIST.days[k].cards||{}).ids||[]).forEach(i=>seen.add(i));if(need.every(i=>seen.has(i)))doneActivity('cards')}catch(e){}};
+const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
 $('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join(', ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
