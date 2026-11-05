@@ -790,6 +790,7 @@ button.hpill{cursor:pointer}button.hpill:hover{border-color:var(--primary)}
 .rdots{display:flex;align-items:center;gap:6px;margin-top:4px}.rdots i{width:22px;height:10px;border-radius:99px;background:var(--line)}.rdots i.on{background:var(--good)}.rdots em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:4px}
 .rgot{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.rgot span{font-size:.8rem;font-weight:700;color:var(--good);background:var(--good-bg);border-radius:999px;padding:2px 9px}
 .rrule{display:block;margin-top:6px;color:var(--muted);font-size:.82rem;line-height:1.45}.rrule summary{cursor:pointer;font-weight:700;color:var(--primary);width:max-content}.rrule span{display:block;padding-left:4px}.rrule span::before{content:'• '}
+.rrule span.rnote{margin-top:4px;font-style:italic}.rrule span.rnote::before{content:none}
 .nextflag.soft{background:var(--bg);color:var(--ink);border:1.5px dashed var(--line)}
 .cardstop{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}.cardstop:empty{display:none}
 .scope{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;font-size:.95rem}
@@ -1769,7 +1770,7 @@ function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))
 /* ---------- Check-in readiness: finish READY different activities with the current week's words first ---------- */
 const READY=4;
 const ACTN={cards:'Flashcards',parts:'Break it down',build:'Build it',quiz:'Quiz',review:'Daily review',context:'Context clues',match:'Match',memory:'Memory',spell:'Spell it',sort:'Word sort',speed:'Speed round'};
-const ACTRULE='Flashcards: see every card · Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
+const ACTRULE='Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
 function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>{if(x!=='cards')out.add(x)})}}catch(e){}return[...out]}
 function checkReady(w){return canTeach||weekPassed(w)||actsFor(w).length>=READY||!!(checkHistory(HIST.days)[w])}
 function doneActivity(kind){try{if(kind==='cards'||!fcGate().ok)return;
@@ -1802,7 +1803,7 @@ function readyHTML(w,compact){const got=actsFor(w),n=Math.min(got.length,READY);
     <b>Finish ${READY} different activities with this week's words</b>
     <span class="rdots" aria-label="${n} of ${READY} done">${dots}<em>${n} of ${READY} done</em></span>
     ${got.length?`<span class="rgot">${got.map(k=>`<span>✓ ${ACTN[k]||k}</span>`).join('')}</span>`:''}
-    <details class="rrule"><summary>What counts?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}</details></div></div>`}
+    <details class="rrule"><summary>What counts?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the week's words.</span></details></div></div>`}
 function startCheckin(w){fcBypass=true;try{setMode('quiz',true)}finally{fcBypass=false}startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})}
 const chosen=()=>{
   if(studyWeeks.length){const ids=new Set();studyWeeks.forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id))}
