@@ -136,7 +136,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--primary);outlin
 
 /* Flashcard — modeled on the printed IMSE cards: category band, meaning header, T-chart, number tab */
 .scene{perspective:1400px}
-.flash{display:block;width:100%;border:0;background:none;padding:0;text-align:left;--fc:var(--suffix)}
+.flash{display:block;width:100%;border:0;background:none;padding:0;text-align:left;--fc:var(--suffix);touch-action:pan-y;will-change:transform}
 .flash.cat-prefix{--fc:var(--prefix)} .flash.cat-suffix{--fc:var(--suffix)} .flash.cat-latin{--fc:var(--latin)} .flash.cat-greek{--fc:var(--greek)}
 .inner{display:grid;transition:transform .5s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flash.flipped .inner{transform:rotateY(180deg)}
@@ -1449,7 +1449,7 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
       <div id="cardsTop" class="cardstop"></div>
       <div id="cardArea">
         <div class="scene">
-          <button class="flash" id="flash" aria-label="Flashcard. Tap to flip.">
+          <button class="flash" id="flash" aria-label="Flashcard. Tap to flip. Space bar flips it. Swipe or use the arrow keys for the next or previous card.">
             <div class="inner">
               <div class="face front" id="front"></div>
               <div class="face back" id="back"></div>
@@ -2034,13 +2034,33 @@ function renderCard(){
 }
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
 $('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join(', ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
-$('flash').onclick=()=>{$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
+$('flash').onclick=()=>{if(Date.now()-(window.__fcSwiped||0)<400)return;$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
 $('prev').onclick=()=>{idx=(idx-1+deck.length)%deck.length;renderCard();seenCard()};
 $('shuffle').onclick=()=>{deck=shuf(deck);idx=0;renderCard()};
 $('known').onclick=()=>{const c=deck[idx];known.has(c.id)?known.delete(c.id):known.add(c.id);store.set('rd-known2',[...known]);renderCard()};
-document.addEventListener('keydown',e=>{if(mode!=='cards'||e.target.closest('input,.tabs,.filter,.controls'))return;
-  if(e.key==='ArrowRight')$('next').click();else if(e.key==='ArrowLeft')$('prev').click()});
+/* remember a tab that was tapped/clicked (not reached with the Tab key), so the arrow keys go to the page instead */
+document.addEventListener('pointerdown',e=>{window.__ptrTab=e.target.closest&&e.target.closest('[role=tab]')||null},true);
+document.addEventListener('keydown',e=>{if(e.key==='Tab')window.__ptrTab=null},true);
+/* ← → keys move between cards (also right after pressing Next/Back); not while typing or moving between tabs/chips */
+document.addEventListener('keydown',e=>{if(mode!=='cards'||e.altKey||e.ctrlKey||e.metaKey||e.target.closest('input,textarea,select,.filter,.disppop,[role=dialog]')||(e.target.closest('[role=tab]')&&e.target.closest('[role=tab]')!==window.__ptrTab))return;
+  if(e.key==='ArrowRight'){e.preventDefault();$('next').click()}else if(e.key==='ArrowLeft'){e.preventDefault();$('prev').click()}
+  else if(e.key===' '||e.code==='Space'){e.preventDefault();if(!e.repeat)$('flash').click()}});
+/* the space bar flips the card, so it mustn't also press whichever button has focus */
+document.addEventListener('keyup',e=>{if(mode==='cards'&&(e.key===' '||e.code==='Space')&&!e.target.closest('input,textarea,select,[role=tab],.tabs,.filter,.disppop,[role=dialog]'))e.preventDefault()});
+/* Swipe the card: left = next card, right = previous card. The card follows the finger a little; a tap still flips it. */
+(()=>{const f=$('flash');let x0=null,y0=0,dx=0,id=null,horiz=null;
+  const reset=()=>{f.style.transition='transform .2s ease';f.style.transform='';x0=null;horiz=null;setTimeout(()=>{f.style.transition=''},220)};
+  f.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;x0=e.clientX;y0=e.clientY;dx=0;id=e.pointerId;horiz=null;f.style.transition=''});
+  f.addEventListener('pointermove',e=>{if(x0==null||e.pointerId!==id)return;dx=e.clientX-x0;const dy=e.clientY-y0;
+    if(horiz==null&&(Math.abs(dx)>8||Math.abs(dy)>8))horiz=Math.abs(dx)>Math.abs(dy);
+    if(horiz){try{f.setPointerCapture(id)}catch(_){}f.style.transform=`translateX(${dx*.6}px) rotate(${dx/40}deg)`}});
+  const end=e=>{if(x0==null||e.pointerId!==id)return;const go=horiz&&Math.abs(dx)>60;
+    if(go){window.__fcSwiped=Date.now();f.style.transition='transform .16s ease-in';f.style.transform=`translateX(${dx<0?-120:120}px) rotate(${dx<0?-4:4}deg)`;
+      setTimeout(()=>{f.style.transition='';f.style.transform=`translateX(${dx<0?60:-60}px)`;(dx<0?$('next'):$('prev')).click();requestAnimationFrame(()=>{f.style.transition='transform .18s ease-out';f.style.transform='';setTimeout(()=>{f.style.transition=''},200)});x0=null;horiz=null},150)}
+    else{if(horiz)window.__fcSwiped=Date.now();reset()}};
+  f.addEventListener('pointerup',end);f.addEventListener('pointercancel',e=>{if(x0!=null)reset()});
+})();
 
 /* ---------- Quiz (distractors come from the whole bank) ---------- */
 const QN=10; let Q=null;
@@ -2160,6 +2180,8 @@ document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.active
   if($('tabPrev'))$('tabPrev').onclick=()=>step(-1);if($('tabNext'))$('tabNext').onclick=()=>step(1);
   c.addEventListener('scroll',edge,{passive:true});addEventListener('resize',edge);edge();
   c.addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;const bs=[...c.querySelectorAll('[role=tab]')],i=bs.indexOf(document.activeElement);if(i<0)return;
+    /* a tab clicked with the mouse/finger keeps the arrows for the page (e.g. flashcards); keyboard users still move between tabs */
+    if(window.__ptrTab&&window.__ptrTab===document.activeElement){document.activeElement.blur();return}
     const n=bs[(i+(e.key==='ArrowRight'?1:-1)+bs.length)%bs.length];n.focus();n.click();e.preventDefault()})})();
 function refreshMode(){if(mode==='home')renderHome();else if(mode==='review')renderReview();else if(mode==='spell')startSpell();else if(mode==='sort')newSort();else if(mode==='speed'){stopSpeedIfLeaving();renderSpeedStart()}else if(mode==='quiz')startQuiz();else if(mode==='parts'){buildWdeck();renderParts()}else if(mode==='build')newBuild();else if(mode==='plan')renderPlan();else if(mode==='progress'){if(progView==='class')watchClass();renderProgress()}else if(mode==='match')newMatch();else if(mode==='memory')newMemory();else if(mode==='context')startContext()}
 $('tab-cards').onclick=()=>{setMode('cards');deck=cardPool();idx=0;try{const {f,b}=fcSides(),k=deck.findIndex(c=>!(f.has(c.id)&&b.has(c.id)));if(k>0)idx=k}catch(e){}renderCard()};
