@@ -17557,15 +17557,17 @@ function renderSpell(autoSay,keepKb){
   if($('spNext')){$('spNext').onclick=()=>{SP.i++;SP.tries=0;SP.state='ask';SP.last='';SP.showSent=false;renderSpell(true)};holdNext($('spNext'),SP,SP.i)}
 }
 /* Spell it: after an answer, Enter goes to the next word (the Enter that checks the word doesn't also skip it) */
-document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.repeat||mode!=='spell'||!(SP&&(SP.state==='right'||SP.state==='shown')))return;
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.repeat||mode!=='spell')return;
+  {const a=$('spAgain');if(a&&a.isConnected&&a.offsetParent&&!(e.target.closest&&e.target.closest('button,a,input,textarea,select,[role=dialog]'))){e.preventDefault();a.click();return}}
+  if(!(SP&&(SP.state==='right'||SP.state==='shown')))return;
   if(e.target.closest&&e.target.closest('button,a,summary,select,textarea,[role=dialog]'))return;const r=$('repModal');if(r&&!r.hidden)return;
   const b=$('spNext');if(b){e.preventDefault();b.click()}});
 function spellResults(){const s=SP.score;rec(d=>{const o=sub(d,'spell');bump(o,'r');o.best=Math.max(o.best||0,s)});if(s>=7)doneActivity('spell');if(s>=7)setTimeout(celebrateWin,150);
   $('spellBody').innerHTML=`<div class="qcard"><div class="qtop"><span>Round complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${SN}</p><p class="prompt">${s>=9?'Spelling superstar!':s>=7?'Great spelling!':'Nice effort. Listen for each word part and try again.'}</p>
     ${SP.missed.length?`<div><p class="note" style="margin-bottom:8px">Words to practice:</p><div class="chips">${SP.missed.map(x=>`<span>${hl(x.w,x.c)}</span>`).join('')}</div></div>`:''}
-    <div><button class="btn primary" id="spAgain">Play again</button></div></div>`;
-  $('spAgain').onclick=startSpell}
+    <div class="grp" style="align-items:center;gap:10px"><button class="btn primary" id="spAgain" aria-keyshortcuts="Enter">Play again</button>${SPELL_KB.matches?'<span class="note">or press Enter</span>':''}</div></div>`;
+  $('spAgain').onclick=startSpell;setTimeout(()=>{const a=$('spAgain');if(a)try{a.focus({preventScroll:true})}catch(e){}},400)}
 
 /* ---------- Word sort: put each word under its word part ---------- */
 let WS=null;
