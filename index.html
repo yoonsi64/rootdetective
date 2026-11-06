@@ -17962,7 +17962,13 @@ function badgeVals(days,name){
    v.passed=PLAN.filter(p=>ok(p.w)).length;v.pass8=ok(8)?1:0;v.pass16=ok(WEEKS)?1:0;v.checkBest=Math.max(0,...Object.values(ch).map(h=>h.best||0))}
   {const f=new Set(),b=new Set();all.forEach(d=>{if(d.fc){(d.fc.f||[]).forEach(i=>f.add(i));(d.fc.b||[]).forEach(i=>b.add(i))}});
    v.both=[...f].filter(i=>b.has(i)).length;v.fcWeeks=PLAN.filter(p=>!p.review&&p.ids.length&&p.ids.every(i=>f.has(i)&&b.has(i))).length}
-  v.ctxOpen=1+[1,2,3,4,5].filter(L=>((A.x.lv[L]||{}).best||0)>=CTX_PASS).length;
+  {/* Context clues levels now unlock week by week: the highest level reached in any week, and weeks that reached Master */
+   const wb={};all.forEach(d=>{const wk=(d.ctx&&d.ctx.wk)||{};for(const w in wk)for(const L in wk[w])if(L!=='t'){wb[w]=wb[w]||{};wb[w][L]=Math.max(wb[w][L]||0,wk[w][L]||0)}});
+   const top=o=>{let t=1;for(let L=1;L<=5;L++)if((o[L]||0)>=CTX_PASS)t=Math.max(t,L+1);return t};
+   const old=1+[1,2,3,4,5].filter(L=>((A.x.lv[L]||{}).best||0)>=CTX_PASS).length;   // scores from before weekly levels still count
+   v.ctxOpen=Math.max(old,...Object.values(wb).map(top));v.ctxMasterWeeks=Object.values(wb).filter(o=>top(o)>=6).length}
+  {const ch=checkHistory(days);v.firstTry=PLAN.filter(p=>ch[p.w]&&ch[p.w].first>=PASS).length}
+  {const k=new Set();all.forEach(d=>{for(const w in (d.actr||{}))Object.keys(d.actr[w]).forEach(x=>k.add(x));for(const w in (d.acts||{}))(d.acts[w]||[]).forEach(x=>k.add(x))});k.delete('cards');v.kinds=k.size}
   return v;
 }
 // kind: count (progress toward n), best (a single best result), flag
@@ -17975,6 +17981,7 @@ const BADGES=[
  {id:'pass8',name:'Halfway Hero',desc:'Pass the week 8 review check-in',cat:'plan',sym:'W8',val:v=>v.pass8,n:1},
  {id:'pass12',name:'Long Haul',desc:'Pass 12 weekly check-ins',cat:'plan',sym:'W12',val:v=>v.passed,n:12},
  {id:'pass16',name:'Quest Complete',desc:'Pass the final week 16 review check-in',cat:'plan',sym:'W16',val:v=>v.pass16,n:1},
+ {id:'chk1st',name:'Nailed It',desc:`Pass a weekly check-in on your first try`,cat:'plan',sym:'1st',val:v=>v.firstTry,n:1},
  {id:'chk10',name:'Perfect Check-in',desc:'Score 10 out of 10 on a weekly check-in',cat:'plan',sym:'10/10',val:v=>v.checkBest,n:10,best:1},
  {id:'run3',name:'On a Roll',desc:'Practice 3 days in a row',cat:'streak',sym:'3',val:v=>v.run,n:3},
  {id:'run5',name:'Five Alive',desc:'Practice 5 days in a row',cat:'streak',sym:'5',val:v=>v.run,n:5},
@@ -17990,14 +17997,16 @@ const BADGES=[
  {id:'quiz10',name:'Perfect Quiz',desc:'Score 10 out of 10 on a quiz',cat:'quiz',sym:'10/10',val:v=>v.quizBest,n:10,best:1},
  {id:'quizr10',name:'Quiz Regular',desc:'Finish 10 quiz rounds',cat:'quiz',sym:'Q10',val:v=>v.quizRounds,n:10},
  {id:'ctx1',name:'Clue Finder',desc:'Finish a Context clues round',cat:'clues',sym:'?',val:v=>v.ctxRounds,n:1},
- {id:'ctxup',name:'Level Up',desc:`Unlock Context clues level 2 (score ${CTX_PASS}+ on level 1)`,cat:'clues',sym:'L2',val:v=>v.ctxOpen,n:2},
- {id:'ctxm',name:'Master Key',desc:'Unlock the Master level of Context clues',cat:'clues',sym:'M',val:v=>v.ctxOpen,n:6},
+ {id:'ctxup',name:'Level Up',desc:`Unlock Context clues level 2 by scoring ${CTX_PASS}+ on level 1`,cat:'clues',sym:'L2',val:v=>v.ctxOpen,n:2},
+ {id:'ctxm',name:'Master Key',desc:'Reach the Master level of Context clues in a week',cat:'clues',sym:'M',val:v=>v.ctxOpen,n:6},
+ {id:'ctxm3',name:'Master Every Week',desc:'Reach the Master level in 3 different weeks',cat:'clues',sym:'M3',val:v=>v.ctxMasterWeeks,n:3},
  {id:'ctxr25',name:'Clue Collector',desc:'Finish 25 Context clues rounds',cat:'clues',sym:'25',val:v=>v.ctxRounds,n:25},
  {id:'lv3',name:'Medium Sleuth',desc:'Score 8+ on Context clues level 3 or higher',cat:'clues',sym:'L3',val:v=>v.lv3,n:8,best:1},
  {id:'lv4',name:'Hard Case',desc:'Score 8+ on Context clues level 4 or higher',cat:'clues',sym:'L4',val:v=>v.lv4,n:8,best:1},
  {id:'lv5',name:'Expert Detective',desc:'Score 8+ on Context clues level 5 or higher',cat:'clues',sym:'L5',val:v=>v.lv5,n:8,best:1},
  {id:'lv6',name:'Master Detective',desc:'Score 8+ on Context clues level 6',cat:'clues',sym:'L6',val:v=>v.lv6,n:8,best:1},
  {id:'ctx10',name:'Perfect Clues',desc:'Score 10 out of 10 on Context clues',cat:'clues',sym:'10/10',val:v=>v.ctxBest,n:10,best:1},
+ {id:'explore',name:'Explorer',desc:'Pass every kind of activity at least once',cat:'games',sym:'All',val:v=>v.kinds,n:10},
  {id:'mperf',name:'Flawless Match',desc:'Finish a Match round with no misses',cat:'games',sym:'0x',val:v=>v.matchPerfect,n:1},
  {id:'mfast',name:'Lightning Matcher',desc:'Finish a Match round in 30 seconds or less',cat:'games',sym:'30s',val:v=>v.matchFast<=30?1:0,n:1},
  {id:'mstreak',name:'Hot Streak',desc:'Match all 6 pairs in a row',cat:'games',sym:'6',val:v=>v.matchStreak,n:6,best:1},
@@ -18007,9 +18016,9 @@ const BADGES=[
  {id:'build50',name:'Master Builder',desc:'Build 50 words',cat:'games',sym:'B50',val:v=>v.built,n:50},
  {id:'parts25',name:'Word Surgeon',desc:'Break down 25 words',cat:'games',sym:'25',val:v=>v.parts,n:25},
  {id:'parts100',name:'Root Scientist',desc:'Break down 100 words',cat:'games',sym:'100',val:v=>v.parts,n:100},
- {id:'cards50',name:'Card Collector',desc:'Study 50 different flashcards',cat:'cards',sym:'50',val:v=>v.cards,n:50},
+ {id:'cards50',name:'Card Collector',desc:'Study 50 flashcards on both sides',cat:'cards',sym:'50',val:v=>v.both,n:50},
  {id:'both25',name:'Flip Side',desc:'Study 25 flashcards on both sides',cat:'cards',sym:'25',val:v=>v.both,n:25},
- {id:'cards150',name:'Whole Deck',desc:`Study all ${BANK.length} flashcards`,cat:'cards',sym:'All',val:v=>v.cards,n:BANK.length},
+ {id:'cards150',name:'Whole Deck',desc:`Study all ${BANK.length} flashcards on both sides`,cat:'cards',sym:'All',val:v=>v.both,n:BANK.length},
  {id:'mast10',name:'Root Rookie',desc:'Master 10 cards',cat:'cards',sym:'10★',val:v=>v.mastered,n:10},
  {id:'mast50',name:'Root Ranger',desc:'Master 50 cards',cat:'cards',sym:'50★',val:v=>v.mastered,n:50},
  {id:'mast100',name:'Root Royalty',desc:'Master 100 cards',cat:'cards',sym:'100★',val:v=>v.mastered,n:100},
@@ -18029,6 +18038,8 @@ const BADGES=[
  {id:'lat',name:'Latin Legend',desc:'80%+ right on Latin bases (20+ answers)',cat:'parts',sym:'Lat',val:v=>v.k_latin>=.8?1:0,n:1,hint:v=>`${v.kt_latin}/20 answers`},
  {id:'grk',name:'Greek Genius',desc:'80%+ right on Greek bases (20+ answers)',cat:'parts',sym:'Grk',val:v=>v.k_greek>=.8?1:0,n:1,hint:v=>`${v.kt_greek}/20 answers`},
 ];
+/* show badges grouped by kind, easiest first */
+{const ORD=["name", "first", "fcwk", "check1", "pass1", "chk1st", "pass3", "pass8", "pass12", "pass16", "chk10", "grow3", "run3", "run5", "run10", "run20", "days10", "days30", "days60", "min60", "rev5", "rev20", "quizr10", "quiz10", "ans100", "ans500", "ans1000", "ctx1", "ctxup", "ctxr25", "lv3", "lv4", "lv5", "ctxm", "lv6", "ctxm3", "ctx10", "explore", "build10", "build50", "parts25", "parts100", "spell10", "spellp", "mperf", "mfast", "mstreak", "mem", "mem10", "sortp", "speed15", "speed25", "both25", "cards50", "cards150", "mast10", "mast50", "mast100", "mastall", "week", "pre", "suf", "lat", "grk"];BADGES.sort((a,b)=>(ORD.indexOf(a.id)+999*(ORD.indexOf(a.id)<0))-(ORD.indexOf(b.id)+999*(ORD.indexOf(b.id)<0)))}
 const BCAT={start:'Getting started',plan:'Word Quest',streak:'Practice habits',quiz:'Quiz',clues:'Context clues',games:'Games',cards:'Cards',parts:'Word-part experts'};
 function earnedBadges(days,name){const v=badgeVals(days,name);return{v,ids:BADGES.filter(b=>b.val(v)>=b.n).map(b=>b.id)}}
 /* Badge art: each category has its own shape and colors; locked badges are grey outlines with a lock */
@@ -18041,7 +18052,7 @@ const BGRAD={start:['#FFE066','#F59F00'],plan:['#63E6BE','#0B7285'],streak:['#FF
   d.innerHTML=`<svg width="0" height="0"><defs>${g}<linearGradient id="bg-parts" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F783AC"/><stop offset=".35" stop-color="#4DABF7"/><stop offset=".65" stop-color="#9775FA"/><stop offset="1" stop-color="#51CF66"/></linearGradient><linearGradient id="bg-rib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4263EB"/><stop offset="1" stop-color="#364FC7"/></linearGradient></defs></svg>`;
   document.body.appendChild(d)})();
 /* Badge pictures: an emoji plus an optional little number tag */
-const BEMO={name:['👋'],first:['🔍'],run3:['🔥','3'],run5:['🔥','5'],run10:['🚀','10'],days10:['📅','10'],days30:['🗓️','30'],min60:['⏰','60m'],
+const BEMO={name:['👋'],chk1st:['🎯','1st'],ctxm3:['👑','3'],explore:['🧭'],first:['🔍'],run3:['🔥','3'],run5:['🔥','5'],run10:['🚀','10'],days10:['📅','10'],days30:['🗓️','30'],min60:['⏰','60m'],
   ans100:['💪','100'],ans500:['🤖','500'],quiz10:['💯'],quizr10:['📝','10'],check1:['✅'],grow3:['📈','+3'],
   ctx1:['🧩'],lv3:['🔎','L3'],lv4:['🧠','L4'],lv5:['🕵️','L5'],lv6:['🎩','L6'],ctx10:['🌟'],
   mperf:['🎯'],mfast:['⚡','30s'],mstreak:['🎉','6'],mem:['🐘'],mem10:['🃏','10'],build10:['🧱','10'],build50:['🏗️','50'],
