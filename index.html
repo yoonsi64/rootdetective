@@ -140,6 +140,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--primary);outlin
 .flash.cat-prefix{--fc:var(--prefix)} .flash.cat-suffix{--fc:var(--suffix)} .flash.cat-latin{--fc:var(--latin)} .flash.cat-greek{--fc:var(--greek)}
 .inner{display:grid;transition:transform .5s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flash.flipped .inner{transform:rotateY(180deg)}
+.flash.noflip .inner{transition:none!important}
 .face{grid-area:1/1;min-height:380px;background:var(--paper);color:var(--paper-ink);border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.10),0 8px 22px rgba(0,0,0,.10);padding:0 clamp(14px,4vw,30px);display:flex;flex-direction:column;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;font-family:var(--body)}
 .face.back{transform:rotateY(180deg)}
 .band{margin:0 2%;background:var(--fc);color:var(--paper-ink);border-radius:0 0 18px 18px;text-align:center;font-weight:700;letter-spacing:.05em;font-size:1.2rem;padding:12px 10px 10px}
@@ -2018,7 +2019,9 @@ function renderCard(){
   const n=c.cols.length, perCol=c.senses.length===n;
   const heads=perCol?c.senses.map(x=>`<div><b>${esc(x.mean)}</b>${x.pos?`<i>${esc(x.pos)}</i>`:''}${x.form?`<i class="form">${esc(x.form)}</i>`:''}</div>`).join('')
     :`<div style="grid-column:1/-1"><b>${esc(c.senses[0].mean)}</b>${c.senses[0].pos?`<i>${esc(c.senses[0].pos)}</i>`:''}</div>`;
-  $('flash').className='flash cat-'+c.kind;
+  /* a new card shows its front straight away: no flip-back animation from the last card */
+  {const f=$('flash'),wasBack=f.classList.contains('flipped');if(wasBack)f.classList.add('noflip');f.className='flash cat-'+c.kind+(wasBack?' noflip':'');
+   if(wasBack){void f.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('noflip')))}}
   $('front').innerHTML=`<div class="band">${BAND}</div>
     <div class="bigwrap"><div class="big" style="font-size:${size}">${esc(c.main)}</div>${c.alts?`<div class="alts">also: ${esc(c.alts)}</div>`:''}</div>
     <div class="hint">Tap the card to see what it means</div>
