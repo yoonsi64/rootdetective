@@ -57,7 +57,11 @@ h2{font-family:var(--display);font-weight:800;font-size:1.6rem;line-height:1.15;
 .sub{color:var(--muted);margin:0;font-size:.98rem}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
-button:focus-visible,input:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+/* no rectangular tap flash on touch screens; the focus ring sits inside the button's rounded edge (text colour, so it shows on any button colour) */
+*{-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid currentColor;outline-offset:-6px}
+.linkish:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:4px}
+input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 
 .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .tabs{display:flex;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:4px}
