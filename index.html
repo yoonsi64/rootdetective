@@ -17242,7 +17242,9 @@ let ctxBest=store.get('rd-ctx-best',{})||{};
 const CTX_PASS=7;
 /* Each plan week starts back at level 1: a level's unlock only counts scores from the week the student is on now.
    Rounds are saved per week in ctx.wk[week][level] (best score). After the whole Word Quest, every score counts. */
-function ctxWeek(){try{return questDone()?0:frontierWeek()||0}catch(e){return 0}}
+/* The week whose levels apply: the newest week once its flashcards are studied; until then the week before it keeps
+   its unlocked levels. Studying the new flashcards starts the new week at level 1. */
+function ctxWeek(){try{if(questDone())return 0;const fw=frontierWeek()||0;return ctxFcWait()&&fw>1?fw-1:fw}catch(e){return 0}}
 function ctxLevelBest(n,w=ctxWeek()){let b=-1;try{for(const k in HIST.days){const c=HIST.days[k].ctx||{};
   const v=w?((c.wk||{})[w]||{})[n]:((c.lv||{})[n]||{}).best;if(v!=null)b=Math.max(b,v)}}catch(e){}return b}
 /* Highest open level this week. 7+ on a level opens the next one; CTX_DROP or less on a level locks it again
@@ -17256,8 +17258,10 @@ function ctxWeekTop(w=ctxWeek()){
   return t!=null?t:fromBest(n=>ctxLevelBest(n,w))}
 /* Levels 2-6 stay locked until this week's flashcards are studied on both sides (level 1 stays open for earlier weeks' words) */
 function ctxFcWait(){if(canTeach)return 0;try{const g=fcGate();return g.ok?0:g.w}catch(e){return 0}}
-function ctxUnlocked(n){return n<=1||canTeach||(!ctxFcWait()&&n<=ctxWeekTop())}
-function ctxTopLevel(){return canTeach?6:ctxFcWait()?1:ctxWeekTop()}
+/* week 1 before its flashcards: no earlier week to keep, so only level 1 */
+function ctxNoLevels(){try{return !!ctxFcWait()&&(frontierWeek()||0)<=1}catch(e){return false}}
+function ctxUnlocked(n){return n<=1||canTeach||(!ctxNoLevels()&&n<=ctxWeekTop())}
+function ctxTopLevel(){return canTeach?6:ctxNoLevels()?1:ctxWeekTop()}
 function ctxPool(){const ids=new Set(pool().map(c=>c.id));const xs=CTX.filter(x=>ids.has(x.c.id));
   $('cnote').textContent=xs.length?`${xs.length} sentences use the cards you're practicing.`:'No sentences use the chosen cards yet, so all sentences are used.';
   return xs.length?xs:CTX}
@@ -17279,11 +17283,11 @@ function makeCtxQ(x,lev){
 }
 function levelPicker(){
   return`<div class="levels" role="group" aria-label="Challenge level">${LEVELS.map(l=>{const open=ctxUnlocked(l.n),best=ctxLevelBest(l.n);
-    return`<button class="lvl ${l.n===CL?'on':''} ${open?'':'locked'}" data-lv="${l.n}" aria-pressed="${l.n===CL}" ${open?'':`aria-disabled="true" title="${ctxFcWait()?`Study the week ${ctxFcWait()} flashcards first`:`Score ${CTX_PASS} or more on level ${l.n-1} this week to unlock`}"`}><b>${open?l.n:LOCK_ICON}</b><span>${l.name}</span>${open&&best>=0?`<small>best ${best}/${CN}</small>`:open?'':`<small>locked</small>`}</button>`}).join('')}</div>
+    return`<button class="lvl ${l.n===CL?'on':''} ${open?'':'locked'}" data-lv="${l.n}" aria-pressed="${l.n===CL}" ${open?'':`aria-disabled="true" title="${ctxNoLevels()?`Study the week ${ctxFcWait()} flashcards first`:`Score ${CTX_PASS} or more on level ${l.n-1} this week to unlock`}"`}><b>${open?l.n:LOCK_ICON}</b><span>${l.name}</span>${open&&best>=0?`<small>best ${best}/${CN}</small>`:open?'':`<small>locked</small>`}</button>`}).join('')}</div>
     <p class="note lvdesc" style="margin:0" title="${esc(LEVELS[CL-1].desc)}" onclick="this.classList.toggle('open')">${LEVELS[CL-1].desc}</p>`;
 }
 function wireLevels(){const tg=$('ccard').querySelector('.lvtoggle');if(tg){const open=$('ccard').classList.contains('lvopen');tg.setAttribute('aria-expanded',open);tg.onclick=()=>{const o=$('ccard').classList.toggle('lvopen');tg.setAttribute('aria-expanded',o)}}
-  $('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const n=+b.dataset.lv;if(!ctxUnlocked(n)){const d=$('ccard').querySelector('.lvdesc');if(d){d.textContent=ctxFcWait()?`Level ${n} is locked. Look at both sides of every week ${ctxFcWait()} flashcard first, then the levels open.`:`Level ${n} is locked. Score ${CTX_PASS} or more out of ${CN} on level ${n-1}${ctxWeek()?' this week':''} to unlock it. Each new week starts at level 1.`;d.classList.add('open','lvwarn')}try{FX.play('bad')}catch(e){}return}
+  $('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const n=+b.dataset.lv;if(!ctxUnlocked(n)){const d=$('ccard').querySelector('.lvdesc');if(d){d.textContent=ctxNoLevels()?`Level ${n} is locked. Look at both sides of every week ${ctxFcWait()} flashcard first, then the levels open.`:`Level ${n} is locked. Score ${CTX_PASS} or more out of ${CN} on level ${n-1}${ctxWeek()?' this week':''} to unlock it. Each new week starts at level 1.`;d.classList.add('open','lvwarn')}try{FX.play('bad')}catch(e){}return}
     $('ccard').classList.remove('lvopen');CL=n;store.set('rd-ctx-level',CL);startContext()})}
 function startContext(){
   if(!ctxUnlocked(CL)){CL=ctxTopLevel();store.set('rd-ctx-level',CL)}
@@ -17415,13 +17419,13 @@ function renderContext(){
   });
 }
 function ctxResults(){
-  const wasNext=C.lev.n<6&&ctxUnlocked(C.lev.n+1),prevBest=ctxLevelBest(C.lev.n),W=ctxFcWait()?0:ctxWeek(),t0=W?ctxWeekTop(W):0;
+  const wasNext=C.lev.n<6&&ctxUnlocked(C.lev.n+1),prevBest=ctxLevelBest(C.lev.n),W=ctxNoLevels()?0:ctxWeek(),t0=W?ctxWeekTop(W):0;
   let t1=t0;if(W&&!canTeach){if(C.score>=CTX_PASS&&C.lev.n<6)t1=Math.max(t1,C.lev.n+1);if(C.score<=CTX_DROP&&C.lev.n>1&&C.lev.n<=t1)t1=C.lev.n-1}
   rec(d=>{const o=sub(d,'ctx');bump(o,'r');const l=sub(sub(o,'lv'),C.lev.n);bump(l,'r');l.best=Math.max(l.best||0,C.score);
     if(W){const k=sub(sub(o,'wk'),W);k[C.lev.n]=Math.max(k[C.lev.n]||0,C.score);k.t=t1}});
   const s=C.score,L=C.lev.n,nb=s>prevBest,dropped=W&&t1<L;if(dropped){CL=t1;store.set('rd-ctx-level',CL)}if(s>=7)doneActivity('context');
   if(s>=7)setTimeout(celebrateWin,150);
-  const fw=ctxFcWait(),up=s>=CTX_PASS&&L<6&&!fw, down=s<=CTX_DROP&&L>1, newly=up&&!wasNext;
+  const fw=ctxNoLevels()?ctxFcWait():0,up=s>=CTX_PASS&&L<6&&!fw, down=s<=CTX_DROP&&L>1, newly=up&&!wasNext;
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span>Level ${L} complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${CN}</p><p class="prompt">${s>=9?'Excellent detective work!':s>=7?'Nice job using the clues!':'Keep practicing. Look for clue words near the underlined word.'}${nb&&s>0?(W?` New best for level ${L} this week!`:' New best for this level!'):''}</p>
