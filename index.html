@@ -801,6 +801,10 @@ button.hpill{cursor:pointer}button.hpill:hover{border-color:var(--primary)}
 .rdots{display:flex;align-items:center;gap:6px;margin-top:4px}.rdots i{width:22px;height:10px;border-radius:99px;background:var(--line)}.rdots i.on{background:var(--good)}.rdots em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:4px}
 .rctx{display:flex;align-items:center;gap:4px 10px;margin-top:6px;font-size:.88rem;font-weight:700}.rctx>span{flex:1 1 auto;min-width:0}.rctx>button{flex:none}.rctx small{display:block;font-weight:600;color:var(--muted)}.rctx.ok{color:var(--good)}
 .rgot span.part{color:var(--muted);background:var(--chip,var(--line))}
+.btn.holding,.btn.holding:disabled{position:relative;overflow:hidden;opacity:.75;cursor:progress}
+.btn.holding::after{content:"";position:absolute;left:0;bottom:0;height:4px;width:100%;background:currentColor;opacity:.55;transform-origin:left;animation:holdfill var(--hold,3s) linear forwards}
+@keyframes holdfill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+html.calm .btn.holding::after{animation-duration:var(--hold,3s)}
 .rtoast{position:fixed;z-index:64;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.22);width:min(420px,calc(100vw - 24px))}
 .rtoast[hidden]{display:none}.rtoast>span{font-size:1.4rem}.rtoast>div{display:flex;flex-direction:column;min-width:0}.rtoast b{font-size:.98rem}.rtoast div span{font-size:.84rem;color:var(--muted)}
 .rtoast.in{animation:rtIn .4s cubic-bezier(.3,1.5,.5,1)}@keyframes rtIn{0%{transform:translate(-50%,-30px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
@@ -1849,6 +1853,13 @@ function showReadyPop(w){
   el.onclick=e=>{if(e.target===el)close()};setTimeout(()=>$('rpGo').focus(),50);
   document.addEventListener('keydown',function k(e){if(e.key==='Escape'&&!el.hidden){close();document.removeEventListener('keydown',k)}});
 }
+/* After an answer, the Next button waits HOLD_MS so students read the answer first.
+   Kept per question (obj = the activity's state, i = question number), so re-drawing the screen doesn't restart it. */
+const HOLD_MS=3000;
+function holdNext(b,obj,i){if(!b||!obj)return;obj._holds=obj._holds||{};const now=Date.now();if(obj._holds[i]==null)obj._holds[i]=now;
+  const left=HOLD_MS-(now-obj._holds[i]);if(left<=50)return;
+  b.disabled=true;b.classList.add('holding');b.style.setProperty('--hold',left+'ms');b.setAttribute('title','Read the answer first');
+  setTimeout(()=>{if(!b.isConnected)return;b.disabled=false;b.classList.remove('holding');b.removeAttribute('title');try{b.focus({preventScroll:true})}catch(e){}},left)}
 const SESS={};
 function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need){SESS[k]=0;doneActivity(kind)}}catch(e){}}
 /* The check-in unlocks after three steps this week. One list drives the box, Home and the plan page. */
@@ -2068,7 +2079,7 @@ function answer(b){
     <p><mark>${esc(c.main)}</mark> means “${esc(c.mean)}”. Look for it in ${c.words.slice(0,3).map(w=>hl(w,c)).join(', ')}.</p>
     ${(()=>{const w=[c.clue[0],...c.words].find(w=>MORPH[w.toLowerCase()]&&MORPH[w.toLowerCase()].length>1);return w?`<p style="margin:0">Here's how <b>${esc(w)}</b> is built:</p>${partsRow(w)}`:''})()}
     <div class="grp" style="justify-content:space-between"><button class="btn primary" id="qnext">${last?'See my score':'Next question →'}</button>${reportBtn({where:'Quiz',card:c.main,word:c.main})}</div></div>`;
-  $('qnext').onclick=()=>{Q.i++;Q.i<QN?renderQ():results()};$('qnext').focus();
+  $('qnext').onclick=()=>{Q.i++;Q.i<QN?renderQ():results()};$('qnext').focus();holdNext($('qnext'),Q,Q.i);
 }
 function results(){
   const wasOpen=new Set(unlockedWeeks());
@@ -2138,7 +2149,7 @@ function fcGo(){const g=fcGate();cardsAll=false;if(studyWeeks.length)setStudyWee
   addEventListener('pagehide',()=>shield(true));addEventListener('pageshow',()=>shield(false));
   addEventListener('beforeprint',()=>{if(!off())shield(true)});addEventListener('afterprint',()=>shield(false));
 })();
-function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode)try{FX.clear()}catch(e){}mode=m;const fcLocked=!fcBypass&&!FC_FREE.includes(m)&&fcActLocked();MODES.forEach(x=>{$(x).hidden=x!==m||fcLocked;$('tab-'+x).setAttribute('aria-selected',x===m)});if($('fcGate')){$('fcGate').hidden=!fcLocked;if(fcLocked)renderFcGate()}updateFcTabs();renderFcHeld();try{renderWeekMenu();renderFilter()}catch(e){}
+function setMode(m,noStart){if(m==='plan'&&mode!=='plan')try{renderPlan.__scrolled=false;mapSel=null}catch(e){}if(m!=='speed')stopSpeedIfLeaving();if(m!==mode){try{FX.clear()}catch(e){}try{SPEAK.stop()}catch(e){}}mode=m;const fcLocked=!fcBypass&&!FC_FREE.includes(m)&&fcActLocked();MODES.forEach(x=>{$(x).hidden=x!==m||fcLocked;$('tab-'+x).setAttribute('aria-selected',x===m)});if($('fcGate')){$('fcGate').hidden=!fcLocked;if(fcLocked)renderFcGate()}updateFcTabs();renderFcHeld();try{renderWeekMenu();renderFilter()}catch(e){}
   centerTab(m);document.body.classList.toggle('on-home',m==='home');document.body.classList.toggle('in-act',m!=='home');document.body.classList.toggle('no-study',m==='home'||m==='plan'||m==='progress');requestAnimationFrame(()=>{try{filterEdge()}catch(e){}});try{updateReadyDots()}catch(e){}try{renderNameBar()}catch(e){}if(!noStart)refreshMode()}
 function centerTab(m,instant){const c=$('modeTabs'),t=$('tab-'+m);if(!c||!t||c.scrollWidth<=c.clientWidth+2)return;const left=t.offsetLeft-(c.clientWidth-t.offsetWidth)/2;
   try{c.scrollTo({left,behavior:instant||document.documentElement.classList.contains('calm')?'auto':'smooth'})}catch(e){c.scrollLeft=left}}
@@ -2564,11 +2575,13 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
     const keys=cs.map(key);
     if(audio&&REC&&keys.every(k=>REC.has(k))){audio._text=t;audio._rate=rate;audio.playbackRate=rate<1?Math.max(.8,rate+.05):1;queue=keys;playNext();return}
     if(ok)device(t,rate)}
-  return{ok:ok||!!audio,say,clean,chunks,key,voices:()=>list,current:()=>voice,recorded:()=>REC};
+  function stop(){try{if(ok)speechSynthesis.cancel()}catch(e){}if(audio){queue=[];audio._text='';try{audio.pause()}catch(e){}}}
+  return{ok:ok||!!audio,say,stop,clean,chunks,key,voices:()=>list,current:()=>voice,recorded:()=>REC};
 })();
 if(!SPEAK.ok)document.documentElement.classList.add('nosay');
 const SPK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const sayBtn=(text,label='Listen')=>`<button type="button" class="say" data-say="${esc(SPEAK.clean(text))}" aria-label="${esc(label)}" title="${esc(label)}">${SPK}</button>`;
+document.addEventListener('click',e=>{const n=e.target.closest&&e.target.closest('#qnext,#cnext,#spNext,#bnext,#wnext,#next,#back,.modetabs button,[data-ss],[data-goact]');if(n)SPEAK.stop()},true);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(!b)return;e.preventDefault();e.stopPropagation();SPEAK.say(b.dataset.say);b.classList.remove('speaking');void b.offsetWidth;b.classList.add('speaking')},true);
 
 /* ---------- Display options ---------- */
@@ -17353,7 +17366,7 @@ function renderPairQ(q){$('ccard').classList.remove('tight');
       <p>${pairSentHTML(x)}</p>
       ${explainHTML(x.w,x.c,x.def,x.sid,1)}${explainHTML(x.w2,x.c2,x.def2,x.sid2,2)}
       <div class="grp" style="justify-content:space-between"><button class="btn primary" id="cnext">${last?'See my score':'Next sentence →'}</button>${reportBtn({where:'Context clues',card:x.c.main+' / '+x.c2.main,word:x.w+' / '+x.w2,sentence:x.sent})}</div></div>`;
-    $('cnext').onclick=()=>{C.i++;C.i<CN?renderContext():ctxResults()};$('cnext').focus();
+    $('cnext').onclick=()=>{C.i++;C.i<CN?renderContext():ctxResults()};$('cnext').focus();holdNext($('cnext'),C,C.i);
   };
   draw6();requestAnimationFrame(fitCtx);
 }
@@ -17396,7 +17409,7 @@ function renderContext(){
       <p>${sentHTML(q.x,'u')}</p>
       ${explainHTML(q.x.w,c,q.x.def,q.x.sid)}
       <div class="grp" style="justify-content:space-between"><button class="btn primary" id="cnext">${last?'See my score':'Next sentence →'}</button>${reportBtn({where:'Context clues',card:c.main,word:q.x.w,sentence:q.x.sent})}</div></div>`;
-    $('cnext').onclick=()=>{C.i++;C.i<CN?renderContext():ctxResults()};$('cnext').focus();
+    $('cnext').onclick=()=>{C.i++;C.i<CN?renderContext():ctxResults()};$('cnext').focus();holdNext($('cnext'),C,C.i);
   });
 }
 function ctxResults(){
@@ -17534,7 +17547,7 @@ function renderSpell(autoSay,keepKb){
       renderSpell();const f=$('spFb');FX.burst(f,30);FX.cheer(f,FX.praise(SP.score));FX.play('good');}
     else{FX.play('bad');SP.tries++;if(SP.tries>=2){SP.state='shown';SP.missed.push(x);rec(d=>{bump(sub(d,'spell'),'t');missCard(d,x.c.id)})}else SP.state='retry';renderSpell();
       if(SP.state==='retry'){SP.state='ask';renderSpell(false,kb);$('spFb').innerHTML=`<p class="bfb no">Not quite. Listen again: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`;const i2=$('spIn');i2.classList.add('shake');if(kb||SPELL_KB.matches)i2.select()}}};
-  if($('spNext'))$('spNext').onclick=()=>{SP.i++;SP.tries=0;SP.state='ask';SP.last='';SP.showSent=false;renderSpell(true)};
+  if($('spNext')){$('spNext').onclick=()=>{SP.i++;SP.tries=0;SP.state='ask';SP.last='';SP.showSent=false;renderSpell(true)};holdNext($('spNext'),SP,SP.i)}
 }
 /* Spell it: after an answer, Enter goes to the next word (the Enter that checks the word doesn't also skip it) */
 document.addEventListener('keydown',e=>{if(e.key!=='Enter'||e.repeat||mode!=='spell'||!(SP&&(SP.state==='right'||SP.state==='shown')))return;
