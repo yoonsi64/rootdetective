@@ -2040,7 +2040,7 @@ function renderCard(){
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
-$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join(', ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
+$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{if(Date.now()-(window.__fcSwiped||0)<400)return;$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
 $('prev').onclick=()=>{idx=(idx-1+deck.length)%deck.length;renderCard();seenCard()};
