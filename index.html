@@ -1860,7 +1860,7 @@ function showReadyPop(w){
 }
 /* After an answer, the Next button waits HOLD_MS so students read the answer first.
    Kept per question (obj = the activity's state, i = question number), so re-drawing the screen doesn't restart it. */
-const HOLD_MS=3000;
+const HOLD_MS=2000;
 function holdNext(b,obj,i){if(!b||!obj)return;obj._holds=obj._holds||{};const now=Date.now();if(obj._holds[i]==null)obj._holds[i]=now;
   const left=HOLD_MS-(now-obj._holds[i]);if(left<=50)return;
   b.disabled=true;b.classList.add('holding');b.style.setProperty('--hold',left+'ms');b.setAttribute('title','Read the answer first');
