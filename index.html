@@ -788,6 +788,11 @@ button.hpill{cursor:pointer}button.hpill:hover{border-color:var(--primary)}
 @media (prefers-reduced-motion: reduce){.nextstep,.modetabs button.ping::after,.rp-card{animation:none}}
 .getready{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 14px;background:var(--card);border:2px dashed color-mix(in srgb,var(--primary) 45%,var(--line));border-radius:16px;padding:12px 14px}
 .rdots{display:flex;align-items:center;gap:6px;margin-top:4px}.rdots i{width:22px;height:10px;border-radius:99px;background:var(--line)}.rdots i.on{background:var(--good)}.rdots em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:4px}
+.rctx{display:flex;align-items:center;gap:4px 10px;margin-top:6px;font-size:.88rem;font-weight:700}.rctx>span{flex:1 1 auto;min-width:0}.rctx>button{flex:none}.rctx small{display:block;font-weight:600;color:var(--muted)}.rctx.ok{color:var(--good)}
+.rgot span.part{color:var(--muted);background:var(--chip,var(--line))}
+.rtoast{position:fixed;z-index:64;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:var(--card);color:var(--ink);border-radius:14px;padding:10px 14px;box-shadow:0 10px 30px rgba(0,0,0,.22);width:min(420px,calc(100vw - 24px))}
+.rtoast[hidden]{display:none}.rtoast>span{font-size:1.4rem}.rtoast>div{display:flex;flex-direction:column;min-width:0}.rtoast b{font-size:.98rem}.rtoast div span{font-size:.84rem;color:var(--muted)}
+.rtoast.in{animation:rtIn .4s cubic-bezier(.3,1.5,.5,1)}@keyframes rtIn{0%{transform:translate(-50%,-30px);opacity:0}100%{transform:translate(-50%,0);opacity:1}}
 .rgot{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.rgot span{font-size:.8rem;font-weight:700;color:var(--good);background:var(--good-bg);border-radius:999px;padding:2px 9px}
 .rrule{display:block;margin-top:6px;color:var(--muted);font-size:.82rem;line-height:1.45}.rrule summary{cursor:pointer;font-weight:700;color:var(--primary);width:max-content}.rrule span{display:block;padding-left:4px}.rrule span::before{content:'• '}
 .rrule span.rnote{margin-top:4px;font-style:italic}.rrule span.rnote::before{content:none}
@@ -1788,40 +1793,63 @@ function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))
 /* ---------- Check-in readiness: finish READY different activities with the current week's words first ---------- */
 const READY=4;
 const ACTN={cards:'Flashcards',parts:'Break it down',build:'Build it',quiz:'Quiz',review:'Daily review',context:'Context clues',match:'Match',memory:'Memory',spell:'Spell it',sort:'Word sort',speed:'Speed round'};
+/* An activity counts toward the check-in after ROUNDS passing rounds of it in that week. */
+const ROUNDS=3;
 const ACTRULE='Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
-function actsFor(w){const out=new Set();try{for(const k in HIST.days){const a=(HIST.days[k].acts||{})[w];if(a)a.forEach(x=>{if(x!=='cards')out.add(x)})}}catch(e){}return[...out]}
-function checkReady(w){return canTeach||weekPassed(w)||actsFor(w).length>=READY||!!(checkHistory(HIST.days)[w])}
+/* passing rounds per activity this week: day.actr[week][kind] counts them (an older day with only day.acts counts 1 each) */
+function roundsFor(w){const out={};try{for(const k in HIST.days){const d=HIST.days[k],r=(d.actr||{})[w];
+  if(r)for(const x in r)out[x]=(out[x]||0)+r[x];else((d.acts||{})[w]||[]).forEach(x=>out[x]=(out[x]||0)+1)}}catch(e){}delete out.cards;return out}
+function actsFor(w){const r=roundsFor(w);return Object.keys(r).filter(k=>r[k]>=ROUNDS)}
+/* The check-in opens after READY activities AND passing Context clues level CTX_REQ (7+/10) with that week's words. */
+const CTX_REQ=3;
+function ctxReqDone(w){if(canTeach)return true;try{for(const k in HIST.days){const x=((((HIST.days[k].ctx||{}).wk)||{})[w])||{};
+  for(let L=CTX_REQ;L<=6;L++)if((x[L]||0)>=CTX_PASS)return true}}catch(e){}return false}
+function checkReady(w){return canTeach||weekPassed(w)||(actsFor(w).length>=READY&&ctxReqDone(w))||!!(checkHistory(HIST.days)[w])}
 function doneActivity(kind){try{if(kind==='cards'||!fcGate().ok)return;
   const w=frontierWeek();if(weekPassed(w)||questDone())return;
-  const before=actsFor(w);if(before.includes(kind))return;
-  rec(d=>{const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind)});
-  const n=before.length+1;
-  if(n===READY)setTimeout(()=>{showReadyPop(w);FX.play('win')},450);
+  const before=roundsFor(w)[kind]||0;
+  rec(d=>{const legacy=!(d.actr&&d.actr[w])?((d.acts||{})[w]||[]).slice():[];   // rounds saved today before round-counting existed count once
+    const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind);
+    const r=sub(sub(d,'actr'),w);legacy.forEach(x=>{if(r[x]==null)r[x]=1});r[kind]=(r[kind]||0)+1});
+  if(before<ROUNDS)roundToast(kind,before+1);
+  /* pop up once, the moment both parts (activities + Context clues level) are done */
+  if(checkReady(w)&&!checkHistory(HIST.days)[w]&&readyPopped!==w&&store.get('rd-ready-seen',0)!==w){readyPopped=w;setTimeout(()=>{showReadyPop(w);FX.play('win')},450)}
   try{renderCardsTop()}catch(e){}updateReadyDots();
 }catch(e){}}
 /* "You're ready" pop-up: stays until the student chooses; dots on Home and Plan while the check-in waits */
+let readyPopped=0;
+function roundToast(kind,n){try{let t=$('roundToast');if(!t){t=document.createElement('div');t.id='roundToast';t.className='rtoast';t.setAttribute('role','status');t.setAttribute('aria-live','polite');document.body.appendChild(t)}
+  const done=n>=ROUNDS;t.innerHTML=`<span aria-hidden="true">${done?'✅':'🧩'}</span><div><b>${esc(ACTN[kind]||kind)}: ${Math.min(n,ROUNDS)} of ${ROUNDS} passing rounds</b><span>${done?'This activity now counts toward the check-in.':'Pass it '+(ROUNDS-n)+' more time'+(ROUNDS-n===1?'':'s')+' this week to count it.'}</span></div>`;
+  t.hidden=false;t.classList.remove('in');void t.offsetWidth;t.classList.add('in');clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,3200)}catch(e){}}
 function readyPending(){try{if(canTeach||questDone())return 0;const w=frontierWeek();return checkReady(w)&&!checkHistory(HIST.days)[w]?w:0}catch(e){return 0}}
 function updateReadyDots(){const w=readyPending();['tab-home','tab-plan'].forEach(id=>{const t=$(id);if(t){t.classList.toggle('ping',!!w);t.setAttribute('aria-description',w?`Week ${w} check-in is ready`:'')}})}
 function showReadyPop(w){
   let el=$('readyPop');if(!el){el=document.createElement('div');el.id='readyPop';el.className='readypop';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');el.setAttribute('aria-labelledby','rpTitle');document.body.appendChild(el)}
   el.innerHTML=`<div class="rp-card"><div class="rp-ico" aria-hidden="true">🎯</div><p class="hkick">Level-up test unlocked</p><h3 id="rpTitle">You're ready for the week ${w} check-in!</h3>
-    <p>You finished ${READY} activities with this week's words. Score ${PASS} out of 10 to ${nextGoal(w)}.</p>
+    <p>You passed ${READY} activities ${ROUNDS} times each and passed Context clues level ${CTX_REQ} with this week's words. Score ${PASS} out of 10 to ${nextGoal(w)}.</p>
     <div class="grp"><button class="btn primary big" id="rpGo">Take it now →</button><button class="btn" id="rpLater">Later</button></div></div>`;
-  el.hidden=false;if(!document.documentElement.classList.contains('calm'))FX.shower();
+  el.hidden=false;{const t=$('roundToast');if(t)t.hidden=true}if(!document.documentElement.classList.contains('calm'))FX.shower();
   const close=()=>{el.hidden=true;store.set('rd-ready-seen',w)};
   $('rpGo').onclick=()=>{close();startCheckin(w);scrollTo({top:0})};$('rpLater').onclick=close;
   el.onclick=e=>{if(e.target===el)close()};setTimeout(()=>$('rpGo').focus(),50);
   document.addEventListener('keydown',function k(e){if(e.key==='Escape'&&!el.hidden){close();document.removeEventListener('keydown',k)}});
 }
 const SESS={};
-function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need)doneActivity(kind)}catch(e){}}
+function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need){SESS[k]=0;doneActivity(kind)}}catch(e){}}
 function readyHTML(w,compact){const got=actsFor(w),n=Math.min(got.length,READY);
   const dots=Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');
   return`<div class="getready ${compact?'compact':''}"><span class="ns-ico" aria-hidden="true">🧩</span><div class="ns-text"><p class="hkick">Get ready for the week ${w} check-in</p>
-    <b>Finish ${READY} different activities with this week's words</b>
-    <span class="rdots" aria-label="${n} of ${READY} done">${dots}<em>${n} of ${READY} done</em></span>
-    ${got.length?`<span class="rgot">${got.map(k=>`<span>✓ ${ACTN[k]||k}</span>`).join('')}</span>`:''}
-    <details class="rrule"><summary>What counts?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the week's words.</span></details></div></div>`}
+    <b>Pass ${READY} different activities ${ROUNDS} times each, and pass Context clues level ${CTX_REQ}</b>
+    <span class="rdots" aria-label="${n} of ${READY} done">${dots}<em>${n} of ${READY} activities</em></span>
+    ${ctxReqHTML(w)}
+    ${rgotHTML(w)}
+    <details class="rrule"><summary>What counts?</summary><span class="rnote" style="font-style:normal;font-weight:700">An activity counts after ${ROUNDS} passing rounds this week. A passing round is:</span>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the week's words.</span></details></div></div>`}
+function rgotHTML(w){const r=roundsFor(w),ks=Object.keys(r).sort((a,b)=>Math.min(r[b],ROUNDS)-Math.min(r[a],ROUNDS));if(!ks.length)return'';
+  return`<span class="rgot">${ks.map(k=>r[k]>=ROUNDS?`<span>✓ ${ACTN[k]||k}</span>`:`<span class="part">${ACTN[k]||k} ${r[k]}/${ROUNDS}</span>`).join('')}</span>`}
+function ctxReqHTML(w){const ok=ctxReqDone(w);let top=1;try{top=ctxWeekTop(w)}catch(e){}
+  return ok?`<span class="rctx ok">✓ Context clues level ${CTX_REQ} passed</span>`
+    :`<span class="rctx"><span>🔍 Pass Context clues level ${CTX_REQ}<small>Score ${CTX_PASS}/10 · you're on level ${top}</small></span><button class="linkish" data-goctx>Go →</button></span>`}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-goctx]');if(b){e.preventDefault();setMode('context');scrollTo({top:0})}});
 function startCheckin(w){fcBypass=true;try{setMode('quiz',true)}finally{fcBypass=false}startQuiz(BANK.filter(c=>weekIds(w,false).includes(c.id)),{check:w})}
 const chosen=()=>{
   if(studyWeeks.length){const ids=new Set();studyWeeks.forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id))}
@@ -1915,7 +1943,7 @@ function nextStepHTML(where){
   const fw=frontierWeek(),h=checkHistory(HIST.days)[fw];
   if(!checkReady(fw))return readyHTML(fw,where==='cards');
   return`<div class="nextstep"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><p class="hkick">Next step</p>
-    <b>Take the week ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished ${READY} activities, so you're ready!`:''}</span></div>
+    <b>Take the week ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished the activities and Context clues level ${CTX_REQ}, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
 function renderCardsTop(){try{renderWeekMenu();renderFilter()}catch(e){}
   const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',note='',btn='';
@@ -17382,7 +17410,7 @@ function renderHome(){
       <p class="note">Score ${PASS}/10 to ${nextGoal(fw)}.${ph?` Best so far: ${ph.best}/10.`:''}</p>
       <div class="grp"><button class="btn primary big" id="homeCheck">Start the check-in →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
   else{
-    const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>${n} of ${READY} activities done, then the week ${fw} check-in</span></div>`;
+    const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>${n} of ${READY} activities done${n>=READY?'':','} ${ctxReqDone(fw)?`· Context clues level ${CTX_REQ} ✓`:`${n>=READY?'· now ':'and '}pass Context clues level ${CTX_REQ}`}, then the week ${fw} check-in</span></div>`;
     next=`<div class="hnext"><p class="hkick">${done?'✓ Today\'s review is done':'Next up'}</p>
       <h3>${done?'Pick any activity to keep practicing':picks.length?`Today's review: ${picks.length} word parts`:'Pick some weeks to study first'}</h3>
       ${!done&&picks.length?`<div class="chips">${picks.slice(0,5).map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)}</span>`).join('')}${picks.length>5?`<span class="chip">+${picks.length-5}</span>`:''}</div>`:''}
@@ -17648,11 +17676,11 @@ function openStage(w,keep){
   if(st==='locked'){status=`<p class="ss-status lock">🔒 ${isUnlocked(w-1)?`Pass the week ${w-1} check-in with ${PASS}/10 to open this stage.`:`Clear week ${w-1} first.`}</p>`}
   else{
     status=st==='done'?`<p class="ss-status ok">✓ Cleared · best ${ch.best}/10 <span class="ss-stars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>${stars<3?` <small>Score ${stars===1?9:10}/10 for another star</small>`:''}</p>`
-      :!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${n} of ${READY} activities done, then the check-in</div>`
+      :!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${n} of ${READY} activities done${isNext?` · Context clues level ${CTX_REQ} ${ctxReqDone(w)?'✓':'not passed yet'}`:''}, then the check-in</div>`
       :`<p class="ss-status">${ch?`Best so far: ${ch.best}/10. `:''}Score ${PASS}/10 on the check-in to clear this stage.</p>`;
     /* the check-in only opens after the week's practice activities (or once it has been passed) */
     const canCheck=st==='done'||ready;
-    btns=`<button class="btn ${st==='done'||!canCheck?'primary':''}" data-ss="study">Study week ${w} cards</button>`+(canCheck?`<button class="btn ${st!=='done'?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button>`:`<button class="btn" disabled title="Finish ${READY} activities with this week's words first">🔒 Check-in after ${READY} activities</button>`)}
+    btns=`<button class="btn ${st==='done'||!canCheck?'primary':''}" data-ss="study">Study week ${w} cards</button>`+(canCheck?`<button class="btn ${st!=='done'?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button>`:`<button class="btn" disabled title="Finish ${READY} activities and pass Context clues level ${CTX_REQ} first">🔒 Check-in after ${READY} activities + Clues level ${CTX_REQ}</button>`)}
   el.innerHTML=`<div class="ss-card"><button class="ss-x" data-ss="close" aria-label="Close">✕</button>
     <h3>Week ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
   el.hidden=false;
