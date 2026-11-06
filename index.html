@@ -2538,13 +2538,33 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
     voice=list[0]||null;
     try{document.dispatchEvent(new Event('rd-voices'))}catch(e){}}
   if(ok){pick();speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',pick):(speechSynthesis.onvoiceschanged=pick);setTimeout(pick,600);setTimeout(pick,2000)}
-  function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
-  /* long text is read sentence by sentence (smoother, and avoids Chrome cutting off long speech) */
-  function say(t,rate=1){if(!ok)return;try{speechSynthesis.cancel();const sp=1;
-    const parts=clean(t).match(/[^.!?;:]+[.!?;:]*\s*/g)||[clean(t)];
-    parts.map(x=>x.trim()).filter(Boolean).forEach(x=>{const u=new SpeechSynthesisUtterance(x);u.lang=voice?voice.lang:'en-US';if(voice)u.voice=voice;u.rate=Math.max(.5,Math.min(1.4,rate*sp));u.pitch=1;speechSynthesis.speak(u)});
+  function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/([A-Za-z])\(([a-z]+)\)/g,'$1$2').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
+  /* long text is read sentence by sentence (smoother, and avoids Chrome cutting off long speech); "Ms." etc. don't end a sentence */
+  function chunks(t){const c=clean(t).replace(/\b(Mr|Mrs|Ms|Dr)\./g,'$1․');
+    return (c.match(/[^.!?;:]+[.!?;:]*\s*/g)||[c]).map(x=>x.trim().replace(/․/g,'.')).filter(Boolean)}
+  /* Recorded natural voice (Kokoro "Heart"): audio/<key>.mp3 for every recorded line, listed in audio/index.json.
+     A line is played from recordings only if every piece of it was recorded; otherwise the device voice reads it. */
+  function key(t){let h1=0xdeadbeef,h2=0x41c6ce57;const s=t.toLowerCase().replace(/\s+/g,' ').trim();
+    for(let i=0;i<s.length;i++){const ch=s.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}
+    h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+    return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
+  let REC=null;const audio=typeof Audio!=='undefined'?new Audio():null;let queue=[];
+  try{fetch('audio/index.json',{cache:'force-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.keys)REC=new Set(j.keys)}).catch(()=>{})}catch(e){}
+  if(audio){audio.preload='auto';audio.addEventListener('ended',()=>{if(queue.length)playNext()});
+    /* iPad/iPhone only allow sound after a tap: unlock the player on the first tap */
+    const unlock=()=>{try{audio.muted=true;audio.src='audio/silence.mp3';const p=audio.play();if(p)p.then(()=>{audio.pause();audio.muted=false}).catch(()=>{audio.muted=false})}catch(e){}removeEventListener('pointerdown',unlock,true)};
+    addEventListener('pointerdown',unlock,true)}
+  function playNext(){const k=queue.shift();if(!k)return;audio.src='audio/'+k+'.mp3';audio.muted=false;
+    const p=audio.play();if(p)p.catch(()=>{queue=[];if(audio._text)device(audio._text,audio._rate)})}
+  function device(t,rate){try{speechSynthesis.cancel();
+    chunks(t).forEach(x=>{const u=new SpeechSynthesisUtterance(x);u.lang=voice?voice.lang:'en-US';if(voice)u.voice=voice;u.rate=Math.max(.5,Math.min(1.4,rate));u.pitch=1;speechSynthesis.speak(u)});
     if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}}
-  return{ok,say,clean,voices:()=>list,current:()=>voice};
+  function say(t,rate=1){const cs=chunks(t);if(!cs.length)return;
+    try{if(ok)speechSynthesis.cancel()}catch(e){}if(audio){audio.pause();queue=[]}
+    const keys=cs.map(key);
+    if(audio&&REC&&keys.every(k=>REC.has(k))){audio._text=t;audio._rate=rate;audio.playbackRate=rate<1?Math.max(.8,rate+.05):1;queue=keys;playNext();return}
+    if(ok)device(t,rate)}
+  return{ok:ok||!!audio,say,clean,chunks,key,voices:()=>list,current:()=>voice,recorded:()=>REC};
 })();
 if(!SPEAK.ok)document.documentElement.classList.add('nosay');
 const SPK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
