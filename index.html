@@ -2589,7 +2589,13 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
     h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
     return(4294967296*(2097151&h2)+(h1>>>0)).toString(36)}
   let REC=null;const audio=typeof Audio!=='undefined'?new Audio():null;let queue=[];
-  try{fetch('audio/index.json',{cache:'force-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.keys)REC=new Set(j.keys)}).catch(()=>{})}catch(e){}
+  /* the list of recorded lines: always checked with the server (never an old saved copy), and checked again if it
+     isn't there yet, e.g. the app was opened before the recordings were published */
+  let recAt=0,recP=null;
+  function loadRec(){if(recP)return recP;recAt=Date.now();
+    recP=fetch('audio/index.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.keys)REC=new Set(j.keys);recP=null;return REC}).catch(()=>{recP=null;return null});return recP}
+  try{loadRec()}catch(e){}
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&Date.now()-recAt>10*60*1000)loadRec()});
   if(audio){audio.preload='auto';audio.addEventListener('ended',()=>{if(queue.length)playNext()});
     /* iPad/iPhone only allow sound after a tap: unlock the player on the first tap */
     const unlock=()=>{try{audio.muted=true;audio.src='audio/silence.mp3';const p=audio.play();if(p)p.then(()=>{audio.pause();audio.muted=false}).catch(()=>{audio.muted=false})}catch(e){}removeEventListener('pointerdown',unlock,true)};
@@ -2601,10 +2607,14 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
     if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}}
   function say(t,rate=1){const cs=chunks(t);if(!cs.length)return;
     try{if(ok)speechSynthesis.cancel()}catch(e){}if(audio){audio.pause();queue=[]}
-    const keys=cs.map(key);
+    /* no list yet: fetch it (briefly) before falling back to the device voice */
+    if(audio&&!REC&&Date.now()-recAt>3000){const my=++sayN;Promise.race([loadRec(),new Promise(r=>setTimeout(r,1200))]).then(()=>{if(my===sayN)say2(t,rate,cs)});return}
+    sayN++;say2(t,rate,cs)}
+  let sayN=0;
+  function say2(t,rate,cs){const keys=cs.map(key);
     if(audio&&REC&&keys.every(k=>REC.has(k))){audio._text=t;audio._rate=rate;audio.playbackRate=rate<1?Math.max(.8,rate+.05):1;queue=keys;playNext();return}
     if(ok)device(t,rate)}
-  function stop(){try{if(ok)speechSynthesis.cancel()}catch(e){}if(audio){queue=[];audio._text='';try{audio.pause()}catch(e){}}}
+  function stop(){sayN++;try{if(ok)speechSynthesis.cancel()}catch(e){}if(audio){queue=[];audio._text='';try{audio.pause()}catch(e){}}}
   return{ok:ok||!!audio,say,stop,clean,chunks,key,voices:()=>list,current:()=>voice,recorded:()=>REC};
 })();
 if(!SPEAK.ok)document.documentElement.classList.add('nosay');
