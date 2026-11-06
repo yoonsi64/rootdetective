@@ -786,6 +786,17 @@ button.hpill{cursor:pointer}button.hpill:hover{border-color:var(--primary)}
 .rp-ico{font-size:3.2rem;line-height:1;margin-bottom:6px}
 @keyframes rpIn{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion: reduce){.nextstep,.modetabs button.ping::after,.rp-card{animation:none}}
+.getready.gsteps{display:block}
+.gs-head{display:flex;align-items:flex-start;gap:10px}.gs-head>div{flex:1;min-width:0}.gs-head b{display:block;font-size:1.02rem}
+.gs-count{flex:none;font-weight:800;font-size:.95rem;padding:3px 10px;border-radius:999px;background:var(--good-bg);color:var(--good)}
+.gs-list{list-style:none;margin:8px 0 4px;padding:0;display:flex;flex-direction:column;gap:6px}
+.gs-list li{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,var(--line) 35%,var(--card))}
+.gs-list li.ok{background:var(--good-bg)}
+.gs-n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9rem;background:var(--card);border:2px solid var(--line);color:var(--muted)}
+.gs-list li.ok .gs-n{background:var(--good);border-color:var(--good);color:#fff}
+.gs-t{flex:1;min-width:0;display:flex;flex-direction:column}.gs-t b{font-size:.95rem}.gs-t small{font-size:.82rem;color:var(--muted);font-weight:600}
+.gs-list li.ok .gs-t b{color:var(--good)}.gs-list .btn.small{flex:none;align-self:center}
+.gs-t .rgot{margin-top:5px}
 .getready{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 14px;background:var(--card);border:2px dashed color-mix(in srgb,var(--primary) 45%,var(--line));border-radius:16px;padding:12px 14px}
 .rdots{display:flex;align-items:center;gap:6px;margin-top:4px}.rdots i{width:22px;height:10px;border-radius:99px;background:var(--line)}.rdots i.on{background:var(--good)}.rdots em{font-style:normal;font-size:.85rem;font-weight:700;color:var(--muted);margin-left:4px}
 .rctx{display:flex;align-items:center;gap:4px 10px;margin-top:6px;font-size:.88rem;font-weight:700}.rctx>span{flex:1 1 auto;min-width:0}.rctx>button{flex:none}.rctx small{display:block;font-weight:600;color:var(--muted)}.rctx.ok{color:var(--good)}
@@ -1829,7 +1840,7 @@ function updateReadyDots(){const w=readyPending();['tab-home','tab-plan'].forEac
 function showReadyPop(w){
   let el=$('readyPop');if(!el){el=document.createElement('div');el.id='readyPop';el.className='readypop';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');el.setAttribute('aria-labelledby','rpTitle');document.body.appendChild(el)}
   el.innerHTML=`<div class="rp-card"><div class="rp-ico" aria-hidden="true">🎯</div><p class="hkick">Level-up test unlocked</p><h3 id="rpTitle">You're ready for the week ${w} check-in!</h3>
-    <p>You passed ${READY} activities ${ROUNDS} times each, including Spell it, and passed Context clues level ${CTX_REQ} with this week's words. Score ${PASS} out of 10 to ${nextGoal(w)}.</p>
+    <p>You finished all 3 steps: Spell it, Context clues level ${CTX_REQ}, and ${READY-1} more activities. Score ${PASS} out of 10 to ${nextGoal(w)}.</p>
     <div class="grp"><button class="btn primary big" id="rpGo">Take it now →</button><button class="btn" id="rpLater">Later</button></div></div>`;
   el.hidden=false;{const t=$('roundToast');if(t)t.hidden=true}if(!document.documentElement.classList.contains('calm'))FX.shower();
   const close=()=>{el.hidden=true;store.set('rd-ready-seen',w)};
@@ -1839,18 +1850,24 @@ function showReadyPop(w){
 }
 const SESS={};
 function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need){SESS[k]=0;doneActivity(kind)}}catch(e){}}
-function readyHTML(w,compact){const got=actsFor(w),n=Math.min(got.length,READY);
-  const dots=Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('');
-  return`<div class="getready ${compact?'compact':''}"><span class="ns-ico" aria-hidden="true">🧩</span><div class="ns-text"><p class="hkick">Get ready for the week ${w} check-in</p>
-    <b>Pass ${READY} different activities ${ROUNDS} times each (Spell it is a must), and pass Context clues level ${CTX_REQ}</b>
-    <span class="rdots" aria-label="${n} of ${READY} done">${dots}<em>${n} of ${READY} activities</em></span>
-    ${spellReqHTML(w)}${ctxReqHTML(w)}
-    ${rgotHTML(w)}
-    <details class="rrule"><summary>What counts?</summary><span class="rnote" style="font-style:normal;font-weight:700">An activity counts after ${ROUNDS} passing rounds this week. A passing round is:</span>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the week's words.</span></details></div></div>`}
-function rgotHTML(w){const r=roundsFor(w),ks=Object.keys(r).sort((a,b)=>Math.min(r[b],ROUNDS)-Math.min(r[a],ROUNDS));if(!ks.length)return'';
+/* The check-in unlocks after three steps this week. One list drives the box, Home and the plan page. */
+function readySteps(w){const r=roundsFor(w),others=actsFor(w).filter(k=>k!==REQ_ACT),need=READY-1;let top=1;try{top=ctxWeekTop(w)}catch(e){}
+  const sp=Math.min(r[REQ_ACT]||0,ROUNDS),ctxOk=ctxReqDone(w),on=Math.min(others.length,need);
+  return[
+    {ok:reqActDone(w),t:`Pass Spell it ${ROUNDS} times`,sub:`${sp} of ${ROUNDS} passing rounds`,short:`Spell it ${sp}/${ROUNDS}`,go:REQ_ACT},
+    {ok:ctxOk,t:`Pass Context clues level ${CTX_REQ}`,sub:ctxOk?`Passed`:`Score ${CTX_PASS}/10 on level ${CTX_REQ} · you're on level ${top}`,short:`Context clues level ${CTX_REQ}`,go:'context'},
+    {ok:others.length>=need,t:`Pass ${need} more activities ${ROUNDS} times each`,sub:`${on} of ${need} done · your choice of activity`,short:`${need-on} more ${need-on===1?'activity':'activities'}`,chips:true}]}
+function readyHTML(w,compact){const st=readySteps(w),done=st.filter(x=>x.ok).length;
+  return`<div class="getready gsteps ${compact?'compact':''}">
+    <div class="gs-head"><div><p class="hkick">Unlock the week ${w} check-in</p><b>Finish these ${st.length} steps this week</b></div><span class="gs-count" aria-label="${done} of ${st.length} steps done">${done}/${st.length}</span></div>
+    <ol class="gs-list">${st.map((x,i)=>`<li class="${x.ok?'ok':''}"><span class="gs-n" aria-hidden="true">${x.ok?'✓':i+1}</span>
+      <div class="gs-t"><b>${x.t}</b><small>${x.sub}</small>${x.chips?rgotHTML(w):''}</div>
+      ${!x.ok&&x.go?`<button class="btn small" data-goact="${x.go}">Go</button>`:''}</li>`).join('')}</ol>
+    <details class="rrule"><summary>What's a passing round?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the week's words.</span></details></div>`}
+function rgotHTML(w){const r=roundsFor(w),ks=Object.keys(r).filter(k=>k!==REQ_ACT).sort((a,b)=>Math.min(r[b],ROUNDS)-Math.min(r[a],ROUNDS));if(!ks.length)return'';
   return`<span class="rgot">${ks.map(k=>r[k]>=ROUNDS?`<span>✓ ${ACTN[k]||k}</span>`:`<span class="part">${ACTN[k]||k} ${r[k]}/${ROUNDS}</span>`).join('')}</span>`}
 /* what's still missing for the check-in, in words: ['Spell it 1/3','Context clues level 3'] */
-function readyMissing(w){const m=[];if(!reqActDone(w))m.push(`Spell it ${Math.min(roundsFor(w)[REQ_ACT]||0,ROUNDS)}/${ROUNDS}`);if(!ctxReqDone(w))m.push(`Context clues level ${CTX_REQ}`);return m}
+function readyMissing(w){return readySteps(w).filter(x=>!x.ok).map(x=>x.short)}
 function spellReqHTML(w){const n=Math.min(roundsFor(w)[REQ_ACT]||0,ROUNDS);
   return reqActDone(w)?`<span class="rctx ok">✓ Spell it passed ${ROUNDS} times</span>`
     :`<span class="rctx"><span>✏️ Pass Spell it ${ROUNDS} times<small>Score 7/10 · ${n} of ${ROUNDS} done</small></span><button class="linkish" data-goact="${REQ_ACT}">Go →</button></span>`}
@@ -17419,7 +17436,7 @@ function renderHome(){
       <p class="note">Score ${PASS}/10 to ${nextGoal(fw)}.${ph?` Best so far: ${ph.best}/10.`:''}</p>
       <div class="grp"><button class="btn primary big" id="homeCheck">Start the check-in →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
   else{
-    const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>${n} of ${READY} activities done${readyMissing(fw).length?` · still need ${readyMissing(fw).join(' and ')}`:''}, then the week ${fw} check-in</span></div>`;
+    const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>Week ${fw} check-in: ${3-readyMissing(fw).length} of 3 steps done${readyMissing(fw).length?` · still need ${readyMissing(fw).join(', ')}`:''}</span></div>`;
     next=`<div class="hnext"><p class="hkick">${done?'✓ Today\'s review is done':'Next up'}</p>
       <h3>${done?'Pick any activity to keep practicing':picks.length?`Today's review: ${picks.length} word parts`:'Pick some weeks to study first'}</h3>
       ${!done&&picks.length?`<div class="chips">${picks.slice(0,5).map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)}</span>`).join('')}${picks.length>5?`<span class="chip">+${picks.length-5}</span>`:''}</div>`:''}
@@ -17685,7 +17702,7 @@ function openStage(w,keep){
   if(st==='locked'){status=`<p class="ss-status lock">🔒 ${isUnlocked(w-1)?`Pass the week ${w-1} check-in with ${PASS}/10 to open this stage.`:`Clear week ${w-1} first.`}</p>`}
   else{
     status=st==='done'?`<p class="ss-status ok">✓ Cleared · best ${ch.best}/10 <span class="ss-stars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>${stars<3?` <small>Score ${stars===1?9:10}/10 for another star</small>`:''}</p>`
-      :!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${n} of ${READY} activities done${isNext&&readyMissing(w).length?` · still need ${readyMissing(w).join(' and ')}`:''}, then the check-in</div>`
+      :!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${isNext?`Check-in: ${3-readyMissing(w).length} of 3 steps done${readyMissing(w).length?` · still need ${readyMissing(w).join(', ')}`:''}`:`${n} of ${READY} activities done, then the check-in`}</div>`
       :`<p class="ss-status">${ch?`Best so far: ${ch.best}/10. `:''}Score ${PASS}/10 on the check-in to clear this stage.</p>`;
     /* the check-in only opens after the week's practice activities (or once it has been passed) */
     const canCheck=st==='done'||ready;
