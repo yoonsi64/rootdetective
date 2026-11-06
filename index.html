@@ -888,6 +888,7 @@ html.calm .floaty{display:none!important}
 .sayrow{display:flex;align-items:flex-start;gap:10px}
 .sayrow>p{flex:1;min-width:0}
 html.nospeak .say,html.nosay .say,html.nospeak .say-btn,html.nosay .say-btn{display:none!important}
+
 /* New modes */
 .spellask{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 .bigsay{width:auto;height:auto;border-radius:999px;padding:10px 18px;display:inline-flex;gap:8px;font:inherit;font-weight:700;background:var(--primary);color:var(--primary-ink);border-color:var(--primary)}
@@ -2518,12 +2519,32 @@ const FX=(()=>{
   return{burst,burstAt,shower,cheer,play,praise,clear};
 })();
 /* ---------- Read aloud (always English) ---------- */
-const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;let voice=null;
-  function pick(){if(!ok)return;const vs=speechSynthesis.getVoices();voice=vs.find(v=>/^en-US/i.test(v.lang)&&/samantha|google us|aria|jenny|zira|natural/i.test(v.name))||vs.find(v=>/^en-US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
-  if(ok){pick();speechSynthesis.onvoiceschanged=pick}
+/* Reading voice (set by the teacher, not a student choice): the most natural US English female voice the device has,
+   e.g. Aria/Jenny (Natural) in Edge, Ava (Premium)/Samantha on Apple, Google US English in Chrome.
+   Novelty and robotic voices are skipped. Normal speaking speed. */
+const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;let voice=null,list=[];
+  const NOVELTY=/albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|deranged|hysterical|pipe organ|fred|junior|ralph|kathy|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley|espeak|compact/i;
+  function score(v){const n=v.name;let s=0;
+    if(/^en[-_]US/i.test(v.lang))s+=30;else if(/^en[-_](GB|CA|AU|IE|NZ)/i.test(v.lang))s+=22;else if(/^en/i.test(v.lang))s+=15;else return -1;
+    if(/natural|neural|online/i.test(n))s+=40;if(/premium/i.test(n))s+=38;if(/enhanced/i.test(n))s+=32;
+    if(/google us english/i.test(n))s+=26;else if(/google/i.test(n))s+=12;
+    /* the voice we want: a US female voice */
+    if(/\b(aria|jenny|michelle|ana|emma|ava|samantha|allison|susan|zoe|joelle|noelle|nicky|zira|libby|sonia|serena|kate|karen|moira|tessa)\b/i.test(n))s+=20;
+    if(/\b(guy|brian|andrew|christopher|eric|roger|steffan|evan|nathan|tom|alex|aaron|daniel|david|mark|ryan|thomas|arthur|oliver|lee|rishi)\b/i.test(n))s-=12;
+    if(/zira|david|mark/i.test(n)&&!/natural|online/i.test(n))s-=6;   // older Windows voices
+    if(NOVELTY.test(n))s-=60;if(v.localService===false)s+=2;return s}
+  function pick(){if(!ok)return;const vs=speechSynthesis.getVoices();
+    list=vs.filter(v=>score(v)>=0).sort((x,y)=>score(y)-score(x));
+    voice=list[0]||null;
+    try{document.dispatchEvent(new Event('rd-voices'))}catch(e){}}
+  if(ok){pick();speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',pick):(speechSynthesis.onvoiceschanged=pick);setTimeout(pick,600);setTimeout(pick,2000)}
   function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
-  function say(t,rate=.9){if(!ok)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean(t));u.lang='en-US';if(voice)u.voice=voice;u.rate=rate;speechSynthesis.speak(u)}catch(e){}}
-  return{ok,say,clean};
+  /* long text is read sentence by sentence (smoother, and avoids Chrome cutting off long speech) */
+  function say(t,rate=1){if(!ok)return;try{speechSynthesis.cancel();const sp=1;
+    const parts=clean(t).match(/[^.!?;:]+[.!?;:]*\s*/g)||[clean(t)];
+    parts.map(x=>x.trim()).filter(Boolean).forEach(x=>{const u=new SpeechSynthesisUtterance(x);u.lang=voice?voice.lang:'en-US';if(voice)u.voice=voice;u.rate=Math.max(.5,Math.min(1.4,rate*sp));u.pitch=1;speechSynthesis.speak(u)});
+    if(speechSynthesis.paused)speechSynthesis.resume()}catch(e){}}
+  return{ok,say,clean,voices:()=>list,current:()=>voice};
 })();
 if(!SPEAK.ok)document.documentElement.classList.add('nosay');
 const SPK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
@@ -17484,7 +17505,7 @@ function renderSpell(autoSay,keepKb){
     <div id="spFb">${SP.state==='retry'?`<p class="bfb no">Not quite. Listen again and look at the parts: it has ${MORPH[x.w]?MORPH[x.w].filter(p=>p.kind!=='connector'&&p.kind!=='silent').length:'a few'} parts and starts with “${esc(x.w.slice(0,2))}”.</p>`:''}
     ${SP.state==='right'||SP.state==='shown'?`<div class="fb ${SP.state==='right'?'ok':'no'}"><strong>${SP.state==='right'?'Spelled it!':'Here is the spelling.'}</strong><p style="font-size:1.6rem;margin:0"><b>${hl(x.w,x.c)}</b></p>${partsRow(x.w)}<div class="grp" style="justify-content:space-between"><span class="grp" style="gap:10px;align-items:center"><button class="btn primary" id="spNext" aria-keyshortcuts="Enter">${SP.i===SN-1?'See my score':'Next word →'}</button>${SPELL_KB.matches?'<span class="note">or press Enter</span>':''}</span>${reportBtn({where:'Spell it',word:x.w,card:x.c.main})}</div></div>`:''}</div>
   </div>`;
-  if(autoSay&&SP.state==='ask'&&DISP.speak)setTimeout(()=>SPEAK.say(x.w,.85),250);
+  if(autoSay&&SP.state==='ask'&&DISP.speak)setTimeout(()=>SPEAK.say(x.w,.9),250);
   if($('spSent'))$('spSent').onclick=()=>{SP.showSent=true;SP.last=$('spIn').value;renderSpell()};
   const inp=$('spIn');if(SP.state==='ask'&&(keepKb||SPELL_KB.matches))inp.focus();
   $('spForm').onsubmit=e=>{e.preventDefault();if(SP.state!=='ask')return;const kb=document.activeElement===inp;const v=inp.value.trim().toLowerCase();if(!v)return;SP.last=v;
