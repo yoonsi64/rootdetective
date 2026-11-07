@@ -18754,7 +18754,7 @@ function checkBadges(){clearTimeout(badgeTimer);badgeTimer=setTimeout(()=>{
   const {ids}=earnedBadges(HIST.days,HIST.name);const fresh=ids.filter(i=>!BSEEN.has(i));if(!fresh.length)return;
   fresh.forEach(i=>BSEEN.add(i));store.set('rd-badges-seen',[...BSEEN]);badgeQueue.push(...fresh);showNextBadge()},900)}
 function showNextBadge(){if(badgeShowing||!badgeQueue.length)return;badgeShowing=true;
-  const b=BADGES.find(x=>x.id===badgeQueue.shift());if(!b){badgeShowing=false;return}const t=$('badgeToast');
+  const id=badgeQueue.shift(),b=BADGES.find(x=>x.id===id);if(!b){badgeShowing=false;return}const t=$('badgeToast');
   t.innerHTML=`${medal(b,true)}<div><small>New badge!</small><b>${esc(b.name)}</b><span>${esc(b.desc)}</span></div><button class="btn small" id="badgeSee">See badges</button>`;
   t.hidden=false;t.classList.remove('in');void t.offsetWidth;t.classList.add('in');
   FX.shower();FX.play('win');
