@@ -17881,7 +17881,7 @@ const LEVELS=[
   {n:4,name:'Hard',desc:'Harder words, 4 choices that are all the same kind of word part. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'kind'},
   {n:5,name:'Expert',desc:'The hardest words. Wrong answers share the same word part, so only the sentence clues can tell you. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'same'},
   {n:6,name:'Master',desc:'All-new sentences where the clues are hidden: you have to figure out the meaning from what happens. Some sentences have two mystery words to solve at once. No hints.',opts:4,types:['fill','mean'],hint:'none',dist:'same'}];
-let CL=(()=>{const v=+store.get('rd-ctx-level',2);return v>=1&&v<=6?v:2})();
+let CL=(()=>{const v=+store.get('rd-ctx-level',2);return v>=1&&v<=6?v:2})();let ctxFresh=true;
 let ctxBest=store.get('rd-ctx-best',{})||{};
 /* Levels unlock in order: score CTX_PASS or more out of 10 on a level to open the next one */
 const CTX_PASS=7;
@@ -17941,6 +17941,8 @@ function wireLevels(){const tg=$('ccard').querySelector('.lvtoggle');if(tg){cons
   $('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const n=+b.dataset.lv;if(!ctxUnlocked(n)){const d=$('ccard').querySelector('.lvdesc');if(d){d.textContent=ctxNoLevels()?`Level ${n} is locked. Look at both sides of every week ${ctxFcWait()} flashcard first, then the levels open.`:`Level ${n} is locked. Score ${CTX_PASS} or more out of ${CN} on level ${n-1}${ctxWeek()?' this week':''} to unlock it. Each new week starts at level 1.`;d.classList.add('open','lvwarn')}try{FX.play('bad')}catch(e){}return}
     $('ccard').classList.remove('lvopen');CL=n;store.set('rd-ctx-level',CL);startContext()})}
 function startContext(){
+  /* each time the app opens, Context clues starts on the highest level open right now (the week/flashcard rules still decide which) */
+  if(ctxFresh){ctxFresh=false;CL=ctxTopLevel();store.set('rd-ctx-level',CL)}
   if(!ctxUnlocked(CL)){CL=ctxTopLevel();store.set('rd-ctx-level',CL)}
   if(CL===6)return startMaster();
   const lev=LEVELS[CL-1],{xs,d}=levelPool(ctxPool(),CL);
