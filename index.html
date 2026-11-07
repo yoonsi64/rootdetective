@@ -2689,7 +2689,7 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
   if(ok){pick();speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',pick):(speechSynthesis.onvoiceschanged=pick);setTimeout(pick,600);setTimeout(pick,2000)}
   function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/([A-Za-z])\(([a-z]+)\)/g,'$1$2').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,|\.)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
   /* long text is read sentence by sentence (smoother, and avoids Chrome cutting off long speech); "Ms." etc. don't end a sentence */
-  function chunks(t){const c=clean(t).replace(/\b(Mr|Mrs|Ms|Dr)\./g,'$1․');
+  function chunks(t){const c=clean(t).replace(/\b(Mr|Mrs|Ms|Dr)\./g,'$1․').replace(/\b(?:[A-Z]\.){2,}/g,m=>m.slice(0,-1).replace(/\./g,'․')+'.');/* initials "J.R.T." stay in one piece */
     /* a piece with no letters or numbers (the closing quote in "…Friend.'") is never read, recorded or not */
     return (c.match(/[^.!?;:]+[.!?;:]*\s*/g)||[c]).map(x=>x.trim().replace(/․/g,'.')).filter(x=>/[A-Za-z0-9]/.test(x))}
   /* Recorded natural voice (Kokoro "Heart"): audio/<key>.mp3 for every recorded line, listed in audio/index.json.
