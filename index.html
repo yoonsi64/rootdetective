@@ -1874,6 +1874,7 @@ function doneActivity(kind){try{if(kind==='cards'||!fcGate().ok)return;
     const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind);
     const r=sub(sub(d,'actr'),w);legacy.forEach(x=>{if(r[x]==null)r[x]=1});r[kind]=(r[kind]||0)+1});
   if(before<ROUNDS)roundToast(kind,before+1);
+  try{renderFcHeld()}catch(e){}
   /* pop up once, the moment both parts (activities + Context clues level) are done */
   if(checkReady(w)&&!checkHistory(HIST.days)[w]&&readyPopped!==w&&store.get('rd-ready-seen',0)!==w){readyPopped=w;setTimeout(()=>{showReadyPop(w);FX.play('win')},450)}
   try{renderCardsTop()}catch(e){}updateReadyDots();
@@ -1941,7 +1942,16 @@ const basePool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
 /* A new week's words stay out of the activities until their flashcards are studied on both sides;
    earlier weeks' words stay open the whole time. */
 const fcHeld=()=>{try{const g=fcGate();return g.ok?new Set():new Set(g.ids)}catch(e){return new Set()}};
-const pool=()=>{const p=basePool(),h=fcHeld();return h.size?p.filter(c=>!h.has(c.id)):p};
+/* Once the new week's flashcards are studied, each activity uses only that week's cards until it has been passed
+   ROUNDS times this week (Context clues: until level CTX_REQ is passed). Then it goes back to every unlocked week.
+   Daily review keeps bringing back older words, and teachers' picks are left alone. */
+const FORCE_FREE=['cards','home','plan','progress','review'];
+function actForceWeek(m=mode){try{if(canTeach||selected||questDone()||FORCE_FREE.includes(m)||!fcGate().ok)return 0;
+  const w=frontierWeek()||0;if(!w||weekPassed(w))return 0;
+  if(m==='context')return ctxReqDone(w)?0:w;
+  return (roundsFor(w)[m]||0)>=ROUNDS?0:w}catch(e){return 0}}
+const pool=()=>{const fw=actForceWeek();if(fw){const ids=new Set(weekIds(fw,!!PLAN[fw-1].review));return BANK.filter(c=>ids.has(c.id))}
+  const p=basePool(),h=fcHeld();return h.size?p.filter(c=>!h.has(c.id)):p};
 /* Flashcards: when the student hasn't picked weeks (and no teacher selection), show only the newest unlocked week */
 let cardsAll=false;
 /* the week the student is working on now (first unlocked week not yet passed); flashcards start here */
@@ -2207,7 +2217,11 @@ function fcUnlockedNote(w){let el=$('fcDone');if(!el){el=document.createElement(
   const first=!chosen().some(c=>!PLAN[w-1].ids.includes(c.id));el.innerHTML=first?`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`:`<b>🎉 Week ${w} words added!</b><span>Your activities now include this week's new words.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200)}
 function fcActLocked(){const g=fcGate();if(g.ok)return false;const h=new Set(g.ids);return !chosen().some(c=>!h.has(c.id))}
 function updateFcTabs(){const g={ok:!fcActLocked()};document.querySelectorAll('.hgame[data-go]').forEach(b=>{const lk=!FC_FREE.includes(b.dataset.go)&&!g.ok;b.classList.toggle('gated',lk);if(lk)b.setAttribute('aria-description','Locked until you study the flashcards');else b.removeAttribute('aria-description')});MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
-function renderFcHeld(){const el=$('fcHeldNote');if(!el)return;const g=fcGate(),show=!g.ok&&!FC_FREE.includes(mode)&&!fcActLocked();el.hidden=!show;if(!show)return;
+function renderFcHeld(){const el=$('fcHeldNote');if(!el)return;const g=fcGate(),show=!g.ok&&!FC_FREE.includes(mode)&&!fcActLocked();
+  const fw=show?0:actForceWeek();
+  if(fw){el.hidden=false;const n=Math.min(roundsFor(fw)[mode]||0,ROUNDS),nm=ACTN[mode]||'this activity';
+    el.innerHTML=`<span aria-hidden="true">🎯</span><span>${mode==='context'?`Week ${fw} cards only until you pass level ${CTX_REQ}. Then all your weeks mix in.`:`Week ${fw} cards only until you pass ${nm} ${ROUNDS} times (${n} of ${ROUNDS}). Then all your weeks mix in.`}</span>`;return}
+  el.hidden=!show;if(!show)return;
   el.innerHTML=`<span aria-hidden="true">🗂️</span><span>Week ${g.w} words join after their flashcards (${g.done}/${g.ids.length})</span><button class="linkish" id="fhGo">Study them</button>`;$('fhGo').onclick=fcGo}
 function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.ids.length,pct=n?Math.round(g.done/n*100):100;
   el.innerHTML=`<div class="wcard fg-card"><div class="fg-ico" aria-hidden="true">🗂️</div><p class="hkick">Week ${g.w}</p><h2>First, study the flashcards</h2>
@@ -17862,9 +17876,8 @@ function ctxUnlocked(n){return n<=1||canTeach||(!ctxNoLevels()&&n<=ctxWeekTop())
 function ctxTopLevel(){return canTeach?6:ctxNoLevels()?1:ctxWeekTop()}
 /* After the new week's flashcards, Context clues uses only that week's words until level 3 is passed (7+) with them.
    Then every unlocked week mixes in again. Teachers' picks and the finished Word Quest are left alone. */
-function ctxForceWeek(){try{if(canTeach||selected||questDone()||ctxFcWait())return 0;const w=frontierWeek()||0;
-  return w&&!ctxReqDone(w)?w:0}catch(e){return 0}}
-function ctxIds(){const fw=ctxForceWeek();return new Set(fw?weekIds(fw,!!PLAN[fw-1].review):pool().map(c=>c.id))}
+const ctxForceWeek=()=>actForceWeek('context');
+function ctxIds(){return new Set(pool().map(c=>c.id))}
 const ctxForceNote=()=>{const fw=ctxForceWeek();return fw?`Week ${fw} words only until you pass level ${CTX_REQ}. After that, all your weeks mix in.`:''};
 function ctxPool(){const ids=ctxIds();const xs=CTX.filter(x=>ids.has(x.c.id));
   if(xs.length&&ctxForceWeek()){$('cnote').textContent=`${ctxForceNote()} (${xs.length} sentences)`;return xs}
