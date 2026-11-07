@@ -145,6 +145,7 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 .inner{display:grid;transition:transform .5s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flash.flipped .inner{transform:rotateY(180deg)}
 .flash.noflip .inner{transition:none!important}
+.wforce{margin:0;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--primary) 10%,var(--card));color:var(--ink)}
 .slots.shown{border-style:solid;border-color:var(--line);background:var(--card)}.slots.shown .tile:disabled{opacity:1}
 
 /* Flashcards: position + dots above the card, one row of big Back / Flip / Next buttons below it */
@@ -1887,7 +1888,7 @@ function doneActivity(kind){try{if(kind==='cards'||!fcGate().ok)return;
     const a=sub(d,'acts');a[w]=a[w]||[];if(!a[w].includes(kind))a[w].push(kind);
     const r=sub(sub(d,'actr'),w);legacy.forEach(x=>{if(r[x]==null)r[x]=1});r[kind]=(r[kind]||0)+1});
   if(before<ROUNDS)roundToast(kind,before+1);
-  try{renderFcHeld()}catch(e){}
+  try{renderFcHeld();renderWeekMenu();renderFilter()}catch(e){}
   /* pop up once, the moment both parts (activities + Context clues level) are done */
   if(checkReady(w)&&!checkHistory(HIST.days)[w]&&readyPopped!==w&&store.get('rd-ready-seen',0)!==w){readyPopped=w;setTimeout(()=>{showReadyPop(w);FX.play('win')},450)}
   try{renderCardsTop()}catch(e){}updateReadyDots();
@@ -1963,7 +1964,8 @@ function actForceWeek(m=mode){try{if(canTeach||selected||questDone()||FORCE_FREE
   const w=frontierWeek()||0;if(!w||weekPassed(w)||unlockedWeeks().length<=1)return 0;
   if(m==='context')return ctxReqDone(w)?0:w;
   return (roundsFor(w)[m]||0)>=ROUNDS?0:w}catch(e){return 0}}
-const pool=()=>{const fw=actForceWeek();if(fw){const ids=new Set(weekIds(fw,!!PLAN[fw-1].review));return BANK.filter(c=>ids.has(c.id))}
+const forcedCards=fw=>{const ids=new Set(weekIds(fw,!!PLAN[fw-1].review));return BANK.filter(c=>ids.has(c.id))};
+const pool=()=>{const fw=actForceWeek();if(fw){const all=forcedCards(fw),f=all.filter(c=>filter==='all'||c.set===filter);return f.length?f:all}
   const p=basePool(),h=fcHeld();return h.size?p.filter(c=>!h.has(c.id)):p};
 /* Flashcards: when the student hasn't picked weeks (and no teacher selection), show only the newest unlocked week */
 let cardsAll=false;
@@ -1999,7 +2001,10 @@ function shownWeeks(){if(studyWeeks.length)return studyWeeks;try{if(mode==='card
 function renderWeekMenu(){
   const shown=shownWeeks();
   const classLbl=selected?(curWeek?`My class (week ${curWeek})`:"My class's cards"):unlockedWeeks().length>=WEEKS?'All cards':'All my weeks';
-  $('weekBtn').textContent=shown.length?weeksLabel(shown):classLbl;
+  const fw=actForceWeek();
+  $('weekBtn').textContent=fw?`Week ${fw} only`:shown.length?weeksLabel(shown):classLbl;
+  {let n=$('weekForce');if(!n){n=document.createElement('p');n.id='weekForce';n.className='note wforce';$('weekPop').prepend(n)}
+   n.hidden=!fw;if(fw)n.textContent=mode==='context'?`Context clues uses week ${fw} cards until you pass level ${CTX_REQ}. Your picks here apply after that.`:`${ACTN[mode]||'This activity'} uses week ${fw} cards until you pass it ${ROUNDS} times. Your picks here apply after that.`}
   $('weekClass').textContent=classLbl;$('weekClass').classList.toggle('on',!shown.length);
   $('weekGrid').innerHTML=PLAN.map(p=>{const lk=!isUnlocked(p.w);return`<label class="wchk ${shown.includes(p.w)?'on':''} ${lk?'locked':''}" for="wk-${p.w}" title="${lk?`Score ${PASS}/10 on the week ${p.w-1} check-in to unlock`:''}"><input type="checkbox" id="wk-${p.w}" data-w="${p.w}" ${shown.includes(p.w)?'checked':''} ${lk?'disabled':''}><span>${lk?'🔒':p.w}${lk?`<small>week ${p.w}</small>`:p.review?'<small>review</small>':curWeek===p.w?'<small>this week</small>':''}</span></label>`}).join('');
   $('weekGrid').querySelectorAll('input').forEach(i=>i.onchange=()=>{const w=+i.dataset.w,base=shownWeeks(),next=i.checked?base.concat(w):base.filter(x=>x!==w);if(!next.length&&mode==='cards')cardsAll=true;setStudyWeeks(next);const n=$('wk-'+w);n&&n.focus()});
@@ -2021,7 +2026,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('weekPop').hidde
 
 function renderFilter(){
   /* on the Flashcards page the counts follow the cards being shown (e.g. only the newest week) */
-  let ch=chosen();try{if(mode==='cards'&&cardsScoped()){const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));ch=ch.filter(c=>ids.has(c.id))}}catch(e){}
+  let ch=chosen();const fwk=actForceWeek();if(fwk)ch=forcedCards(fwk);try{if(!fwk&&mode==='cards'&&cardsScoped()){const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));ch=ch.filter(c=>ids.has(c.id))}}catch(e){}
   const counts={a:0,l:0,g:0};ch.forEach(c=>counts[c.set]++);
   const opts=[['all',`All (${ch.length})`],...Object.keys(SETS).filter(s=>counts[s]||filter===s).map(s=>[s,`${SETS[s].split(' ')[0]} (${counts[s]})`])];
   const pickKind=k=>{filter=k;renderFilter();deck=cardPool();idx=0;renderCard();if(mode!=='cards')refreshMode()};
