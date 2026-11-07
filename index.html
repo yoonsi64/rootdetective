@@ -2690,7 +2690,8 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
   function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/([A-Za-z])\(([a-z]+)\)/g,'$1$2').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,|\.)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
   /* long text is read sentence by sentence (smoother, and avoids Chrome cutting off long speech); "Ms." etc. don't end a sentence */
   function chunks(t){const c=clean(t).replace(/\b(Mr|Mrs|Ms|Dr)\./g,'$1․');
-    return (c.match(/[^.!?;:]+[.!?;:]*\s*/g)||[c]).map(x=>x.trim().replace(/․/g,'.')).filter(Boolean)}
+    /* a piece with no letters or numbers (the closing quote in "…Friend.'") is never read, recorded or not */
+    return (c.match(/[^.!?;:]+[.!?;:]*\s*/g)||[c]).map(x=>x.trim().replace(/․/g,'.')).filter(x=>/[A-Za-z0-9]/.test(x))}
   /* Recorded natural voice (Kokoro "Heart"): audio/<key>.mp3 for every recorded line, listed in audio/index.json.
      A line is played from recordings only if every piece of it was recorded; otherwise the device voice reads it. */
   function key(t){let h1=0xdeadbeef,h2=0x41c6ce57;const s=t.toLowerCase().replace(/\s+/g,' ').trim();
