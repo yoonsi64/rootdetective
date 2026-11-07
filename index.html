@@ -17860,7 +17860,14 @@ function ctxFcWait(){if(canTeach)return 0;try{const g=fcGate();return g.ok?0:g.w
 function ctxNoLevels(){try{return !!ctxFcWait()&&(frontierWeek()||0)<=1}catch(e){return false}}
 function ctxUnlocked(n){return n<=1||canTeach||(!ctxNoLevels()&&n<=ctxWeekTop())}
 function ctxTopLevel(){return canTeach?6:ctxNoLevels()?1:ctxWeekTop()}
-function ctxPool(){const ids=new Set(pool().map(c=>c.id));const xs=CTX.filter(x=>ids.has(x.c.id));
+/* After the new week's flashcards, Context clues uses only that week's words until level 3 is passed (7+) with them.
+   Then every unlocked week mixes in again. Teachers' picks and the finished Word Quest are left alone. */
+function ctxForceWeek(){try{if(canTeach||selected||questDone()||ctxFcWait())return 0;const w=frontierWeek()||0;
+  return w&&!ctxReqDone(w)?w:0}catch(e){return 0}}
+function ctxIds(){const fw=ctxForceWeek();return new Set(fw?weekIds(fw,!!PLAN[fw-1].review):pool().map(c=>c.id))}
+const ctxForceNote=()=>{const fw=ctxForceWeek();return fw?`Week ${fw} words only until you pass level ${CTX_REQ}. After that, all your weeks mix in.`:''};
+function ctxPool(){const ids=ctxIds();const xs=CTX.filter(x=>ids.has(x.c.id));
+  if(xs.length&&ctxForceWeek()){$('cnote').textContent=`${ctxForceNote()} (${xs.length} sentences)`;return xs}
   $('cnote').textContent=xs.length?`${xs.length} sentences use the cards you're practicing.`:'No sentences use the chosen cards yet, so all sentences are used.';
   return xs.length?xs:CTX}
 function levelPool(all,L){
@@ -17897,7 +17904,7 @@ function startContext(){
   renderContext();
 }
 function startMaster(){
-  const lev=LEVELS[5],ids=new Set(pool().map(c=>c.id));
+  const lev=LEVELS[5],ids=ctxIds();
   let ss=CTX6.filter(x=>ids.has(x.c.id)),ps=CTX6P.filter(x=>ids.has(x.c.id)||ids.has(x.c2.id));
   const mine=ss.length+ps.length;
   const np=Math.random()<.5?3:4;
