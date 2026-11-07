@@ -145,6 +145,7 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 .inner{display:grid;transition:transform .5s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flash.flipped .inner{transform:rotateY(180deg)}
 .flash.noflip .inner{transition:none!important}
+.slots.shown{border-style:solid;border-color:var(--line);background:var(--card)}.slots.shown .tile:disabled{opacity:1}
 
 /* Flashcards: position + dots above the card, one row of big Back / Flip / Next buttons below it */
 .fcbar{display:flex;align-items:center;gap:10px;margin:2px 2px 8px;min-height:26px}
@@ -1957,7 +1958,7 @@ const fcHeld=()=>{try{const g=fcGate();return g.ok?new Set():new Set(g.ids)}catc
    Daily review keeps bringing back older words, and teachers' picks are left alone. */
 const FORCE_FREE=['cards','home','plan','progress','review'];
 function actForceWeek(m=mode){try{if(canTeach||selected||questDone()||FORCE_FREE.includes(m)||!fcGate().ok)return 0;
-  const w=frontierWeek()||0;if(!w||weekPassed(w))return 0;
+  const w=frontierWeek()||0;if(!w||weekPassed(w)||unlockedWeeks().length<=1)return 0;
   if(m==='context')return ctxReqDone(w)?0:w;
   return (roundsFor(w)[m]||0)>=ROUNDS?0:w}catch(e){return 0}}
 const pool=()=>{const fw=actForceWeek();if(fw){const ids=new Set(weekIds(fw,!!PLAN[fw-1].review));return BANK.filter(c=>ids.has(c.id))}
@@ -2570,7 +2571,7 @@ function newBuild(){
   const cands=shuf(WORDS.flatMap(x=>x.parts)).filter(p=>!p.silent&&!have.has(p.s)&&(have.add(p.s),true));
   const want=['prefix','suffix',null,null], extra=[];
   for(const k of want){const i=cands.findIndex(p=>k?p.kind===k:true);if(i>=0)extra.push(cands.splice(i,1)[0])}
-  B={w,tiles:shuf([...w.parts,...extra]),picked:[],hint:0,solved:false,msg:''};
+  B={w,tiles:shuf([...w.parts,...extra]),picked:[],hint:0,solved:false,msg:'',wrong:0,shown:false};
   renderBuild();
 }
 function renderBuild(){
@@ -2580,16 +2581,15 @@ function renderBuild(){
   const hint=B.hint?`Hint: ${w.parts.slice(0,B.hint).map(p=>esc(PSHOW(p))).join(' + ')}${B.hint<w.parts.length?' + …':''}`:`This word has ${w.parts.length} parts.`;
   $('bcard').innerHTML=`<p class="wlabel">Build a word that means</p>
     <div class="sayrow" style="justify-content:center"><p class="target">“${esc(w.def)}”</p>${sayBtn(w.def,"Listen to the meaning")}</div>
-    <div class="slots ${B.solved?'ok':''}" id="slots">${slot}</div>
-    ${B.solved?`${eqHTML(w)}<p class="bfb ok">You built it! ${built} word${built===1?'':'s'} built so far.</p>`
+    <div class="slots ${B.shown?'shown':B.solved?'ok':''}" id="slots">${slot}</div>
+    ${B.solved?`${eqHTML(w)}${B.shown?`<p class="bfb">That was 3 tries, so here is how it fits together. Try the next one!</p>`:`<p class="bfb ok">You built it! ${built} word${built===1?'':'s'} built so far.</p>`}`
       :`<p class="hintline">${hint}</p>${B.msg?`<p class="bfb no">${B.msg}</p>`:''}
     <div class="tray">${B.tiles.map((t,i)=>`<button class="tile c-${t.kind}" data-i="${i}" ${B.picked.includes(i)?'disabled':''}><b>${esc(t.s)}</b><small>${PLABEL(t)}</small></button>`).join('')}</div>`}
     <div class="controls" style="justify-content:center">
       ${B.solved?`<button class="btn primary" id="bnext">Next word →</button>`
         :`<button class="btn primary" id="bcheck" ${B.picked.length?'':'disabled'}>Check</button>
           <button class="btn" id="bclear" ${B.picked.length?'':'disabled'}>Clear</button>
-          <button class="btn" id="bhint" ${B.hint>=w.parts.length?'disabled':''}>Hint</button>
-          <button class="btn" id="bskip">Show answer</button>`}
+          <button class="btn" id="bhint" ${B.hint>=w.parts.length?'disabled':''}>Hint</button>`}
     </div>`;
   $('bcard').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{B.picked.push(+b.dataset.i);B.msg='';renderBuild()});
   $('bcard').querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>{B.picked=B.picked.filter(i=>i!==+b.dataset.un);B.msg='';renderBuild()});
@@ -2597,14 +2597,19 @@ function renderBuild(){
   $('bcheck').onclick=()=>{
     const made=B.picked.map(i=>B.tiles[i].s).join('');
     if(made===w.w){rec(d=>{const o=sub(d,'build');bump(o,'n');if(B.hint)bump(o,'hints');w.parts.forEach(p=>{if(p.card)bump(sub(d,'right'),p.card.id)})});B.solved=true;built++;progressCount('build',3);renderBuild();const sl=$('slots');FX.burst(sl,40);FX.cheer(sl,FX.praise(0));FX.play('good',2);sl.classList.add('popin')}
-    else{B.msg=made.length<w.w.length&&w.w.startsWith(made)?`Good start! “${esc(made)}” needs more parts.`:`“${esc(made)}” isn't the word. Try a different part.`;
+    else{const start=made.length<w.w.length&&w.w.startsWith(made);
+      /* 3 wrong tries (a correct start that just needs more parts doesn't count) and the answer is shown */
+      if(!start&&++B.wrong>=BUILD_TRIES){showBuildAnswer();return}
+      const left=BUILD_TRIES-B.wrong;
+      B.msg=start?`Good start! “${esc(made)}” needs more parts.`:`“${esc(made)}” isn't the word. Try a different part. ${left} ${left===1?'try':'tries'} left.`;
       renderBuild();const sl=$('slots');sl.classList.add('no','shake')}
   };
   $('bclear').onclick=()=>{B.picked=[];B.msg='';renderBuild()};
   $('bhint').onclick=()=>{B.hint++;renderBuild()};
-  $('bskip').onclick=()=>{rec(d=>{bump(sub(d,'build'),'shown');w.parts.forEach(p=>{if(p.card)missCard(d,p.card.id)})});B.picked=w.parts.map(p=>B.tiles.indexOf(p));B.solved=true;B.msg='';renderBuild();
-    $('bcard').querySelector('.bfb').textContent='Here is how it fits together. Try the next one!'};
 }
+const BUILD_TRIES=3;
+function showBuildAnswer(){const w=B.w;rec(d=>{bump(sub(d,'build'),'shown');w.parts.forEach(p=>{if(p.card)missCard(d,p.card.id)})});
+  B.picked=w.parts.map(p=>B.tiles.indexOf(p));B.solved=true;B.shown=true;B.msg='';renderBuild();try{FX.play('bad')}catch(e){}}
 
 /* ---------- Celebration effects: confetti, sounds, cheers ---------- */
 const FX=(()=>{
