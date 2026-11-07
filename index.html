@@ -2124,7 +2124,10 @@ const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards'
 /* the Listen button sits on the card's coloured band, in the card's colour */
 function fcSayPlace(){const bd=$('front')&&$('front').querySelector('.band'),sc=document.querySelector('#cardArea .scene');if(!bd||!sc||!bd.offsetHeight)return;
   const r=bd.getBoundingClientRect(),q=sc.getBoundingClientRect();sc.style.setProperty('--bandh',bd.offsetHeight+'px');sc.style.setProperty('--bandr',Math.round(q.right-r.right)+'px');
-  sc.style.setProperty('--fc',getComputedStyle($('flash')).getPropertyValue('--fc'))}
+  sc.style.setProperty('--fc',getComputedStyle($('flash')).getPropertyValue('--fc'));
+  /* centre it in the coloured space to the right of the label (PREFIX, SUFFIX...) */
+  const b=$('listenCard');if(!b)return;let lr=r.left+r.width/2;try{const g=document.createRange();g.selectNodeContents(bd);lr=g.getBoundingClientRect().right}catch(e){}
+  const room=r.right-lr,bw=b.offsetWidth;b.style.left=room>=bw+16?Math.round(lr+(room-bw)/2-q.left)+'px':'';b.style.right=room>=bw+16?'auto':''}
 addEventListener('resize',fcSayPlace);
 function fcSayWatch(){const b=$('listenCard');b.classList.add('playing');clearInterval(b._t);let n=0;
   b._t=setInterval(()=>{n++;if(n>4&&!SPEAK.busy()){b.classList.remove('playing');clearInterval(b._t)}},150)}
