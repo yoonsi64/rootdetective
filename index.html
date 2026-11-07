@@ -145,6 +145,40 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 .inner{display:grid;transition:transform .5s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flash.flipped .inner{transform:rotateY(180deg)}
 .flash.noflip .inner{transition:none!important}
+
+/* Flashcards: position + dots above the card, one row of big Back / Flip / Next buttons below it */
+.fcbar{display:flex;align-items:center;gap:10px;margin:2px 2px 8px;min-height:26px}
+.fcpos{font-weight:800;font-size:.92rem;white-space:nowrap;color:var(--ink)}
+.fcpos small{font-weight:600;color:var(--muted);font-size:.85rem}
+.fcdots{flex:1;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0;min-width:0}
+.fcdots button{border:0;background:none;padding:6px 3px;min-height:0;line-height:0;cursor:pointer}
+.fcdots button i{display:block;width:10px;height:10px;border-radius:50%;background:var(--line);box-sizing:border-box;transition:transform .15s}
+.fcdots button.both i{background:color-mix(in srgb,var(--primary) 55%,var(--line))}
+.fcdots button.kn i{background:var(--good,#2F9E44)}
+.fcdots button.cur i{transform:scale(1.45);box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--ink)}
+.fcdots button:focus-visible{outline:2px solid var(--primary);outline-offset:0;border-radius:6px}
+.fcrail{flex:1;height:8px;border-radius:999px;background:var(--line);position:relative;overflow:hidden}
+.fcrail i{position:absolute;inset:0 auto 0 0;background:var(--primary);border-radius:999px}
+.scene{position:relative}
+.fcsay{position:absolute;top:6px;right:calc(2% + 8px);height:38px;padding:0 10px;border-radius:999px;border:0;background:transparent;color:var(--paper-ink);display:flex;align-items:center;gap:5px;font-weight:700;font-size:.85rem;z-index:2;cursor:pointer}
+.fcsay:hover{background:color-mix(in srgb,var(--paper) 45%,transparent)}
+@media (max-width:640px){.fcsay{top:1px}}@media (max-width:370px){.fcsay span{display:none}}
+.fcsay svg{width:21px;height:21px;flex:none;fill:currentColor;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fcsay:active{transform:scale(.94)}
+.fcsay:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.fcnav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.fcnav .btn{min-height:54px;font-size:1.05rem;padding:8px 6px;display:flex;align-items:center;justify-content:center;gap:6px}
+.fcnav .btn span{font-size:1.4em;line-height:0;font-weight:800}
+.fcnav .fcflip span{font-size:1.15em}
+.fctools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.fctools .btn{min-height:40px}
+.fckeys{text-align:center;margin-top:8px;font-size:.82rem}
+.fckeys kbd{font:inherit;font-weight:700;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;background:var(--card)}
+@media (hover:none),(pointer:coarse){.fckeys{display:none}}
+.fcstrip .fcs-row{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.fcstrip .fcs-row .btn{flex:none;white-space:nowrap}
+.fcend{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-weight:700;font-size:.9rem;white-space:nowrap;z-index:3;pointer-events:none;opacity:0;transition:opacity .25s}
+.fcend.show{opacity:1}
 .face{grid-area:1/1;min-height:380px;background:var(--paper);color:var(--paper-ink);border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.10),0 8px 22px rgba(0,0,0,.10);padding:0 clamp(14px,4vw,30px);display:flex;flex-direction:column;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;font-family:var(--body)}
 .face.back{transform:rotateY(180deg)}
 .band{margin:0 2%;background:var(--fc);color:var(--paper-ink);border-radius:0 0 18px 18px;text-align:center;font-weight:700;letter-spacing:.05em;font-size:1.2rem;padding:12px 10px 10px}
@@ -1333,7 +1367,7 @@ body.shield:not(.can-copy)::after{content:"Root Detective";position:fixed;inset:
   .heads{padding:8px 0 6px;gap:6px}.heads b{font-size:1.05rem}.heads i{font-size:.85rem;margin-top:2px}
   .tchart{min-height:110px}.tchart .col{padding:8px 6px 10px;gap:.15em;font-size:1.15rem}
   .scopebar.slim{box-sizing:border-box}
-  #cards .controls{margin-top:10px!important;gap:8px}
+  .fcnav{margin-top:10px;gap:8px}.fcnav .btn{min-height:50px}
   /* Break it down */
   .wlabel{font-size:.75rem}
   .segs{font-size:clamp(1.6rem,7.5vw,2.4rem)}.eq{font-size:.95rem;gap:4px 6px}
@@ -1453,6 +1487,10 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
     <section id="cards" hidden>
       <div id="cardsTop" class="cardstop"></div>
       <div id="cardArea">
+        <div class="fcbar">
+          <span class="fcpos" id="fcPos" aria-live="polite"></span>
+          <div class="fcdots" id="fcDots" role="group" aria-label="Jump to a card"></div>
+        </div>
         <div class="scene">
           <button class="flash" id="flash" aria-label="Flashcard. Tap to flip. Space bar flips it. Swipe or use the arrow keys for the next or previous card.">
             <div class="inner">
@@ -1460,19 +1498,19 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
               <div class="face back" id="back"></div>
             </div>
           </button>
+          <button type="button" class="fcsay say-btn" id="listenCard" aria-label="Listen to this card" title="Listen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none"/></svg><span>Listen</span></button>
         </div>
-        <div class="controls" style="margin-top:14px">
-          <div class="grp">
-            <button class="btn" id="prev">← Back</button>
-            <button class="btn primary" id="next" style="padding-inline:26px">Next →</button>
-          </div>
-          <div class="grp">
-            <button class="btn" id="shuffle">Shuffle</button>
-            <button class="btn say-btn" id="listenCard" aria-label="Listen to this card">Listen</button>
-            <button class="btn known" id="known" aria-pressed="false">✓ I know this</button>
-          </div>
+        <div class="fcnav">
+          <button class="btn fcarrow" id="prev" aria-label="Previous card"><span aria-hidden="true">‹</span> Back</button>
+          <button class="btn fcflip" id="flipBtn"><span aria-hidden="true">↻</span> Flip</button>
+          <button class="btn primary fcarrow" id="next" aria-label="Next card">Next <span aria-hidden="true">›</span></button>
         </div>
-        <p class="note" id="knownNote" style="margin-top:10px"></p>
+        <div class="fctools">
+          <button class="btn small known" id="known" aria-pressed="false">✓ I know this</button>
+          <button class="btn small" id="shuffle"><span aria-hidden="true">⇄</span> Shuffle</button>
+        </div>
+        <p class="note fckeys">Keyboard: <kbd>Space</kbd> flips · <kbd>←</kbd> <kbd>→</kbd> move</p>
+        <p class="note" id="knownNote" hidden></p>
         <div id="cardsBottom" class="cardsbottom"></div>
       </div>
       <div class="empty" id="noCards" hidden>
@@ -1988,6 +2026,9 @@ function nextStepHTML(where){
   return`<div class="nextstep"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><p class="hkick">Next step</p>
     <b>Take the week ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished the activities and Context clues level ${CTX_REQ}, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
+/* the next card in this deck (after the current one) that hasn't been seen on both sides yet */
+function fcTodoIndex(fg){const need=new Set(fg.ids.filter(i=>!(fg.f.has(i)&&fg.b.has(i))));if(!need.size)return -1;
+  for(let k=1;k<=deck.length;k++){const i=(idx+k)%deck.length;if(need.has(deck[i].id))return i}return -1}
 function renderCardsTop(){try{renderWeekMenu();renderFilter()}catch(e){}
   const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',note='',btn='';
   if(selected){main=curWeek?`Class week ${curWeek}`:"Your class's cards";note='Your teacher chose these cards.'}
@@ -2000,10 +2041,12 @@ function renderCardsTop(){try{renderWeekMenu();renderFilter()}catch(e){}
   /* Top: one slim line. A ready check-in also gets a slim line; the progress card sits below the flashcards. */
   const ns=nextStepHTML('cards'),ready=ns.includes('class="nextstep');
   const fg=fcGate();let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
-  if(!fg.ok)top+=`<div class="fcstrip"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> week ${fg.w} cards. Flip every card to ${fcActLocked()?'unlock the activities':'add them to your activities'}.</span><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
+  const todoAt=fg.ok?-1:fcTodoIndex(fg);
+  if(!fg.ok)top+=`<div class="fcstrip"><div class="fcs-row"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> week ${fg.w} cards. Flip every card to ${fcActLocked()?'unlock the activities':'add them to your activities'}.</span>${todoAt>=0&&todoAt!==idx?`<button class="btn small" id="fcTodo">Next to flip →</button>`:''}</div><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
   if(ready){const fw=frontierWeek();top+=`<div class="nextstep slim"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><b>Week ${fw} check-in is ready!</b></div><button class="btn primary small ns-btn" data-checkin="${fw}">Take it →</button></div>`}
   el.innerHTML=top;
   const bot=$('cardsBottom');if(bot)bot.innerHTML=(ready?'':ns)+(note?`<p class="note">${esc(note)}</p>`:'');
+  if($('fcTodo'))$('fcTodo').onclick=()=>{idx=todoAt;renderCard();seenCard()};
   if($('cardsAllBtn'))$('cardsAllBtn').onclick=()=>{cardsAll=true;deck=cardPool();idx=0;renderCard()};
   if($('cardsNewBtn'))$('cardsNewBtn').onclick=()=>{cardsAll=false;deck=cardPool();idx=0;renderCard()};
   if($('cardsBackNew'))$('cardsBackNew').onclick=()=>{cardsAll=false;setStudyWeeks([])};
@@ -2038,11 +2081,26 @@ function renderCard(){
   if(mode==='cards')setTimeout(()=>fcMark('f'),0);
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
+  renderFcBar();
 }
+/* above the card: where you are, plus a dot per card (filled = both sides studied, green = you know it); tap a dot to jump */
+function renderFcBar(){const pos=$('fcPos'),dots=$('fcDots');if(!pos||!dots)return;const n=deck.length,{f,b}=fcSides();
+  const kn=deck.filter(x=>known.has(x.id)).length;
+  pos.innerHTML=`Card ${idx+1} of ${n}${kn?` <small>· ${kn} known</small>`:''}`;
+  const rail=()=>{dots.innerHTML=`<div class="fcrail" aria-hidden="true"><i style="width:${Math.round((idx+1)/n*100)}%"></i></div>`};
+  if(n<=30){dots.innerHTML=deck.map((x,i)=>{const both=f.has(x.id)&&b.has(x.id),k=known.has(x.id);
+      return`<button type="button" data-i="${i}" class="${i===idx?'cur ':''}${k?'kn':both?'both':''}" aria-label="Card ${i+1}: ${esc(x.main)}${k?', you know it':both?', studied':''}"${i===idx?' aria-current="true"':''}><i></i></button>`}).join('');
+    dots.querySelectorAll('button').forEach(d=>d.onclick=()=>{idx=+d.dataset.i;renderCard();seenCard()});
+    /* too many dots for one row: show a slim bar instead */
+    if(dots.offsetHeight>30)rail()}
+  else rail()}
+function fcEndNote(t){const sc=document.querySelector('#cardArea .scene');if(!sc)return;let el=$('fcEnd');if(!el){el=document.createElement('div');el.id='fcEnd';el.className='fcend';el.setAttribute('role','status');sc.appendChild(el)}
+  el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800)}
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
 $('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${backSay(c)} For example: ${c.words.join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{if(Date.now()-(window.__fcSwiped||0)<400)return;$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
-$('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
+$('next').onclick=()=>{const wrap=idx+1>=deck.length&&deck.length>1;idx=(idx+1)%deck.length;renderCard();seenCard();if(wrap)fcEndNote(`That's all ${deck.length} cards! Back to card 1.`)};
+$('flipBtn').onclick=()=>{window.__fcSwiped=0;$('flash').click()};
 $('prev').onclick=()=>{idx=(idx-1+deck.length)%deck.length;renderCard();seenCard()};
 $('shuffle').onclick=()=>{deck=shuf(deck);idx=0;renderCard()};
 $('known').onclick=()=>{const c=deck[idx];known.has(c.id)?known.delete(c.id):known.add(c.id);store.set('rd-known2',[...known]);renderCard()};
@@ -2143,7 +2201,7 @@ function fcGate(){try{
   const {f,b}=fcSides(),ids=p.ids,done=ids.filter(i=>f.has(i)&&b.has(i)).length;return{w,ids,f,b,done,ok:done>=ids.length}}catch(e){return{ok:true,ids:[],done:0}}}
 function fcMark(side){const c=deck[idx];if(!c||mode!=='cards')return;const {f,b}=fcSides();if((side==='f'?f:b).has(c.id))return;
   const was=fcGate().ok;rec(d=>{const o=sub(d,'fc');o[side]=o[side]||[];if(!o[side].includes(c.id))o[side].push(c.id)});
-  const g=fcGate();updateFcTabs();try{renderCardsTop()}catch(e){}
+  const g=fcGate();updateFcTabs();try{renderCardsTop();renderFcBar()}catch(e){}
   if(!was&&g.ok){try{FX.play('win');FX.shower&&FX.shower()}catch(e){}fcUnlockedNote(g.w)}}
 function fcUnlockedNote(w){let el=$('fcDone');if(!el){el=document.createElement('div');el.id='fcDone';el.className='fcdone';el.setAttribute('role','status');document.body.appendChild(el)}
   const first=!chosen().some(c=>!PLAN[w-1].ids.includes(c.id));el.innerHTML=first?`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`:`<b>🎉 Week ${w} words added!</b><span>Your activities now include this week's new words.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200)}
