@@ -160,7 +160,7 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 .fcdots button:focus-visible{outline:2px solid var(--primary);outline-offset:0;border-radius:6px}
 .fcrail{flex:1;height:8px;border-radius:999px;background:var(--line);position:relative;overflow:hidden}
 .fcrail i{position:absolute;inset:0 auto 0 0;background:var(--primary);border-radius:999px}
-.scene{position:relative}
+.scene{position:relative}.fcmove{position:relative;perspective:1400px}
 .fcsay{position:absolute;top:calc((var(--bandh,51px) - 32px)/2);right:calc(var(--bandr,22px) + 8px);height:32px;padding:0 12px 0 3px;border-radius:999px;
   border:1.5px solid color-mix(in srgb,var(--fc) 55%,var(--paper-ink) 25%);background:var(--paper);color:var(--paper-ink);
   display:flex;align-items:center;gap:6px;font-weight:800;font-size:.82rem;letter-spacing:.02em;z-index:2;cursor:pointer;
@@ -1503,13 +1503,15 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
           <div class="fcdots" id="fcDots" role="group" aria-label="Jump to a card"></div>
         </div>
         <div class="scene">
+          <div class="fcmove" id="fcMove">
           <button class="flash" id="flash" aria-label="Flashcard. Tap to flip. Space bar flips it. Swipe or use the arrow keys for the next or previous card.">
-            <div class="inner">
-              <div class="face front" id="front"></div>
-              <div class="face back" id="back"></div>
-            </div>
-          </button>
-          <button type="button" class="fcsay say-btn" id="listenCard" aria-label="Listen to this card" title="Listen"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h3.5L11 5.5v13l-4.5-4H3z"/><path class="w w1" d="M15 9a4 4 0 0 1 0 6"/><path class="w w2" d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg></span><span class="t">Listen</span></button>
+              <div class="inner">
+                <div class="face front" id="front"></div>
+                <div class="face back" id="back"></div>
+              </div>
+            </button>
+            <button type="button" class="fcsay say-btn" id="listenCard" aria-label="Listen to this card" title="Listen"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h3.5L11 5.5v13l-4.5-4H3z"/><path class="w w1" d="M15 9a4 4 0 0 1 0 6"/><path class="w w2" d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg></span><span class="t">Listen</span></button>
+          </div>
         </div>
         <div class="fcnav">
           <button class="btn fcarrow" id="prev" aria-label="Previous card"><span aria-hidden="true">‹</span> Back</button>
@@ -2126,7 +2128,7 @@ function fcSayPlace(){const bd=$('front')&&$('front').querySelector('.band'),sc=
   const r=bd.getBoundingClientRect(),q=sc.getBoundingClientRect();sc.style.setProperty('--bandh',bd.offsetHeight+'px');sc.style.setProperty('--bandr',Math.round(q.right-r.right)+'px');
   sc.style.setProperty('--fc',getComputedStyle($('flash')).getPropertyValue('--fc'));
   /* centre it in the coloured space to the right of the label (PREFIX, SUFFIX...) */
-  const b=$('listenCard');if(!b)return;let lr=r.left+r.width/2;try{const g=document.createRange();g.selectNodeContents(bd);lr=g.getBoundingClientRect().right}catch(e){}
+  const b=$('listenCard');if(!b)return;const lr=r.left+r.width/2+parseFloat(getComputedStyle(bd).fontSize)*2.8;
   const room=r.right-lr,bw=b.offsetWidth;b.style.left=room>=bw+16?Math.round(lr+(room-bw)/2-q.left)+'px':'';b.style.right=room>=bw+16?'auto':''}
 addEventListener('resize',fcSayPlace);
 function fcSayWatch(){const b=$('listenCard');b.classList.add('playing');clearInterval(b._t);let n=0;
@@ -2150,15 +2152,15 @@ document.addEventListener('keydown',e=>{if(mode!=='cards'||e.altKey||e.ctrlKey||
 /* the space bar flips the card, so it mustn't also press whichever button has focus */
 document.addEventListener('keyup',e=>{if(mode==='cards'&&(e.key===' '||e.code==='Space')&&!e.target.closest('input,textarea,select,[role=tab],.tabs,.filter,.disppop,[role=dialog]'))e.preventDefault()});
 /* Swipe the card: left = next card, right = previous card. The card follows the finger a little; a tap still flips it. */
-(()=>{const f=$('flash');let x0=null,y0=0,dx=0,id=null,horiz=null;
-  const reset=()=>{f.style.transition='transform .2s ease';f.style.transform='';x0=null;horiz=null;setTimeout(()=>{f.style.transition=''},220)};
-  f.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;x0=e.clientX;y0=e.clientY;dx=0;id=e.pointerId;horiz=null;f.style.transition=''});
+(()=>{const f=$('flash'),mv=$('fcMove')||f;let x0=null,y0=0,dx=0,id=null,horiz=null;
+  const reset=()=>{mv.style.transition='transform .2s ease';mv.style.transform='';x0=null;horiz=null;setTimeout(()=>{mv.style.transition=''},220)};
+  f.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;x0=e.clientX;y0=e.clientY;dx=0;id=e.pointerId;horiz=null;mv.style.transition=''});
   f.addEventListener('pointermove',e=>{if(x0==null||e.pointerId!==id)return;dx=e.clientX-x0;const dy=e.clientY-y0;
     if(horiz==null&&(Math.abs(dx)>8||Math.abs(dy)>8))horiz=Math.abs(dx)>Math.abs(dy);
-    if(horiz){try{f.setPointerCapture(id)}catch(_){}f.style.transform=`translateX(${dx*.6}px) rotate(${dx/40}deg)`}});
+    if(horiz){try{f.setPointerCapture(id)}catch(_){}mv.style.transform=`translateX(${dx*.6}px) rotate(${dx/40}deg)`}});
   const end=e=>{if(x0==null||e.pointerId!==id)return;const go=horiz&&Math.abs(dx)>60;
-    if(go){window.__fcSwiped=Date.now();f.style.transition='transform .16s ease-in';f.style.transform=`translateX(${dx<0?-120:120}px) rotate(${dx<0?-4:4}deg)`;
-      setTimeout(()=>{f.style.transition='';f.style.transform=`translateX(${dx<0?60:-60}px)`;(dx<0?$('next'):$('prev')).click();requestAnimationFrame(()=>{f.style.transition='transform .18s ease-out';f.style.transform='';setTimeout(()=>{f.style.transition=''},200)});x0=null;horiz=null},150)}
+    if(go){window.__fcSwiped=Date.now();mv.style.transition='transform .16s ease-in';mv.style.transform=`translateX(${dx<0?-120:120}px) rotate(${dx<0?-4:4}deg)`;
+      setTimeout(()=>{mv.style.transition='';mv.style.transform=`translateX(${dx<0?60:-60}px)`;(dx<0?$('next'):$('prev')).click();requestAnimationFrame(()=>{mv.style.transition='transform .18s ease-out';mv.style.transform='';setTimeout(()=>{mv.style.transition=''},200)});x0=null;horiz=null},150)}
     else{if(horiz)window.__fcSwiped=Date.now();reset()}};
   f.addEventListener('pointerup',end);f.addEventListener('pointercancel',e=>{if(x0!=null)reset()});
 })();
