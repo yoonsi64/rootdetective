@@ -80,7 +80,7 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
   .hpractice{display:none}
   body{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
   body .btoast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-.btoast{touch-action:none;cursor:grab}
+.btoast{touch-action:pan-y;cursor:grab}
 .tclose{border:0;background:none;font-size:1.5rem;line-height:1;color:var(--muted);padding:0 2px;cursor:pointer;align-self:flex-start}
   body.typing #tabWrap{display:none}
   body.typing{padding-bottom:0}
@@ -18767,13 +18767,12 @@ function showNextBadge(){if(badgeShowing||!badgeQueue.length)return;badgeShowing
   $('badgeSee').onclick=()=>{clearTimeout(t._t);t.hidden=true;badgeShowing=false;badgeQueue=[];progView='me';setMode('progress')};
   $('badgeX').onclick=done;swipeAway(t,done);
   clearTimeout(t._t);t._t=setTimeout(done,5200)}
-/* swipe a pop-up away (sideways or down) */
+/* swipe a pop-up away, left or right */
 function swipeAway(el,onGone){if(el._swipe)return el._swipe.cb=onGone;const st=el._swipe={cb:onGone};
-  el.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;st.x=e.clientX;st.y=e.clientY;st.on=true;st.dx=st.dy=0;el.style.transition='none';try{el.setPointerCapture(e.pointerId)}catch(_){}});
-  el.addEventListener('pointermove',e=>{if(!st.on)return;st.dx=e.clientX-st.x;st.dy=Math.max(0,e.clientY-st.y);const far=Math.max(Math.abs(st.dx),st.dy*1.4);
-    el.style.transform=`translate(calc(-50% + ${st.dx}px),${st.dy}px)`;el.style.opacity=String(Math.max(.2,1-far/260))});
+  el.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;st.x=e.clientX;st.on=true;st.dx=0;el.style.transition='none';try{el.setPointerCapture(e.pointerId)}catch(_){}});
+  el.addEventListener('pointermove',e=>{if(!st.on)return;st.dx=e.clientX-st.x;el.style.transform=`translateX(calc(-50% + ${st.dx}px))`;el.style.opacity=String(Math.max(.2,1-Math.abs(st.dx)/260))});
   const end=()=>{if(!st.on)return;st.on=false;el.style.transition='transform .22s ease-out,opacity .22s';
-    if(Math.abs(st.dx)>70||st.dy>45){el.style.transform=`translate(calc(-50% + ${st.dx?Math.sign(st.dx)*480:0}px),${st.dy>45&&Math.abs(st.dx)<=70?160:st.dy}px)`;el.style.opacity='0';setTimeout(()=>{el.style.transform='';el.style.opacity='';el.style.transition='';st.cb&&st.cb()},220)}
+    if(Math.abs(st.dx)>70){el.style.transform=`translateX(calc(-50% + ${Math.sign(st.dx)*480}px))`;el.style.opacity='0';setTimeout(()=>{el.style.transform='';el.style.opacity='';el.style.transition='';st.cb&&st.cb()},220)}
     else{el.style.transform='';el.style.opacity='';setTimeout(()=>el.style.transition='',230)}};
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
 
