@@ -2040,7 +2040,7 @@ function renderCard(){
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
-$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${c.main} means ${meanOf(c)}. For example: ${c.words.slice(0,4).join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
+$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${backSay(c)} For example: ${c.words.slice(0,4).join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{if(Date.now()-(window.__fcSwiped||0)<400)return;$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
 $('prev').onclick=()=>{idx=(idx-1+deck.length)%deck.length;renderCard();seenCard()};
@@ -2578,7 +2578,7 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
     voice=list[0]||null;
     try{document.dispatchEvent(new Event('rd-voices'))}catch(e){}}
   if(ok){pick();speechSynthesis.addEventListener?speechSynthesis.addEventListener('voiceschanged',pick):(speechSynthesis.onvoiceschanged=pick);setTimeout(pick,600);setTimeout(pick,2000)}
-  function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/([A-Za-z])\(([a-z]+)\)/g,'$1$2').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
+  function clean(t){return String(t).replace(/<[^>]+>/g,' ').replace(/\[|\]/g,'').replace(/([A-Za-z])\(([a-z]+)\)/g,'$1$2').replace(/(^|\s)-(\w)/g,'$1$2').replace(/(\w)-(\s|$|,|\.)/g,'$1$2').replace(/[“”"]/g,'').replace(/\s+/g,' ').trim()}
   /* long text is read sentence by sentence (smoother, and avoids Chrome cutting off long speech); "Ms." etc. don't end a sentence */
   function chunks(t){const c=clean(t).replace(/\b(Mr|Mrs|Ms|Dr)\./g,'$1․');
     return (c.match(/[^.!?;:]+[.!?;:]*\s*/g)||[c]).map(x=>x.trim().replace(/․/g,'.')).filter(Boolean)}
@@ -2640,6 +2640,13 @@ function celebrateWin(){FX.shower();FX.play('win')}
 
 /* ---------- Match & Memory ---------- */
 const meanOf=c=>c.senses.map(x=>x.mean).join('; ');
+// card back, read aloud: one sentence per spelling ('a or ab means from or away.'), meanings joined with 'or'
+const orList=a=>a.length<3?a.join(' or '):a.slice(0,-1).join(', ')+', or '+a[a.length-1];
+const backSay=c=>{const m=x=>x.mean.replace(/;\s*/g,', or '),fo=x=>x.form||(x.pos&&!x.pos.startsWith('(')?x.pos:'');
+  const say=(who,ms)=>`${who} means ${ms[0]}.`+ms.slice(1).map(y=>` It can also mean ${y}.`).join('');
+  if(!c.senses.some(fo))return say(c.main,c.senses.map(m));
+  const g=[];c.senses.forEach(x=>{const f=fo(x)||c.main;const h=g.find(y=>y.f===f);h?h.m.push(m(x)):g.push({f,m:[m(x)]})});
+  return `${c.main}. `+g.map(y=>say(orList(y.f.split(/,\s*/)),y.m)).join(' ')};
 function pickPairs(n,key){
   const seen=new Set(),out=[];
   const p=pool();for(let t=0;t<p.length&&out.length<n;t++){const c=draw(key,p,1)[0];const m=meanOf(c);if(seen.has(m)||seen.has(c.main))continue;seen.add(m);seen.add(c.main);out.push(c)}
