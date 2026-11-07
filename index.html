@@ -2040,7 +2040,7 @@ function renderCard(){
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
 }
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
-$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${backSay(c)} For example: ${c.words.slice(0,4).join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
+$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${backSay(c)} For example: ${c.words.join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{if(Date.now()-(window.__fcSwiped||0)<400)return;$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{idx=(idx+1)%deck.length;renderCard();seenCard()};
 $('prev').onclick=()=>{idx=(idx-1+deck.length)%deck.length;renderCard();seenCard()};
@@ -2091,7 +2091,7 @@ function startQuiz(list,tag={}){
 function renderQ(){
   const q=Q.qs[Q.i];
   $('qcard').innerHTML=`<div class="qtop"><span>${Q.tag.check?`Week ${Q.tag.check} check-in · `:Q.tag.review?"Daily review · ":""}Question ${Q.i+1} of ${QN}</span><div class="track"><i style="width:${Q.i/QN*100}%"></i></div><span>★ ${Q.score}</span></div>
-    <div class="sayrow"><p class="prompt">${q.prompt}</p>${sayBtn(q.prompt+(q.opts?". "+q.opts.join(". "):""),"Listen to the question")}</div>
+    <div class="sayrow"><p class="prompt">${q.prompt}</p>${sayBtn(q.prompt+(q.opts?" "+q.opts.join(". ")+".":""),"Listen to the question")}</div>
     <div class="opts">${q.opts.map((o,k)=>`<button class="opt" id="opt${k}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
     <div id="fbslot"></div>`;
   $('qcard').querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(b));
@@ -2639,6 +2639,8 @@ const streakPill=n=>n>=2?`<span class="streak bump" aria-live="polite">★ ${n} 
 function celebrateWin(){FX.shower();FX.play('win')}
 
 /* ---------- Match & Memory ---------- */
+// a sentence read with its answer hidden: 'an [octagon]' is read 'a blank', not 'an blank'
+const blankSay=(t,ws)=>ws.reduce((s,[w,b])=>s.replace(new RegExp('\\b([Aa])n \\['+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\]'),'$1 ['+w+']').replace('['+w+']',b),t);
 const meanOf=c=>c.senses.map(x=>x.mean).join('; ');
 // card back, read aloud: one sentence per spelling ('a or ab means from or away.'), meanings joined with 'or'
 const orList=a=>a.length<3?a.join(' or '):a.slice(0,-1).join(', ')+', or '+a[a.length-1];
@@ -17862,7 +17864,7 @@ function slotHTML(q,i){const k=q.place[i],v=k==null?'':q.bank[k];
   return`<button type="button" class="slot${k==null?'':' filled'}${st}" data-s="${i}" ${q.done?'disabled':''} aria-label="Blank ${i+1}: ${k==null?'empty':esc(v)}"><span class="pn">${i+1}</span>${k==null?'<span class="sl-e">drop here</span>':`<span>${esc(v)}</span>`}</button>`}
 function renderPairQ(q){$('ccard').classList.remove('tight');
   const lev=C.lev,x=q.x,long=q.t==='mean';
-  const sayText=long?x.sent:x.sent.replace('['+x.w+']','blank one').replace('['+x.w2+']','blank two');
+  const sayText=long?x.sent:blankSay(x.sent,[[x.w,'blank one'],[x.w2,'blank two']]);
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span><button type="button" class="lvtoggle" aria-expanded="false">Level ${lev.n} <i aria-hidden="true">▾</i></button><span class="lvtxt">Level ${lev.n}</span> · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
     <p class="cask"><span class="twotag">Two words</span><span class="cask1">Use the clues in the sentence. </span>${long?'Tap or drag a meaning onto each word.':'Tap or drag a word into each blank.'}</p>
@@ -17935,7 +17937,7 @@ function renderContext(){
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span><button type="button" class="lvtoggle" aria-expanded="false">Level ${lev.n} <i aria-hidden="true">▾</i></button><span class="lvtxt">Level ${lev.n}</span> · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
     <p class="cask"><span class="cask1">Use the clues in the sentence. </span>${q.t==='mean'?'What does the underlined word mean?':'Which word fits the blank?'}</p>
-    <div class="sayrow"><p class="sent">${sentHTML(q.x,q.t==='mean'?'u':'blank')}</p>${sayBtn(q.t==='mean'?q.x.sent:q.x.sent.replace('['+q.x.w+']','blank'),'Listen to the sentence')}</div>
+    <div class="sayrow"><p class="sent">${sentHTML(q.x,q.t==='mean'?'u':'blank')}</p>${sayBtn(q.t==='mean'?q.x.sent:blankSay(q.x.sent,[[q.x.w,'blank']]),'Listen to the sentence')}</div>
     ${q.hintShown?`<p class="hintbox">Clue: ${clueLine(q.x.c)}</p>`:''}
     <div class="opts">${q.opts.map((o,k)=>`<button class="opt" id="copt${k}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
     ${lev.hint==='button'&&!q.hintShown?`<div><button class="btn small" id="chint">Hint</button></div>`:''}
