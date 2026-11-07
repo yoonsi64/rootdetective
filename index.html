@@ -160,12 +160,22 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 .fcrail{flex:1;height:8px;border-radius:999px;background:var(--line);position:relative;overflow:hidden}
 .fcrail i{position:absolute;inset:0 auto 0 0;background:var(--primary);border-radius:999px}
 .scene{position:relative}
-.fcsay{position:absolute;top:6px;right:calc(2% + 8px);height:38px;padding:0 10px;border-radius:999px;border:0;background:transparent;color:var(--paper-ink);display:flex;align-items:center;gap:5px;font-weight:700;font-size:.85rem;z-index:2;cursor:pointer}
-.fcsay:hover{background:color-mix(in srgb,var(--paper) 45%,transparent)}
-@media (max-width:640px){.fcsay{top:1px}}@media (max-width:370px){.fcsay span{display:none}}
-.fcsay svg{width:21px;height:21px;flex:none;fill:currentColor;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.fcsay:active{transform:scale(.94)}
+.fcsay{position:absolute;top:calc((var(--bandh,51px) - 32px)/2);right:calc(var(--bandr,22px) + 8px);height:32px;padding:0 12px 0 3px;border-radius:999px;
+  border:1.5px solid color-mix(in srgb,var(--fc) 55%,var(--paper-ink) 25%);background:var(--paper);color:var(--paper-ink);
+  display:flex;align-items:center;gap:6px;font-weight:800;font-size:.82rem;letter-spacing:.02em;z-index:2;cursor:pointer;
+  box-shadow:0 2px 0 color-mix(in srgb,var(--fc) 60%,var(--paper-ink) 30%);transition:transform .1s,box-shadow .1s,background .15s}
+.fcsay .ic{width:24px;height:24px;border-radius:50%;background:var(--fc);display:grid;place-items:center;flex:none}
+.fcsay svg{width:15px;height:15px;fill:currentColor;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.fcsay svg .w{fill:none}
+.fcsay:hover{background:color-mix(in srgb,var(--fc) 18%,var(--paper))}
+.fcsay:active{transform:translateY(2px);box-shadow:0 0 0 color-mix(in srgb,var(--fc) 60%,var(--paper-ink) 30%)}
 .fcsay:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.fcsay.playing{background:color-mix(in srgb,var(--fc) 30%,var(--paper))}
+.fcsay.playing .w1{animation:fcwave 1s ease-in-out infinite}
+.fcsay.playing .w2{animation:fcwave 1s ease-in-out .25s infinite}
+@keyframes fcwave{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.fcsay.playing .w1,.fcsay.playing .w2{animation:none}}
+@media (max-width:370px){.fcsay{padding:0 3px}.fcsay .t{display:none}}
 .fcnav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
 .fcnav .btn{min-height:54px;font-size:1.05rem;padding:8px 6px;display:flex;align-items:center;justify-content:center;gap:6px}
 .fcnav .btn span{font-size:1.4em;line-height:0;font-weight:800}
@@ -1498,7 +1508,7 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
               <div class="face back" id="back"></div>
             </div>
           </button>
-          <button type="button" class="fcsay say-btn" id="listenCard" aria-label="Listen to this card" title="Listen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none"/></svg><span>Listen</span></button>
+          <button type="button" class="fcsay say-btn" id="listenCard" aria-label="Listen to this card" title="Listen"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5h3.5L11 5.5v13l-4.5-4H3z"/><path class="w w1" d="M15 9a4 4 0 0 1 0 6"/><path class="w w2" d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg></span><span class="t">Listen</span></button>
         </div>
         <div class="fcnav">
           <button class="btn fcarrow" id="prev" aria-label="Previous card"><span aria-hidden="true">‹</span> Back</button>
@@ -2092,6 +2102,8 @@ function renderCard(){
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
   $('knownNote').textContent=`Card ${idx+1} of ${deck.length} · You know ${k} of ${p.length} cards${filter==='all'?'':' in this set'}.`;
   renderFcBar();
+  fcSayPlace();
+  {const b=$('listenCard');if(b&&b.classList.contains('playing')){b.classList.remove('playing');clearInterval(b._t)}}
 }
 /* above the card: where you are, plus a dot per card (filled = both sides studied, green = you know it); tap a dot to jump */
 function renderFcBar(){const pos=$('fcPos'),dots=$('fcDots');if(!pos||!dots)return;const n=deck.length,{f,b}=fcSides();
@@ -2107,7 +2119,17 @@ function renderFcBar(){const pos=$('fcPos'),dots=$('fcDots');if(!pos||!dots)retu
 function fcEndNote(t){const sc=document.querySelector('#cardArea .scene');if(!sc)return;let el=$('fcEnd');if(!el){el=document.createElement('div');el.id='fcEnd';el.className='fcend';el.setAttribute('role','status');sc.appendChild(el)}
   el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800)}
 const seenCard=()=>{const c=deck[idx];if(!c)return;rec(d=>{const o=sub(d,'cards');o.ids=o.ids||[];if(!o.ids.includes(c.id))o.ids.push(c.id)});};/* flashcards are required first (the flashcards-first gate) but don't count toward the activities that unlock the check-in */
-$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${backSay(c)} For example: ${c.words.join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
+/* Listen on the card: the sound waves move while she reads; tap again to stop */
+/* the Listen button sits on the card's coloured band, in the card's colour */
+function fcSayPlace(){const bd=$('front')&&$('front').querySelector('.band'),sc=document.querySelector('#cardArea .scene');if(!bd||!sc||!bd.offsetHeight)return;
+  const r=bd.getBoundingClientRect(),q=sc.getBoundingClientRect();sc.style.setProperty('--bandh',bd.offsetHeight+'px');sc.style.setProperty('--bandr',Math.round(q.right-r.right)+'px');
+  sc.style.setProperty('--fc',getComputedStyle($('flash')).getPropertyValue('--fc'))}
+addEventListener('resize',fcSayPlace);
+function fcSayWatch(){const b=$('listenCard');b.classList.add('playing');clearInterval(b._t);let n=0;
+  b._t=setInterval(()=>{n++;if(n>4&&!SPEAK.busy()){b.classList.remove('playing');clearInterval(b._t)}},150)}
+$('listenCard').onclick=()=>{const c=deck[idx];if(!c)return;const b=$('listenCard');
+  if(b.classList.contains('playing')){SPEAK.stop();b.classList.remove('playing');clearInterval(b._t);return}
+  fcSayWatch();const back=$('flash').classList.contains('flipped');SPEAK.say(back?`${backSay(c)} For example: ${c.words.join('. ')}.`:c.main+(c.alts?'. Also: '+c.alts:''))};
 $('flash').onclick=()=>{if(Date.now()-(window.__fcSwiped||0)<400)return;$('flash').classList.toggle('flipped');seenCard();if($('flash').classList.contains('flipped'))fcMark('b')};
 $('next').onclick=()=>{const wrap=idx+1>=deck.length&&deck.length>1;idx=(idx+1)%deck.length;renderCard();seenCard();if(wrap)fcEndNote(`That's all ${deck.length} cards! Back to card 1.`)};
 $('flipBtn').onclick=()=>{window.__fcSwiped=0;$('flash').click()};
@@ -2687,7 +2709,8 @@ const SPEAK=(()=>{const ok='speechSynthesis' in window&&'SpeechSynthesisUtteranc
     if(audio&&REC&&keys.every(k=>REC.has(k))){audio._text=t;audio._rate=rate;audio.playbackRate=rate<1?Math.max(.8,rate+.05):1;queue=keys;playNext();return}
     if(ok)device(t,rate)}
   function stop(){sayN++;try{if(ok)speechSynthesis.cancel()}catch(e){}if(audio){queue=[];audio._text='';try{audio.pause()}catch(e){}}}
-  return{ok:ok||!!audio,say,stop,clean,chunks,key,voices:()=>list,current:()=>voice,recorded:()=>REC};
+  function busy(){try{return !!(audio&&(!audio.paused||queue.length))||!!(ok&&(speechSynthesis.speaking||speechSynthesis.pending))}catch(e){return false}}
+  return{ok:ok||!!audio,say,stop,busy,clean,chunks,key,voices:()=>list,current:()=>voice,recorded:()=>REC};
 })();
 if(!SPEAK.ok)document.documentElement.classList.add('nosay');
 const SPK='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
