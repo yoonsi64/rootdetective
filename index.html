@@ -322,7 +322,7 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 .slot.filled{border-style:solid;background:var(--card);box-shadow:0 2px 0 var(--line)}
 .picking .slot:not(.filled){animation:slotPulse 1.1s ease-in-out infinite}
 @keyframes slotPulse{50%{background:color-mix(in srgb,var(--primary) 24%,var(--card));transform:scale(1.04)}}
-.slot.over{background:color-mix(in srgb,var(--primary) 28%,var(--card));transform:scale(1.06)}
+
 .slot.right{border-color:var(--good);background:var(--good-bg);color:var(--good)}
 .slot.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad);text-decoration:line-through}
 .mrows{display:flex;flex-direction:column;gap:8px;margin-top:10px}
@@ -330,11 +330,9 @@ sup.pn{vertical-align:super;margin:0 .1em 0 .15em;font-size:.6em}
 .psent .sent{margin:0}
 .bank6{display:flex;flex-wrap:wrap;gap:10px;padding:12px;border-radius:14px;background:var(--bg)}
 .bank6.long .tile6{flex:1 1 100%;text-align:left}
-.tile6{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;min-height:46px;font:inherit;font-weight:800;box-shadow:0 3px 0 var(--line);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .12s}
-.tile6:active{cursor:grabbing}
+.tile6{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;min-height:46px;font:inherit;font-weight:800;box-shadow:0 3px 0 var(--line);cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:transform .12s}
 .tile6[aria-pressed="true"]{border-color:var(--primary);background:var(--primary);color:var(--primary-ink);box-shadow:0 3px 0 color-mix(in srgb,var(--primary) 60%,#000);transform:translateY(-3px)}
-.tile6.used{visibility:hidden}.tile6.lifting{opacity:.35}
-.ghost6{position:fixed;z-index:70;pointer-events:none;margin:0;transform:translate(-50%,-70%) rotate(-3deg);box-shadow:0 12px 26px rgba(0,0,0,.28);border-color:var(--primary);max-width:80vw}
+.tile6.used{visibility:hidden}
 @media (prefers-reduced-motion: reduce){.picking .slot:not(.filled){animation:none;border-width:3px}}
 .xpl{display:flex;flex-direction:column;gap:10px;background:var(--card);border-radius:14px;padding:12px 14px;margin:4px 0;color:var(--ink)}
 .xdef{margin:0;font-size:1.08rem;line-height:1.45}
@@ -17973,7 +17971,7 @@ function startMaster(){
   C={lev,qs:shuf([...pp.map(x=>makePairQ(x,lev)),...sp.map(x=>makeCtxQ(x,lev))]),i:0,score:0,missed:[],wide:0};
   renderContext();
 }
-/* Two-word sentences: touch-and-drop. Tap a word, then tap a blank (or drag the word onto it), then Check. */
+/* Two-word sentences: touch and place. Tap a word, then tap a blank, then Check. (No dragging.) */
 function makePairQ(x,lev){
   const t=Math.random()<.5?'fill':'mean',all=CTX.concat(CTX6),val=y=>t==='mean'?y.def:y.w;
   const v1=t==='mean'?x.def:x.w,v2=t==='mean'?x.def2:x.w2,used=new Set([v1,v2]);
@@ -17985,15 +17983,15 @@ function makePairQ(x,lev){
 const pairSentHTML=(x,mode)=>esc(x.sent).replace('['+esc(x.w)+']',`<u>${esc(x.w)}</u><sup class="pn">1</sup>`).replace('['+esc(x.w2)+']',`<u>${esc(x.w2)}</u><sup class="pn">2</sup>`);
 function slotHTML(q,i){const k=q.place[i],v=k==null?'':q.bank[k];
   const st=q.done?(v===(i?q.v2:q.v1)?' right':' wrong'):'';
-  return`<button type="button" class="slot${k==null?'':' filled'}${st}" data-s="${i}" ${q.done?'disabled':''} aria-label="Blank ${i+1}: ${k==null?'empty':esc(v)}"><span class="pn">${i+1}</span>${k==null?'<span class="sl-e">drop here</span>':`<span>${esc(v)}</span>`}</button>`}
+  return`<button type="button" class="slot${k==null?'':' filled'}${st}" data-s="${i}" ${q.done?'disabled':''} aria-label="Blank ${i+1}: ${k==null?'empty':esc(v)}"><span class="pn">${i+1}</span>${k==null?'<span class="sl-e">tap here</span>':`<span>${esc(v)}</span>`}</button>`}
 function renderPairQ(q){$('ccard').classList.remove('tight');
   const lev=C.lev,x=q.x,long=q.t==='mean';
   const sayText=long?x.sent:blankSay(x.sent,[[x.w,'blank one'],[x.w2,'blank two']]);
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span><button type="button" class="lvtoggle" aria-expanded="false">Level ${lev.n} <i aria-hidden="true">▾</i></button><span class="lvtxt">Level ${lev.n}</span> · Sentence ${C.i+1} of ${CN}</span><div class="track"><i style="width:${C.i/CN*100}%"></i></div><span>★ ${C.score}</span></div>
-    <p class="cask"><span class="twotag">Two words</span><span class="cask1">Use the clues in the sentence. </span>${long?'Tap or drag a meaning onto each word.':'Tap or drag a word into each blank.'}</p>
+    <p class="cask"><span class="twotag">Two words</span><span class="cask1">Use the clues in the sentence. </span>${long?'Tap a meaning, then tap the word it goes with.':'Tap a word, then tap the blank it goes in.'}</p>
     <div class="sayrow"><div id="psent" class="psent"></div>${sayBtn(sayText,'Listen to the sentence')}</div>
-    <p class="note dndhint" style="margin:0">Tap a ${long?'meaning':'word'}, then tap where it goes. You can also drag it.</p>
+    <p class="note dndhint" style="margin:0">Tap a ${long?'meaning':'word'}, then tap where it goes.</p>
     <div id="pbank" class="bank6 ${long?'long':''}" role="group" aria-label="${long?'Meanings':'Words'} to choose from"></div>
     <div class="grp"><button class="btn primary big" id="pcheck" disabled>Check</button><button class="btn" id="pclear">Clear</button></div>
     <div id="cfb"></div>`;
@@ -18009,19 +18007,9 @@ function renderPairQ(q){$('ccard').classList.remove('tight');
     $('psent').querySelectorAll('.slot').forEach(s=>s.onclick=()=>{const i=+s.dataset.s;
       if(q.sel!=null){q.place[i]=q.sel;q.sel=null;FX.play('flip')}else if(q.place[i]!=null)q.place[i]=null;draw6()});
     $('pbank').querySelectorAll('.tile6').forEach(b=>{const k=+b.dataset.t;
-      b.onclick=()=>{if(b.dataset.dragged){delete b.dataset.dragged;return}q.sel=q.sel===k?null:k;draw6();
-        if(q.sel!=null){const e=q.place.indexOf(null);const s=$('psent').querySelector(`.slot[data-s="${e<0?0:e}"]`);if(s&&!long)s.scrollIntoView({block:'nearest',behavior:'smooth'})}};
-      b.onpointerdown=ev=>dragTile(ev,b,k)});
+      b.onclick=()=>{q.sel=q.sel===k?null:k;draw6();
+        if(q.sel!=null){const e=q.place.indexOf(null);const s=$('psent').querySelector(`.slot[data-s="${e<0?0:e}"]`);if(s&&!long)s.scrollIntoView({block:'nearest',behavior:'smooth'})}}});
   };
-  function dragTile(ev,b,k){if(q.done||ev.button>0)return;const sx=ev.clientX,sy=ev.clientY;let ghost=null,over=null;
-    const slotAt=(px,py)=>{const el=document.elementFromPoint(px,py);return el&&el.closest?el.closest('#psent .slot'):null};
-    const move=e=>{if(!ghost){if(Math.hypot(e.clientX-sx,e.clientY-sy)<8)return;ghost=b.cloneNode(true);ghost.className='tile6 ghost6';document.body.appendChild(ghost);b.classList.add('lifting')}
-      e.preventDefault();ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';
-      const s=slotAt(e.clientX,e.clientY);if(s!==over){if(over)over.classList.remove('over');over=s;if(s)s.classList.add('over')}};
-    const up=e=>{removeEventListener('pointermove',move);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);
-      if(!ghost)return;ghost.remove();b.classList.remove('lifting');b.dataset.dragged='1';setTimeout(()=>{delete b.dataset.dragged},0);
-      const s=e.type==='pointerup'?slotAt(e.clientX,e.clientY):null;if(s){const i=+s.dataset.s;const prev=q.place.indexOf(k);if(prev>=0)q.place[prev]=null;q.place[i]=k;q.sel=null;FX.play('flip')}draw6()};
-    addEventListener('pointermove',move,{passive:false});addEventListener('pointerup',up);addEventListener('pointercancel',up)}
   $('pclear').onclick=()=>{q.place=[null,null];q.sel=null;draw6()};
   $('pcheck').onclick=()=>{
     const a1=q.bank[q.place[0]],a2=q.bank[q.place[1]],ok1=a1===q.v1,ok2=a2===q.v2,ok=ok1&&ok2;q.done=true;q.sel=null;draw6();
