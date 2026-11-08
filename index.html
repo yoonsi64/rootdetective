@@ -2229,8 +2229,8 @@ function results(){
   $('qcard').innerHTML=`<div class="qtop"><span>Round complete</span><div class="track"><i style="width:100%"></i></div><span>Best: ${best} / ${QN}</span></div>
     ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${QN}</p><p class="prompt">${msg}${newBest&&s>0?' New best!':''}</p>${tagNote}${unlockNote}
     ${Q.missed.length?`<div><p class="note" style="margin-bottom:8px">Cards to practice:</p><div class="chips">${Q.missed.map(c=>`<span><mark>${esc(c.main)}</mark> = ${esc(c.mean)}</span>`).join('')}</div></div>`:''}
-    <div class="grp"><button class="btn primary" id="again">Play again</button>${Q.missed.length?'<button class="btn" id="studyMissed">Study missed cards</button><button class="btn" id="quizMissed">Quiz me on these</button>':''}</div>`;
-  $('again').onclick=()=>Q.tag.check?startQuiz(BANK.filter(c=>weekIds(Q.tag.check,false).includes(c.id)),Q.tag):Q.tag.review?(setMode('review')):startQuiz();
+    <div class="grp"><button class="btn primary" id="again">${Q.tag.review?'Back to Home':'Play again'}</button>${Q.missed.length?'<button class="btn" id="studyMissed">Study missed cards</button><button class="btn" id="quizMissed">Quiz me on these</button>':''}</div>`;
+  $('again').onclick=()=>Q.tag.check?startQuiz(BANK.filter(c=>weekIds(Q.tag.check,false).includes(c.id)),Q.tag):Q.tag.review?(setMode('home')):startQuiz();
   if($('goNewWeek'))$('goNewWeek').onclick=()=>{cardsAll=false;setMode('cards',true);deck=cardPool();idx=0;renderCard();scrollTo({top:0})};
   if(Q.missed.length){const m=Q.missed.slice();
     $('studyMissed').onclick=()=>{setMode('cards',true);deck=m;idx=0;renderCard()};
@@ -18110,20 +18110,21 @@ function cardStatsAll(){const days=HIST.days,keys=Object.keys(days).sort(),st={}
     for(const id in d.miss||{}){const o=st[id]=st[id]||{r:0,m:0,last:k};o.m+=d.miss[id];o.last=k}});return st}
 const daysSince=k=>{if(!k)return 99;const [y,m,d]=k.split('-').map(Number);return Math.round((new Date()-new Date(y,m-1,d))/864e5)};
 
-/* ---------- Daily review: weak cards + cards not seen lately ---------- */
+/* ---------- Daily review: weak cards + cards not seen lately. Once a day: after it is done, it opens again tomorrow ---------- */
+const reviewDone=()=>((HIST.days[dayKey()]||{}).review||0)>0;
 function reviewPick(n=10){const st=cardStatsAll(),p=pool();
   const scored=p.map(c=>{const o=st[c.id];const t=o?o.r+o.m:0,acc=t?o.r/t:0;
     const score=(t?(1-acc)*3:1.1)+Math.min(daysSince(o&&o.last),14)/7+(t?0:.3)+Math.random()*.25;return{c,score,t,acc}});
   return scored.sort((a,b)=>b.score-a.score).slice(0,Math.min(n,p.length))}
 function renderReview(){
-  const picks=reviewPick(10),done=(today().review||0)>0;
+  const picks=reviewPick(10),done=reviewDone();
   $('reviewBody').innerHTML=`<div class="qcard">
     <div class="gtop"><b style="font-size:1.25rem">Today's review</b>${done?'<span class="streak">✓ Done today</span>':''}</div>
     <p class="note" style="margin:0">A quick 10-question quiz on the cards you need most right now: cards you've missed, and cards you haven't seen in a while.</p>
     ${picks.length?`<div class="chips">${picks.map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)} <small>${x.t?Math.round(x.acc*100)+'%':'new'}</small></span>`).join('')}</div>
-    <div><button class="btn primary" id="startReview">${done?'Review again':'Start today\'s review'}</button></div>`:'<p class="note">Choose some weeks to study first.</p>'}
+    ${done?'<p class="note" style="margin:0"><b>Done for today!</b> Come back tomorrow for a new review. Any other activity is open for more practice.</p>':`<div><button class="btn primary" id="startReview">Start today's review</button></div>`}`:'<p class="note">Choose some weeks to study first.</p>'}
   </div>`;
-  if($('startReview'))$('startReview').onclick=()=>{setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
+  if($('startReview'))$('startReview').onclick=()=>{if(reviewDone())return renderReview();setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
 }
 
 
@@ -18163,10 +18164,10 @@ function renderHome(){
   else{
     const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>Week ${fw} check-in: ${3-readyMissing(fw).length} of 3 steps done${readyMissing(fw).length?` · still need ${readyMissing(fw).join(', ')}`:''}</span></div>`;
     next=`<div class="hnext"><p class="hkick">${done?'✓ Today\'s review is done':'Next up'}</p>
-      <h3>${done?'Pick any activity to keep practicing':picks.length?`Today's review: ${picks.length} word parts`:'Pick some weeks to study first'}</h3>
+      <h3>${done?'New review tomorrow. Pick any activity to keep practicing':picks.length?`Today's review: ${picks.length} word parts`:'Pick some weeks to study first'}</h3>
       ${!done&&picks.length?`<div class="chips">${picks.slice(0,5).map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)}</span>`).join('')}${picks.length>5?`<span class="chip">+${picks.length-5}</span>`:''}</div>`:''}
       ${dots}
-      <div class="grp">${picks.length?`<button class="btn ${done?'':'primary big'}" id="homeReview">${done?'Review again':'Start today\'s review →'}</button>`:''}<button class="linkish" id="homePlan">See the plan</button></div></div>`}
+      <div class="grp">${picks.length&&!done?`<button class="btn primary big" id="homeReview">Start today's review →</button>`:''}<button class="linkish" id="homePlan">See the plan</button></div></div>`}
   $('homeBody').innerHTML=`<div class="home">
     <div class="hhero">${MASCOT}<div class="hh-text"><p class="hhello">${hello}, <b>${HIST.name?esc(HIST.name):'detective'}</b>!</p>
       <div class="hpills"><span class="hpill ${run?'':'off'}" title="Days in a row">🔥 ${run} day${run===1?'':'s'}</span>
@@ -18177,7 +18178,7 @@ function renderHome(){
     <div class="hpractice"><p class="plabel">Practice</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');const lk=!FC_FREE.includes(k)&&fcActLocked();return`<button class="hgame${lk?' gated':''}" data-go="${k}"${lk?' aria-description="Locked until you study the flashcards"':''}>${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
   </div>`;
   const hfc=$('homeFc');if(hfc)hfc.onclick=fcGo;
-  const hr2=$('homeReview');if(hr2)hr2.onclick=()=>{setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
+  const hr2=$('homeReview');if(hr2)hr2.onclick=()=>{if(reviewDone())return renderHome();setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
   $('homeBadges').onclick=()=>{progView='me';setMode('progress')};
   if($('homeCheck'))$('homeCheck').onclick=()=>{startCheckin(fw);scrollTo({top:0})};
   $('homePlan').onclick=()=>{setMode('plan');scrollTo({top:0})};
