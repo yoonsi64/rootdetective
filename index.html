@@ -734,9 +734,6 @@ html.calm .wmap .stage.cur::before{animation:none}
 .youhere span{background:var(--ink);color:var(--card);font-size:.72rem;font-weight:800;border-radius:99px;padding:2px 8px;white-space:nowrap;margin-top:-4px}
 .deco{position:absolute;z-index:1;transform:translate(-50%,-50%);font-size:1.9rem;opacity:.9;filter:drop-shadow(0 2px 0 rgba(0,0,0,.1));pointer-events:none}
 .wflag{position:absolute;left:50%;transform:translateX(-50%);z-index:2;font-size:2.2rem}
-.routine-d{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:12px}
-.routine-d summary{cursor:pointer;font-weight:800}
-.routine-d .days{margin-top:10px}
 .stagesheet{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;justify-content:center;padding:0 12px;pointer-events:none}
 .stagesheet[hidden]{display:none}
 .ss-card{pointer-events:auto;position:relative;width:min(560px,100%);max-height:60vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:22px;padding:16px 18px;
@@ -18357,11 +18354,6 @@ function reportsHTML(){
     <p>${r.word?`<b>${esc(r.word)}</b> `:''}${r.card?`(${esc(r.card)}) `:''}${r.sentence?`“${esc(r.sentence.replace(/\[|\]/g,''))}”`:''}${r.note?`<br>Note: ${esc(r.note)}`:''}</p></li>`).join('')}</ul></section>`}
 
 /* ---------- Study plan view ---------- */
-const ROUTINE=[['Mon','Flashcards','Meet the new cards. Flip each one and say the meaning out loud.'],
-  ['Tue','Break it down','Split words into parts and read what each part means.'],
-  ['Wed','Build it','Build words from part tiles. Try before using a hint.'],
-  ['Thu','Quiz','Take one round. Study any missed cards.'],
-  ['Fri','Context clues + games','Do a round of Context clues, then Match or Memory for review.']];
 /* ---------- Plan as an adventure map: 16 stages along a winding trail through four lands ---------- */
 const starsFor=best=>best>=10?3:best>=9?2:best>=PASS?1:0;
 let mapSel=null;
@@ -18398,8 +18390,6 @@ function renderPlan(){
   y+=4;
   h+=`<div class="snake-end" style="top:${y}px">🏆 Finish</div>`;y+=40;
   h+=`</div>
-  <details class="routine-d"><summary>📅 How each stage works</summary><p class="note">About 15 minutes a day. Stages 8 and 16 are reviews that cover everything so far.</p>
-    <div class="days">${ROUTINE.map(([d,m,t])=>`<div class="day"><b>${d}</b><span>${m}</span><small>${t}</small></div>`).join('')}</div></details>
   <div class="stagesheet" id="stageSheet" hidden></div>`;
   $('planBody').innerHTML=h;
   const map=$('wmap');map.style.height=(y+20)+'px';
