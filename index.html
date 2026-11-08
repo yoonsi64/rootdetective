@@ -1491,9 +1491,9 @@ ks.forEach(function(k){localStorage.removeItem(k)});localStorage.setItem('rd-res
       <div class="weekbar" id="weekbar">
         <span class="wlbl" id="weekLbl">Study</span>
         <button type="button" id="weekBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="weekLbl weekBtn">All cards</button>
-        <div class="weekpop" id="weekPop" hidden role="group" aria-label="Choose weeks to study">
+        <div class="weekpop" id="weekPop" hidden role="group" aria-label="Choose stages to study">
           <button type="button" class="wclass" id="weekClass">My class's cards</button>
-          <p class="note" style="margin:0">Or tick one or more weeks:</p>
+          <p class="note" style="margin:0">Or tick one or more stages:</p>
           <div class="wgrid" id="weekGrid"></div>
           <div class="wkinds" id="weekKinds"></div>
           <div class="grp" style="justify-content:space-between"><button type="button" class="btn small" id="weekClear">Clear</button><button type="button" class="btn small primary" id="weekDone">Done</button></div>
@@ -1786,17 +1786,17 @@ const BANK=RAW.trim().split("\n").map(line=>{
   return{id,set,num:+num,label,main,alts,kind,mean,senses,cols,words,forms,clue:[clue.slice(0,ci),clue.slice(ci+1)],toks};
 });
 const BYID=Object.fromEntries(BANK.map(c=>[c.id,c]));
-/* 16-week semester plan: 14 teaching weeks + review weeks 8 and 16 */
+/* 16-week semester plan: 14 teaching stages + review stages 8 and 16 */
 const WEEKS=16, REVIEW=[8,16];
-/* Cards added after the term started (PLAN_ADDED) join their lesson's week without re-balancing the plan,
-   so no existing card moves to a different week. */
+/* Cards added after the term started (PLAN_ADDED) join their lesson's stage without re-balancing the plan,
+   so no existing card moves to a different stage. */
 const PLAN_ADDED=new Map([['g43',4],['a69',3],['l44',4],['l45',5],['l46',6],['a70',7],['a66',9],['a71',10],['g46',10],
   ['a72',11],['g44',11],['g45',12],['a68',12],['l48',13],['a67',14],['a73',14],['l47',15]]);
 const PLAN=(()=>{
   const PB=BANK.filter(c=>!PLAN_ADDED.has(c.id));
   const teach=[];for(let w=1;w<=WEEKS;w++)if(!REVIEW.includes(w))teach.push(w);
   const n=teach.length, wk={};teach.forEach(w=>wk[w]=[]);
-  /* Greek lessons spread across the term; affixes and Latin bases fill the rest so each week has about the same number of cards */
+  /* Greek lessons spread across the term; affixes and Latin bases fill the rest so each stage has about the same number of cards */
   const gw={};teach.forEach(w=>gw[w]=0);
   const GL=Math.max(...PB.filter(c=>c.set==='g').map(c=>c.num));const lessonWeek=L=>teach[Math.round((L-1)*(n-1)/(GL-1))];for(let L=1;L<=GL;L++){const w=lessonWeek(L);const ids=PB.filter(c=>c.set==='g'&&c.num===L).map(c=>c.id);wk[w].push(...ids);gw[w]+=ids.length}
   const T=PB.length/n, cap=teach.map(w=>Math.max(0,T-gw[w])), capSum=cap.reduce((a,b)=>a+b,0);
@@ -1861,28 +1861,28 @@ let studyWeeks=(()=>{let a=store.get('rd-study-weeks',null);if(!Array.isArray(a)
   return [...new Set(a.map(Number).filter(w=>w>=1&&w<=WEEKS))].sort((x,y)=>x-y)})();
 function weeksLabel(ws){if(!ws.length)return'';const parts=[];let a=ws[0],b=ws[0];
   for(const w of ws.slice(1).concat([null])){if(w===b+1){b=w;continue}parts.push(a===b?`${a}`:b===a+1?`${a}, ${b}`:`${a}–${b}`);a=b=w}
-  return(ws.length===1?'Week ':'Weeks ')+parts.join(', ')}
-/* ---------- Week unlocking: week 1 is open; scoring PASS+ on a week's check-in opens the next.
-   Teachers see every week; a teacher's assigned week or a #week link also opens that week. ---------- */
+  return(ws.length===1?'Stage ':'Stages ')+parts.join(', ')}
+/* ---------- Stage unlocking: stage 1 is open; scoring PASS+ on a stage's check-in opens the next.
+   Teachers see every stage; a teacher's assigned stage or a #week link also opens that stage. ---------- */
 const PASS=8;
 function weekPassed(w){try{const h=checkHistory(HIST.days)[w];return !!h&&h.best>=PASS}catch(e){return false}}
 function openWeeks(){const o=new Set(store.get('rd-open-weeks',[]));if(curWeek)o.add(curWeek);return o}
 function isUnlocked(w){try{if(canTeach||w<=1||openWeeks().has(w))return true;return weekPassed(w-1)&&isUnlocked(w-1)}catch(e){return true}}
 function unlockedWeeks(){return PLAN.map(p=>p.w).filter(isUnlocked)}
 function questDone(){try{return weekPassed(WEEKS)&&unlockedWeeks().length>=WEEKS}catch(e){return false}}
-const nextGoal=w=>w<WEEKS?`unlock week ${w+1}`:'finish the Word Quest';
+const nextGoal=w=>w<WEEKS?`unlock stage ${w+1}`:'finish the Word Quest';
 function frontierWeek(){const u=unlockedWeeks();return u.find(w=>!weekPassed(w))||u[u.length-1]}
-/* ---------- Check-in readiness: finish READY different activities with the current week's words first ---------- */
+/* ---------- Check-in readiness: finish READY different activities with the current stage's words first ---------- */
 const READY=4;
 const ACTN={cards:'Flashcards',parts:'Break it down',build:'Build it',quiz:'Quiz',review:'Daily review',context:'Context clues',match:'Match',memory:'Memory',spell:'Spell it',sort:'Word sort',speed:'Speed round'};
-/* An activity counts toward the check-in after ROUNDS passing rounds of it in that week. */
+/* An activity counts toward the check-in after ROUNDS passing rounds of it in that stage. */
 const ROUNDS=3;
 const ACTRULE='Break it down: 8 words · Build it: 3 words · Quiz, Daily review, Context clues or Spell it: 7/10 · Match or Memory: finish a round · Word sort: 2 or fewer misses · Speed round: 8 right';
 /* passing rounds per activity this week: day.actr[week][kind] counts them (an older day with only day.acts counts 1 each) */
 function roundsFor(w){const out={};try{for(const k in HIST.days){const d=HIST.days[k],r=(d.actr||{})[w];
   if(r)for(const x in r)out[x]=(out[x]||0)+r[x];else((d.acts||{})[w]||[]).forEach(x=>out[x]=(out[x]||0)+1)}}catch(e){}delete out.cards;return out}
 function actsFor(w){const r=roundsFor(w);return Object.keys(r).filter(k=>r[k]>=ROUNDS)}
-/* The check-in opens after READY activities AND passing Context clues level CTX_REQ (7+/10) with that week's words. */
+/* The check-in opens after READY activities AND passing Context clues level CTX_REQ (7+/10) with that stage's words. */
 const CTX_REQ=3;
 function ctxReqDone(w){if(canTeach)return true;try{for(const k in HIST.days){const x=((((HIST.days[k].ctx||{}).wk)||{})[w])||{};
   for(let L=CTX_REQ;L<=6;L++)if((x[L]||0)>=CTX_PASS)return true}}catch(e){}return false}
@@ -1905,13 +1905,13 @@ function doneActivity(kind){try{if(kind==='cards'||!fcGate().ok)return;
 /* "You're ready" pop-up: stays until the student chooses; dots on Home and Plan while the check-in waits */
 let readyPopped=0;
 function roundToast(kind,n){try{let t=$('roundToast');if(!t){t=document.createElement('div');t.id='roundToast';t.className='rtoast';t.setAttribute('role','status');t.setAttribute('aria-live','polite');document.body.appendChild(t)}
-  const done=n>=ROUNDS;t.innerHTML=`<span aria-hidden="true">${done?'✅':'🧩'}</span><div><b>${esc(ACTN[kind]||kind)}: ${Math.min(n,ROUNDS)} of ${ROUNDS} passing rounds</b><span>${done?'This activity now counts toward the check-in.':'Pass it '+(ROUNDS-n)+' more time'+(ROUNDS-n===1?'':'s')+' this week to count it.'}</span></div>`;
+  const done=n>=ROUNDS;t.innerHTML=`<span aria-hidden="true">${done?'✅':'🧩'}</span><div><b>${esc(ACTN[kind]||kind)}: ${Math.min(n,ROUNDS)} of ${ROUNDS} passing rounds</b><span>${done?'This activity now counts toward the check-in.':'Pass it '+(ROUNDS-n)+' more time'+(ROUNDS-n===1?'':'s')+' in this stage to count it.'}</span></div>`;
   t.hidden=false;t.classList.remove('in');void t.offsetWidth;t.classList.add('in');clearTimeout(t._h);t._h=setTimeout(()=>t.hidden=true,3200);swipeAway(t,()=>{clearTimeout(t._h);t.hidden=true})}catch(e){}}
 function readyPending(){try{if(canTeach||questDone())return 0;const w=frontierWeek();return checkReady(w)&&!checkHistory(HIST.days)[w]?w:0}catch(e){return 0}}
-function updateReadyDots(){const w=readyPending();['tab-home','tab-plan'].forEach(id=>{const t=$(id);if(t){t.classList.toggle('ping',!!w);t.setAttribute('aria-description',w?`Week ${w} check-in is ready`:'')}})}
+function updateReadyDots(){const w=readyPending();['tab-home','tab-plan'].forEach(id=>{const t=$(id);if(t){t.classList.toggle('ping',!!w);t.setAttribute('aria-description',w?`Stage ${w} check-in is ready`:'')}})}
 function showReadyPop(w){
   let el=$('readyPop');if(!el){el=document.createElement('div');el.id='readyPop';el.className='readypop';el.setAttribute('role','dialog');el.setAttribute('aria-modal','false');el.setAttribute('aria-labelledby','rpTitle');document.body.appendChild(el)}
-  el.innerHTML=`<div class="rp-card"><div class="rp-ico" aria-hidden="true">🎯</div><p class="hkick">Level-up test unlocked</p><h3 id="rpTitle">You're ready for the week ${w} check-in!</h3>
+  el.innerHTML=`<div class="rp-card"><div class="rp-ico" aria-hidden="true">🎯</div><p class="hkick">Level-up test unlocked</p><h3 id="rpTitle">You're ready for the stage ${w} check-in!</h3>
     <p>You finished all 3 steps: Spell it, Context clues level ${CTX_REQ}, and ${READY-1} more activities. Score ${PASS} out of 10 to ${nextGoal(w)}.</p>
     <div class="grp"><button class="btn primary big" id="rpGo">Take it now →</button><button class="btn" id="rpLater">Later</button></div></div>`;
   el.hidden=false;{const t=$('roundToast');if(t)t.hidden=true}if(!document.documentElement.classList.contains('calm'))FX.shower();
@@ -1929,7 +1929,7 @@ function holdNext(b,obj,i){if(!b||!obj)return;obj._holds=obj._holds||{};const no
   setTimeout(()=>{if(!b.isConnected)return;b.disabled=false;b.classList.remove('holding');b.removeAttribute('title');try{b.focus({preventScroll:true})}catch(e){}},left)}
 const SESS={};
 function progressCount(kind,need){try{const k=kind+'@'+frontierWeek();SESS[k]=(SESS[k]||0)+1;if(SESS[k]>=need){SESS[k]=0;doneActivity(kind)}}catch(e){}}
-/* The check-in unlocks after three steps this week. One list drives the box, Home and the plan page. */
+/* The check-in unlocks after three steps this stage. One list drives the box, Home and the plan page. */
 function readySteps(w){const r=roundsFor(w),others=actsFor(w).filter(k=>k!==REQ_ACT),need=READY-1;let top=1;try{top=ctxWeekTop(w)}catch(e){}
   const sp=Math.min(r[REQ_ACT]||0,ROUNDS),ctxOk=ctxReqDone(w),on=Math.min(others.length,need);
   return[
@@ -1938,11 +1938,11 @@ function readySteps(w){const r=roundsFor(w),others=actsFor(w).filter(k=>k!==REQ_
     {ok:others.length>=need,t:`Pass ${need} more activities ${ROUNDS} times each`,sub:`${on} of ${need} done · your choice of activity`,short:`${need-on} more ${need-on===1?'activity':'activities'}`,chips:true}]}
 function readyHTML(w,compact){const st=readySteps(w),done=st.filter(x=>x.ok).length;
   return`<div class="getready gsteps ${compact?'compact':''}">
-    <div class="gs-head"><div><p class="hkick">Unlock the week ${w} check-in</p><b>Finish these ${st.length} steps this week</b></div><span class="gs-count" aria-label="${done} of ${st.length} steps done">${done}/${st.length}</span></div>
+    <div class="gs-head"><div><p class="hkick">Unlock the stage ${w} check-in</p><b>Finish these ${st.length} steps for this stage</b></div><span class="gs-count" aria-label="${done} of ${st.length} steps done">${done}/${st.length}</span></div>
     <ol class="gs-list">${st.map((x,i)=>`<li class="${x.ok?'ok':''}"><span class="gs-n" aria-hidden="true">${x.ok?'✓':i+1}</span>
       <div class="gs-t"><b>${x.t}</b><small>${x.sub}</small>${x.chips?rgotHTML(w):''}</div>
       ${!x.ok&&x.go?`<button class="btn small" data-goact="${x.go}">Go</button>`:''}</li>`).join('')}</ol>
-    <details class="rrule"><summary>What's a passing round?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the week's words.</span></details></div>`}
+    <details class="rrule"><summary>What's a passing round?</summary>${ACTRULE.split(' · ').map(r=>`<span>${esc(r)}</span>`).join('')}<span class="rnote">Flashcards don't count, but you need them first to add the stage's words.</span></details></div>`}
 function rgotHTML(w){const r=roundsFor(w),ks=Object.keys(r).filter(k=>k!==REQ_ACT).sort((a,b)=>Math.min(r[b],ROUNDS)-Math.min(r[a],ROUNDS));if(!ks.length)return'';
   return`<span class="rgot">${ks.map(k=>r[k]>=ROUNDS?`<span>✓ ${ACTN[k]||k}</span>`:`<span class="part">${ACTN[k]||k} ${r[k]}/${ROUNDS}</span>`).join('')}</span>`}
 /* what's still missing for the check-in, in words: ['Spell it 1/3','Context clues level 3'] */
@@ -1962,11 +1962,11 @@ const chosen=()=>{
   const ids=new Set();unlockedWeeks().forEach(w=>weekIds(w,PLAN[w-1].review).forEach(i=>ids.add(i)));return BANK.filter(c=>ids.has(c.id));
 };
 const basePool=()=>chosen().filter(c=>filter==='all'||c.set===filter);
-/* A new week's words stay out of the activities until their flashcards are studied on both sides;
-   earlier weeks' words stay open the whole time. */
+/* A new stage's words stay out of the activities until their flashcards are studied on both sides;
+   earlier stages' words stay open the whole time. */
 const fcHeld=()=>{try{const g=fcGate();return g.ok?new Set():new Set(g.ids)}catch(e){return new Set()}};
-/* Once the new week's flashcards are studied, each activity uses only that week's cards until it has been passed
-   ROUNDS times this week (Context clues: until level CTX_REQ is passed). Then it goes back to every unlocked week.
+/* Once the new stage's flashcards are studied, each activity uses only that stage's cards until it has been passed
+   ROUNDS times this stage (Context clues: until level CTX_REQ is passed). Then it goes back to every unlocked stage.
    Daily review keeps bringing back older words, and teachers' picks are left alone. */
 const FORCE_FREE=['cards','home','plan','progress','review'];
 function actForceWeek(m=mode){try{if(canTeach||selected||questDone()||FORCE_FREE.includes(m)||!fcGate().ok)return 0;
@@ -1976,9 +1976,9 @@ function actForceWeek(m=mode){try{if(canTeach||selected||questDone()||FORCE_FREE
 const forcedCards=fw=>{const ids=new Set(weekIds(fw,!!PLAN[fw-1].review));return BANK.filter(c=>ids.has(c.id))};
 const pool=()=>{const fw=actForceWeek();if(fw){const all=forcedCards(fw),f=all.filter(c=>filter==='all'||c.set===filter);return f.length?f:all}
   const p=basePool(),h=fcHeld();return h.size?p.filter(c=>!h.has(c.id)):p};
-/* Flashcards: when the student hasn't picked weeks (and no teacher selection), show only the newest unlocked week */
+/* Flashcards: when the student hasn't picked stages (and no teacher selection), show only the newest unlocked stage */
 let cardsAll=false;
-/* the week the student is working on now (first unlocked week not yet passed); flashcards start here */
+/* the stage the student is working on now (first unlocked stage not yet passed); flashcards start here */
 const newestWeek=()=>{try{return frontierWeek()||1}catch(e){const u=unlockedWeeks();return u[u.length-1]||1}};
 const cardsScoped=()=>!studyWeeks.length&&!selected&&!cardsAll&&unlockedWeeks().length>1;
 const cardPool=()=>{if(!cardsScoped())return basePool();const w=newestWeek(),ids=new Set(weekIds(w,PLAN[w-1].review));return basePool().filter(c=>ids.has(c.id))};
@@ -1997,25 +1997,25 @@ function refreshStudyUI(){
   const ch=chosen(),uw=unlockedWeeks();
   renderWeekMenu();
   $('practiceNote').textContent=studyWeeks.length
-    ?`Studying ${weeksLabel(studyWeeks).toLowerCase()}${studyWeeks.some(w=>PLAN[w-1].review)?' (review weeks include all earlier cards)':''}: ${ch.length} cards. Every game uses only these cards.`
+    ?`Studying ${weeksLabel(studyWeeks).toLowerCase()}${studyWeeks.some(w=>PLAN[w-1].review)?' (review stages include all earlier cards)':''}: ${ch.length} cards. Every game uses only these cards.`
     :selected
-    ?(curWeek?`Week ${curWeek} of ${WEEKS}${PLAN[curWeek-1].review?' (review)':''}: practicing ${ch.length} card${ch.length===1?'':'s'}.`:`Practicing ${ch.length} card${ch.length===1?'':'s'} your teacher picked.`)
-    :uw.length>=WEEKS?`Practicing all ${BANK.length} cards: every week is unlocked.`
-    :`Practicing your unlocked ${weeksLabel(uw).toLowerCase()}: ${ch.length} cards. Score ${PASS}/10 on a check-in to unlock the next week.`;
+    ?(curWeek?`Stage ${curWeek} of ${WEEKS}${PLAN[curWeek-1].review?' (review)':''}: practicing ${ch.length} card${ch.length===1?'':'s'}.`:`Practicing ${ch.length} card${ch.length===1?'':'s'} your teacher picked.`)
+    :uw.length>=WEEKS?`Practicing all ${BANK.length} cards: every stage is unlocked.`
+    :`Practicing your unlocked ${weeksLabel(uw).toLowerCase()}: ${ch.length} cards. Score ${PASS}/10 on a check-in to unlock the next stage.`;
 }
 
-/* The weeks the Study menu shows as picked. On the Flashcards page this follows what the cards show:
-   the newest week by default, every week after "All weeks". */
+/* The stages the Study menu shows as picked. On the Flashcards page this follows what the cards show:
+   the newest stage by default, every stage after "All stages". */
 function shownWeeks(){if(studyWeeks.length)return studyWeeks;try{if(mode==='cards'&&cardsScoped())return[newestWeek()]}catch(e){}return[]}
 function renderWeekMenu(){
   const shown=shownWeeks();
-  const classLbl=selected?(curWeek?`My class (week ${curWeek})`:"My class's cards"):unlockedWeeks().length>=WEEKS?'All cards':'All my weeks';
+  const classLbl=selected?(curWeek?`My class (stage ${curWeek})`:"My class's cards"):unlockedWeeks().length>=WEEKS?'All cards':'All my stages';
   const fw=actForceWeek();
-  $('weekBtn').textContent=fw?`Week ${fw} only`:shown.length?weeksLabel(shown):classLbl;
+  $('weekBtn').textContent=fw?`Stage ${fw} only`:shown.length?weeksLabel(shown):classLbl;
   {let n=$('weekForce');if(!n){n=document.createElement('p');n.id='weekForce';n.className='note wforce';$('weekPop').prepend(n)}
-   n.hidden=!fw;if(fw)n.textContent=mode==='context'?`Context clues uses week ${fw} cards until you pass level ${CTX_REQ}. Your picks here apply after that.`:`${ACTN[mode]||'This activity'} uses week ${fw} cards until you pass it ${ROUNDS} times. Your picks here apply after that.`}
+   n.hidden=!fw;if(fw)n.textContent=mode==='context'?`Context clues uses stage ${fw} cards until you pass level ${CTX_REQ}. Your picks here apply after that.`:`${ACTN[mode]||'This activity'} uses stage ${fw} cards until you pass it ${ROUNDS} times. Your picks here apply after that.`}
   $('weekClass').textContent=classLbl;$('weekClass').classList.toggle('on',!shown.length);
-  $('weekGrid').innerHTML=PLAN.map(p=>{const lk=!isUnlocked(p.w);return`<label class="wchk ${shown.includes(p.w)?'on':''} ${lk?'locked':''}" for="wk-${p.w}" title="${lk?`Score ${PASS}/10 on the week ${p.w-1} check-in to unlock`:''}"><input type="checkbox" id="wk-${p.w}" data-w="${p.w}" ${shown.includes(p.w)?'checked':''} ${lk?'disabled':''}><span>${lk?'🔒':p.w}${lk?`<small>week ${p.w}</small>`:p.review?'<small>review</small>':curWeek===p.w?'<small>this week</small>':''}</span></label>`}).join('');
+  $('weekGrid').innerHTML=PLAN.map(p=>{const lk=!isUnlocked(p.w);return`<label class="wchk ${shown.includes(p.w)?'on':''} ${lk?'locked':''}" for="wk-${p.w}" title="${lk?`Score ${PASS}/10 on the stage ${p.w-1} check-in to unlock`:''}"><input type="checkbox" id="wk-${p.w}" data-w="${p.w}" ${shown.includes(p.w)?'checked':''} ${lk?'disabled':''}><span>${lk?'🔒':p.w}${lk?`<small>stage ${p.w}</small>`:p.review?'<small>review</small>':curWeek===p.w?'<small>this stage</small>':''}</span></label>`}).join('');
   $('weekGrid').querySelectorAll('input').forEach(i=>i.onchange=()=>{const w=+i.dataset.w,base=shownWeeks(),next=i.checked?base.concat(w):base.filter(x=>x!==w);if(!next.length&&mode==='cards')cardsAll=true;setStudyWeeks(next);const n=$('wk-'+w);n&&n.focus()});
   $('weekbar').classList.toggle('on',!!studyWeeks.length);
   try{kindLabel()}catch(e){}
@@ -2055,32 +2055,32 @@ function filterEdge(){const f=$('filter');if(!f)return;const max=f.scrollWidth-f
 
 /* ---------- Flashcards ---------- */
 let deck=[], idx=0;
-/* Above the flashcards: which week is showing, and the check-in that unlocks the next week */
+/* Above the flashcards: which stage is showing, and the check-in that unlocks the next stage */
 function nextStepHTML(where){
   const uw=unlockedWeeks();if(questDone()||selected)return'';
   const fw=frontierWeek(),h=checkHistory(HIST.days)[fw];
   if(!checkReady(fw))return readyHTML(fw,where==='cards');
   return`<div class="nextstep"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><p class="hkick">Next step</p>
-    <b>Take the week ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished the activities and Context clues level ${CTX_REQ}, so you're ready!`:''}</span></div>
+    <b>Take the stage ${fw} check-in to ${nextGoal(fw)}</b><span>Score ${PASS} out of 10 or better.${h?` Your best so far: ${h.best}/10.`:actsFor(fw).length>=READY?` You finished the activities and Context clues level ${CTX_REQ}, so you're ready!`:''}</span></div>
     <button class="btn primary ns-btn" data-checkin="${fw}">Take the check-in →</button></div>`}
 /* the next card in this deck (after the current one) that hasn't been seen on both sides yet */
 function fcTodoIndex(fg){const need=new Set(fg.ids.filter(i=>!(fg.f.has(i)&&fg.b.has(i))));if(!need.size)return -1;
   for(let k=1;k<=deck.length;k++){const i=(idx+k)%deck.length;if(need.has(deck[i].id))return i}return -1}
 function renderCardsTop(){try{renderWeekMenu();renderFilter()}catch(e){}
   const el=$('cardsTop');if(!el)return;const n=deck.length,w=newestWeek(),uw=unlockedWeeks();let main='',note='',btn='';
-  if(selected){main=curWeek?`Class week ${curWeek}`:"Your class's cards";note='Your teacher chose these cards.'}
-  else if(studyWeeks.length){main=weeksLabel(studyWeeks);note='Your Study menu picks are on, so every activity uses these weeks.';
-    btn=`<button class="btn small" id="cardsBackNew">Week ${w} only</button>`}
-  else if(cardsAll&&uw.length>1){main='All my weeks';note=`Showing ${weeksLabel(uw)}.`;btn=`<button class="btn small" id="cardsNewBtn">Week ${w} only</button>`}
-  else{main=`Week ${w}${PLAN[w-1].review?' review':''}${uw.length>1?' new cards':''}`;
-    note=uw.length>1?'Flashcards show this week\'s new cards. Your other activities mix in every week you have unlocked.':'Finish activities and pass the check-in to unlock week 2.';
-    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">All weeks (${basePool().length})</button>`}
+  if(selected){main=curWeek?`Class stage ${curWeek}`:"Your class's cards";note='Your teacher chose these cards.'}
+  else if(studyWeeks.length){main=weeksLabel(studyWeeks);note='Your Study menu picks are on, so every activity uses these stages.';
+    btn=`<button class="btn small" id="cardsBackNew">Stage ${w} only</button>`}
+  else if(cardsAll&&uw.length>1){main='All my stages';note=`Showing ${weeksLabel(uw)}.`;btn=`<button class="btn small" id="cardsNewBtn">Stage ${w} only</button>`}
+  else{main=`Stage ${w}${PLAN[w-1].review?' review':''}${uw.length>1?' new cards':''}`;
+    note=uw.length>1?'Flashcards show this stage\'s new cards. Your other activities mix in every stage you have unlocked.':'Finish activities and pass the check-in to unlock stage 2.';
+    if(uw.length>1)btn=`<button class="btn small" id="cardsAllBtn">All stages (${basePool().length})</button>`}
   /* Top: one slim line. A ready check-in also gets a slim line; the progress card sits below the flashcards. */
   const ns=nextStepHTML('cards'),ready=ns.includes('class="nextstep');
   const fg=fcGate();let top=`<div class="scopebar slim"><span class="sb-ico" aria-hidden="true">📚</span><div class="sb-text"><b>${esc(main)}</b><span>${n} card${n===1?'':'s'}</span></div>${btn}</div>`;
   const todoAt=fg.ok?-1:fcTodoIndex(fg);
-  if(!fg.ok)top+=`<div class="fcstrip"><div class="fcs-row"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> week ${fg.w} cards. Flip every card to ${fcActLocked()?'unlock the activities':'add them to your activities'}.</span>${todoAt>=0&&todoAt!==idx?`<button class="btn small" id="fcTodo">Next to flip →</button>`:''}</div><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
-  if(ready){const fw=frontierWeek();top+=`<div class="nextstep slim"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><b>Week ${fw} check-in is ready!</b></div><button class="btn primary small ns-btn" data-checkin="${fw}">Take it →</button></div>`}
+  if(!fg.ok)top+=`<div class="fcstrip"><div class="fcs-row"><span class="fcs-txt"><b>Both sides: ${fg.done} of ${fg.ids.length}</b> stage ${fg.w} cards. Flip every card to ${fcActLocked()?'unlock the activities':'add them to your activities'}.</span>${todoAt>=0&&todoAt!==idx?`<button class="btn small" id="fcTodo">Next to flip →</button>`:''}</div><span class="fcs-bar"><i style="width:${fg.ids.length?Math.round(fg.done/fg.ids.length*100):0}%"></i></span></div>`;
+  if(ready){const fw=frontierWeek();top+=`<div class="nextstep slim"><span class="ns-ico" aria-hidden="true">🎯</span><div class="ns-text"><b>Stage ${fw} check-in is ready!</b></div><button class="btn primary small ns-btn" data-checkin="${fw}">Take it →</button></div>`}
   el.innerHTML=top;
   const bot=$('cardsBottom');if(bot)bot.innerHTML=(ready?'':ns)+(note?`<p class="note">${esc(note)}</p>`:'');
   if($('fcTodo'))$('fcTodo').onclick=()=>{idx=todoAt;renderCard();seenCard()};
@@ -2109,11 +2109,11 @@ function renderCard(){
   $('front').innerHTML=`<div class="band">${BAND}</div>
     <div class="bigwrap"><div class="big" style="font-size:${size}">${esc(c.main)}</div>${c.alts?`<div class="alts">also: ${esc(c.alts)}</div>`:''}</div>
     <div class="hint">Tap the card to see what it means</div>
-    <div class="foot">${wkOf?`<span class="wktag">Week ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
+    <div class="foot">${wkOf?`<span class="wktag">Stage ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
   $('back').innerHTML=`<div class="band">${BAND}</div>
     <div class="heads" style="grid-template-columns:repeat(${n},1fr)">${heads}</div>
     <div class="tchart" style="grid-template-columns:repeat(${n},1fr)">${c.cols.map(col=>`<div class="col">${col.map(w=>`<span>${hl(w,c)}</span>`).join('')}</div>`).join('')}</div>
-    <div class="foot">${wkOf?`<span class="wktag">Week ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
+    <div class="foot">${wkOf?`<span class="wktag">Stage ${wkOf.w}</span>`:''}<span class="tab">${TAB}</span></div>`;
   $('known').setAttribute('aria-pressed',known.has(c.id));
   if(mode==='cards')setTimeout(()=>fcMark('f'),0);
   const p=cardPool(), k=p.filter(x=>known.has(x.id)).length;
@@ -2200,7 +2200,7 @@ function startQuiz(list,tag={}){
 }
 function renderQ(){
   const q=Q.qs[Q.i];
-  $('qcard').innerHTML=`<div class="qtop"><span>${Q.tag.check?`Week ${Q.tag.check} check-in · `:Q.tag.review?"Daily review · ":""}Question ${Q.i+1} of ${QN}</span><div class="track"><i style="width:${Q.i/QN*100}%"></i></div><span>★ ${Q.score}</span></div>
+  $('qcard').innerHTML=`<div class="qtop"><span>${Q.tag.check?`Stage ${Q.tag.check} check-in · `:Q.tag.review?"Daily review · ":""}Question ${Q.i+1} of ${QN}</span><div class="track"><i style="width:${Q.i/QN*100}%"></i></div><span>★ ${Q.score}</span></div>
     <div class="sayrow"><p class="prompt">${q.prompt}</p>${sayBtn(q.prompt+(q.opts?" "+q.opts.join(". ")+".":""),"Listen to the question")}</div>
     <div class="opts">${q.opts.map((o,k)=>`<button class="opt" id="opt${k}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div>
     <div id="fbslot"></div>`;
@@ -2223,11 +2223,11 @@ function results(){
   rec(d=>{const o=sub(d,'quiz');bump(o,'r');o.best=Math.max(o.best||0,Q.score);if(Q.tag.review)bump(d,'review');
     if(Q.tag.check){const c=sub(sub(d,'check'),Q.tag.check);if(c.f==null)c.f=Q.score;c.s=Math.max(c.s||0,Q.score);c.l=Q.score;bump(c,'n')}});
   if(!Q.tag.check&&Q.score>=7)doneActivity(Q.tag.review?'review':'quiz');
-  const tagNote=Q.tag.check?(()=>{const h=checkHistory(HIST.days)[Q.tag.check]||{};return`<p class="note" style="margin:0">Week ${Q.tag.check} check-in. First try: ${h.first}/10 · Best: ${h.best}/10${h.n>1&&h.best>h.first?` · up ${h.best-h.first} since your first try!`:''}</p>`})():Q.tag.review?'<p class="note" style="margin:0">Daily review done. Come back tomorrow for a new set.</p>':'';
+  const tagNote=Q.tag.check?(()=>{const h=checkHistory(HIST.days)[Q.tag.check]||{};return`<p class="note" style="margin:0">Stage ${Q.tag.check} check-in. First try: ${h.first}/10 · Best: ${h.best}/10${h.n>1&&h.best>h.first?` · up ${h.best-h.first} since your first try!`:''}</p>`})():Q.tag.review?'<p class="note" style="margin:0">Daily review done. Come back tomorrow for a new set.</p>':'';
   const opened=Q.tag.check?unlockedWeeks().filter(w=>!wasOpen.has(w)):[];
-  const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Week ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to week ${opened[0]}</button></div>`
+  const unlockNote=!Q.tag.check?'':opened.length?`<div class="unlockbox"><span class="ub-ico">🔓</span><div><b>Stage ${opened[0]} unlocked!</b><span>You scored ${PASS} or more, so new cards are ready.</span></div><button class="btn small primary" id="goNewWeek">Go to stage ${opened[0]}</button></div>`
     :Q.tag.check===WEEKS&&Q.score>=PASS?`<div class="unlockbox"><span class="ub-ico">🏆</span><div><b>You finished the Word Quest!</b><span>All 16 stages cleared. The treasure is yours, detective!</span></div></div>`
-    :Q.score<PASS&&!weekPassed(Q.tag.check)&&Q.tag.check<WEEKS?`<p class="note" style="margin:0">Score ${PASS} or more to unlock week ${Q.tag.check+1}. Study the missed cards and try again.</p>`:'';
+    :Q.score<PASS&&!weekPassed(Q.tag.check)&&Q.tag.check<WEEKS?`<p class="note" style="margin:0">Score ${PASS} or more to unlock stage ${Q.tag.check+1}. Study the missed cards and try again.</p>`:'';
   try{updateReadyDots()}catch(e){}
   if(opened.length||(Q.tag.check===WEEKS&&Q.score>=PASS)){cardsAll=false;refreshStudyUI();setTimeout(()=>FX.shower(),200);FX.play('win')}
   const s=Q.score,newBest=best===null||s>best;if(newBest){best=s;store.set('rd-best2',s)}
@@ -2245,7 +2245,7 @@ function results(){
 }
 
 const MODES=['cards','home','review','quiz','parts','build','match','memory','spell','sort','speed','context','plan','progress'];
-/* ---------- Flashcards first: every card of the newest week, seen on both sides, before the activities ---------- */
+/* ---------- Flashcards first: every card of the newest stage, seen on both sides, before the activities ---------- */
 const FC_FREE=['cards','home','plan','progress'];let fcBypass=false;/* check-ins have their own gate on the Plan page */
 function fcSides(){const f=new Set(),b=new Set();for(const k in HIST.days){const x=HIST.days[k].fc;if(x){(x.f||[]).forEach(i=>f.add(i));(x.b||[]).forEach(i=>b.add(i))}}return{f,b}}
 function fcGate(){try{
@@ -2256,18 +2256,18 @@ function fcMark(side){const c=deck[idx];if(!c||mode!=='cards')return;const {f,b}
   const g=fcGate();updateFcTabs();try{renderCardsTop();renderFcBar()}catch(e){}
   if(!was&&g.ok){try{FX.play('win');FX.shower&&FX.shower()}catch(e){}fcUnlockedNote(g.w)}}
 function fcUnlockedNote(w){let el=$('fcDone');if(!el){el=document.createElement('div');el.id='fcDone';el.className='fcdone';el.setAttribute('role','status');document.body.appendChild(el)}
-  const first=!chosen().some(c=>!PLAN[w-1].ids.includes(c.id));el.innerHTML=first?`<b>🎉 Activities unlocked!</b><span>You studied every week ${w} card on both sides.</span>`:`<b>🎉 Week ${w} words added!</b><span>Your activities now include this week's new words.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200);swipeAway(el,()=>{clearTimeout(el._t);el.style.transition='none';el.classList.remove('show');requestAnimationFrame(()=>requestAnimationFrame(()=>el.style.transition=''))})}
+  const first=!chosen().some(c=>!PLAN[w-1].ids.includes(c.id));el.innerHTML=first?`<b>🎉 Activities unlocked!</b><span>You studied every stage ${w} card on both sides.</span>`:`<b>🎉 Stage ${w} words added!</b><span>Your activities now include this stage's new words.</span>`;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),4200);swipeAway(el,()=>{clearTimeout(el._t);el.style.transition='none';el.classList.remove('show');requestAnimationFrame(()=>requestAnimationFrame(()=>el.style.transition=''))})}
 function fcActLocked(){const g=fcGate();if(g.ok)return false;const h=new Set(g.ids);return !chosen().some(c=>!h.has(c.id))}
 function updateFcTabs(){const g={ok:!fcActLocked()};document.querySelectorAll('.hgame[data-go]').forEach(b=>{const lk=!FC_FREE.includes(b.dataset.go)&&!g.ok;b.classList.toggle('gated',lk);if(lk)b.setAttribute('aria-description','Locked until you study the flashcards');else b.removeAttribute('aria-description')});MODES.forEach(m=>{const t=$('tab-'+m);if(!t||FC_FREE.includes(m))return;t.classList.toggle('gated',!g.ok);if(!g.ok)t.setAttribute('aria-description','Locked until you study the flashcards');else t.removeAttribute('aria-description')})}
 function renderFcHeld(){const el=$('fcHeldNote');if(!el)return;const g=fcGate(),show=!g.ok&&!FC_FREE.includes(mode)&&!fcActLocked();
   const fw=show?0:actForceWeek();
   if(fw){el.hidden=false;const n=Math.min(roundsFor(fw)[mode]||0,ROUNDS),nm=ACTN[mode]||'this activity';
-    el.innerHTML=`<span aria-hidden="true">🎯</span><span>${mode==='context'?`Week ${fw} cards only until you pass level ${CTX_REQ}. Then all your weeks mix in.`:`Week ${fw} cards only until you pass ${nm} ${ROUNDS} times (${n} of ${ROUNDS}). Then all your weeks mix in.`}</span>`;return}
+    el.innerHTML=`<span aria-hidden="true">🎯</span><span>${mode==='context'?`Stage ${fw} cards only until you pass level ${CTX_REQ}. Then all your stages mix in.`:`Stage ${fw} cards only until you pass ${nm} ${ROUNDS} times (${n} of ${ROUNDS}). Then all your stages mix in.`}</span>`;return}
   el.hidden=!show;if(!show)return;
-  el.innerHTML=`<span aria-hidden="true">🗂️</span><span>Week ${g.w} words join after their flashcards (${g.done}/${g.ids.length})</span><button class="linkish" id="fhGo">Study them</button>`;$('fhGo').onclick=fcGo}
+  el.innerHTML=`<span aria-hidden="true">🗂️</span><span>Stage ${g.w} words join after their flashcards (${g.done}/${g.ids.length})</span><button class="linkish" id="fhGo">Study them</button>`;$('fhGo').onclick=fcGo}
 function renderFcGate(){const g=fcGate(),el=$('fcGate');if(!el)return;const n=g.ids.length,pct=n?Math.round(g.done/n*100):100;
-  el.innerHTML=`<div class="wcard fg-card"><div class="fg-ico" aria-hidden="true">🗂️</div><p class="hkick">Week ${g.w}</p><h2>First, study the flashcards</h2>
-    <p class="fg-sub">Look at <b>both sides</b> of every week ${g.w} card: the word part, then tap to flip and read what it means. Then all the activities open up.</p>
+  el.innerHTML=`<div class="wcard fg-card"><div class="fg-ico" aria-hidden="true">🗂️</div><p class="hkick">Stage ${g.w}</p><h2>First, study the flashcards</h2>
+    <p class="fg-sub">Look at <b>both sides</b> of every stage ${g.w} card: the word part, then tap to flip and read what it means. Then all the activities open up.</p>
     <div class="fg-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${g.done}" aria-label="Cards studied on both sides"><i style="width:${pct}%"></i></div>
     <p class="fg-n"><b>${g.done} of ${n}</b> cards studied on both sides</p>
     <div class="chipset fg-chips">${g.ids.map(id=>{const c=BYID[id],both=g.f.has(id)&&g.b.has(id),half=!both&&(g.f.has(id)||g.b.has(id));return`<span class="chip c-${c.kind} ${both?'ok':half?'half':'todo'}" style="background:var(--fc)">${both?'✓ ':''}${esc(c.main)}</span>`}).join('')}</div>
@@ -2777,7 +2777,7 @@ function pickPairs(n,key){
   const p=pool();for(let t=0;t<p.length&&out.length<n;t++){const c=draw(key,p,1)[0];const m=meanOf(c);if(seen.has(m)||seen.has(c.main))continue;seen.add(m);seen.add(c.main);out.push(c)}
   return out;
 }
-const emptyMsg=`<div class="empty" style="border:0"><h2>Not enough cards</h2><p class="note">Ask your teacher to choose at least 2 cards, or pick more weeks to study.</p></div>`;
+const emptyMsg=`<div class="empty" style="border:0"><h2>Not enough cards</h2><p class="note">Ask your teacher to choose at least 2 cards, or pick more stages to study.</p></div>`;
 let M=null;
 function newMatch(){
   const cs=pickPairs(6,'match');if(cs.length<2){$('mcard').innerHTML=emptyMsg;return}
@@ -17903,33 +17903,33 @@ let CL=(()=>{const v=+store.get('rd-ctx-level',2);return v>=1&&v<=6?v:2})();let 
 let ctxBest=store.get('rd-ctx-best',{})||{};
 /* Levels unlock in order: score CTX_PASS or more out of 10 on a level to open the next one */
 const CTX_PASS=7;
-/* Each plan week starts back at level 1: a level's unlock only counts scores from the week the student is on now.
-   Rounds are saved per week in ctx.wk[week][level] (best score). After the whole Word Quest, every score counts. */
-/* The week whose levels apply: the newest week once its flashcards are studied; until then the week before it keeps
-   its unlocked levels. Studying the new flashcards starts the new week at level 1. */
+/* Each plan stage starts back at level 1: a level's unlock only counts scores from the stage the student is on now.
+   Rounds are saved per stage in ctx.wk[week][level] (best score). After the whole Word Quest, every score counts. */
+/* The stage whose levels apply: the newest stage once its flashcards are studied; until then the stage before it keeps
+   its unlocked levels. Studying the new flashcards starts the new stage at level 1. */
 function ctxWeek(){try{if(questDone())return 0;const fw=frontierWeek()||0;return ctxFcWait()&&fw>1?fw-1:fw}catch(e){return 0}}
 function ctxLevelBest(n,w=ctxWeek()){let b=-1;try{for(const k in HIST.days){const c=HIST.days[k].ctx||{};
   const v=w?((c.wk||{})[w]||{})[n]:((c.lv||{})[n]||{}).best;if(v!=null)b=Math.max(b,v)}}catch(e){}return b}
-/* Highest open level this week. 7+ on a level opens the next one; CTX_DROP or less on a level locks it again
+/* Highest open level this stage. 7+ on a level opens the next one; CTX_DROP or less on a level locks it again
    (back down one level), so nobody stays on Master without being able to answer it.
-   Saved per week as ctx.wk[week].t on the day it changes; the latest day wins. */
+   Saved per stage as ctx.wk[week].t on the day it changes; the latest day wins. */
 const CTX_DROP=4;
 function ctxWeekTop(w=ctxWeek()){
   const fromBest=get=>{let t=1;for(let m=1;m<=5;m++)if(get(m)>=CTX_PASS)t=Math.max(t,m+1);return t};
   if(!w)return fromBest(n=>ctxLevelBest(n,0));
   let t=null;try{Object.keys(HIST.days).sort().forEach(k=>{const x=(((HIST.days[k].ctx||{}).wk)||{})[w];if(x&&x.t!=null)t=x.t})}catch(e){}
   return t!=null?t:fromBest(n=>ctxLevelBest(n,w))}
-/* Levels 2-6 stay locked until this week's flashcards are studied on both sides (level 1 stays open for earlier weeks' words) */
+/* Levels 2-6 stay locked until this stage's flashcards are studied on both sides (level 1 stays open for earlier stages' words) */
 function ctxFcWait(){if(canTeach)return 0;try{const g=fcGate();return g.ok?0:g.w}catch(e){return 0}}
-/* week 1 before its flashcards: no earlier week to keep, so only level 1 */
+/* stage 1 before its flashcards: no earlier stage to keep, so only level 1 */
 function ctxNoLevels(){try{return !!ctxFcWait()&&(frontierWeek()||0)<=1}catch(e){return false}}
 function ctxUnlocked(n){return n<=1||canTeach||(!ctxNoLevels()&&n<=ctxWeekTop())}
 function ctxTopLevel(){return canTeach?6:ctxNoLevels()?1:ctxWeekTop()}
-/* After the new week's flashcards, Context clues uses only that week's words until level 3 is passed (7+) with them.
-   Then every unlocked week mixes in again. Teachers' picks and the finished Word Quest are left alone. */
+/* After the new stage's flashcards, Context clues uses only that stage's words until level 3 is passed (7+) with them.
+   Then every unlocked stage mixes in again. Teachers' picks and the finished Word Quest are left alone. */
 const ctxForceWeek=()=>actForceWeek('context');
 function ctxIds(){return new Set(pool().map(c=>c.id))}
-const ctxForceNote=()=>{const fw=ctxForceWeek();return fw?`Week ${fw} words only until you pass level ${CTX_REQ}. After that, all your weeks mix in.`:''};
+const ctxForceNote=()=>{const fw=ctxForceWeek();return fw?`Stage ${fw} words only until you pass level ${CTX_REQ}. After that, all your stages mix in.`:''};
 function ctxPool(){const ids=ctxIds();const xs=CTX.filter(x=>ids.has(x.c.id));
   if(xs.length&&ctxForceWeek()){$('cnote').textContent=`${ctxForceNote()} (${xs.length} sentences)`;return xs}
   $('cnote').textContent=xs.length?`${xs.length} sentences use the cards you're practicing.`:'No sentences use the chosen cards yet, so all sentences are used.';
@@ -17952,14 +17952,14 @@ function makeCtxQ(x,lev){
 }
 function levelPicker(){
   return`<div class="levels" role="group" aria-label="Challenge level">${LEVELS.map(l=>{const open=ctxUnlocked(l.n),best=ctxLevelBest(l.n);
-    return`<button class="lvl ${l.n===CL?'on':''} ${open?'':'locked'}" data-lv="${l.n}" aria-pressed="${l.n===CL}" ${open?'':`aria-disabled="true" title="${ctxNoLevels()?`Study the week ${ctxFcWait()} flashcards first`:`Score ${CTX_PASS} or more on level ${l.n-1} this week to unlock`}"`}><b>${open?l.n:LOCK_ICON}</b><span>${l.name}</span>${open&&best>=0?`<small>best ${best}/${CN}</small>`:open?'':`<small>locked</small>`}</button>`}).join('')}</div>
+    return`<button class="lvl ${l.n===CL?'on':''} ${open?'':'locked'}" data-lv="${l.n}" aria-pressed="${l.n===CL}" ${open?'':`aria-disabled="true" title="${ctxNoLevels()?`Study the stage ${ctxFcWait()} flashcards first`:`Score ${CTX_PASS} or more on level ${l.n-1} in this stage to unlock`}"`}><b>${open?l.n:LOCK_ICON}</b><span>${l.name}</span>${open&&best>=0?`<small>best ${best}/${CN}</small>`:open?'':`<small>locked</small>`}</button>`}).join('')}</div>
     <p class="note lvdesc" style="margin:0" title="${esc(LEVELS[CL-1].desc)}" onclick="this.classList.toggle('open')">${LEVELS[CL-1].desc}</p>`;
 }
 function wireLevels(){const tg=$('ccard').querySelector('.lvtoggle');if(tg){const open=$('ccard').classList.contains('lvopen');tg.setAttribute('aria-expanded',open);tg.onclick=()=>{const o=$('ccard').classList.toggle('lvopen');tg.setAttribute('aria-expanded',o)}}
-  $('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const n=+b.dataset.lv;if(!ctxUnlocked(n)){const d=$('ccard').querySelector('.lvdesc');if(d){d.textContent=ctxNoLevels()?`Level ${n} is locked. Look at both sides of every week ${ctxFcWait()} flashcard first, then the levels open.`:`Level ${n} is locked. Score ${CTX_PASS} or more out of ${CN} on level ${n-1}${ctxWeek()?' this week':''} to unlock it. Each new week starts at level 1.`;d.classList.add('open','lvwarn')}try{FX.play('bad')}catch(e){}return}
+  $('ccard').querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const n=+b.dataset.lv;if(!ctxUnlocked(n)){const d=$('ccard').querySelector('.lvdesc');if(d){d.textContent=ctxNoLevels()?`Level ${n} is locked. Look at both sides of every stage ${ctxFcWait()} flashcard first, then the levels open.`:`Level ${n} is locked. Score ${CTX_PASS} or more out of ${CN} on level ${n-1}${ctxWeek()?' in this stage':''} to unlock it. Each new stage starts at level 1.`;d.classList.add('open','lvwarn')}try{FX.play('bad')}catch(e){}return}
     $('ccard').classList.remove('lvopen');CL=n;store.set('rd-ctx-level',CL);startContext()})}
 function startContext(){
-  /* each time the app opens, Context clues starts on the highest level open right now (the week/flashcard rules still decide which) */
+  /* each time the app opens, Context clues starts on the highest level open right now (the stage/flashcard rules still decide which) */
   if(ctxFresh){ctxFresh=false;CL=ctxTopLevel();store.set('rd-ctx-level',CL)}
   if(!ctxUnlocked(CL)){CL=ctxTopLevel();store.set('rd-ctx-level',CL)}
   if(CL===6)return startMaster();
@@ -18089,10 +18089,10 @@ function ctxResults(){
   const fw=ctxNoLevels()?ctxFcWait():0,up=s>=CTX_PASS&&L<6&&!fw, down=s<=CTX_DROP&&L>1, newly=up&&!wasNext;
   $('ccard').innerHTML=`${levelPicker()}
     <div class="qtop"><span>Level ${L} complete</span><div class="track"><i style="width:100%"></i></div><span>★ ${s}</span></div>
-    ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${CN}</p><p class="prompt">${s>=9?'Excellent detective work!':s>=7?'Nice job using the clues!':'Keep practicing. Look for clue words near the underlined word.'}${nb&&s>0?(W?` New best for level ${L} this week!`:' New best for this level!'):''}</p>
-    ${fw&&s>=CTX_PASS&&L<6?`<p class="note" style="margin:0">🗂️ Nice work! Look at both sides of every week ${fw} flashcard to unlock level ${L+1}.</p>`:dropped?`<p class="lvlocked">🔒 Level ${L} is locked again. Score ${CTX_PASS} or more out of ${CN} on level ${L-1} to open it.</p>`:newly?`<p class="lvunlock">🔓 Level ${L+1} unlocked!</p>`:up?`<p class="note" style="margin:0">You're ready for a bigger challenge. Try level ${L+1}.</p>`:L<6&&!ctxUnlocked(L+1)?`<p class="note" style="margin:0">Score ${CTX_PASS} or more out of ${CN} to unlock level ${L+1}${W?' this week':''}.</p>`:down?`<p class="note" style="margin:0">Try level ${L-1} to warm up, then come back.</p>`:''}
+    ${starRow(s>=9?3:s>=7?2:s>=5?1:0)}<p class="score">${s} / ${CN}</p><p class="prompt">${s>=9?'Excellent detective work!':s>=7?'Nice job using the clues!':'Keep practicing. Look for clue words near the underlined word.'}${nb&&s>0?(W?` New best for level ${L} in this stage!`:' New best for this level!'):''}</p>
+    ${fw&&s>=CTX_PASS&&L<6?`<p class="note" style="margin:0">🗂️ Nice work! Look at both sides of every stage ${fw} flashcard to unlock level ${L+1}.</p>`:dropped?`<p class="lvlocked">🔒 Level ${L} is locked again. Score ${CTX_PASS} or more out of ${CN} on level ${L-1} to open it.</p>`:newly?`<p class="lvunlock">🔓 Level ${L+1} unlocked!</p>`:up?`<p class="note" style="margin:0">You're ready for a bigger challenge. Try level ${L+1}.</p>`:L<6&&!ctxUnlocked(L+1)?`<p class="note" style="margin:0">Score ${CTX_PASS} or more out of ${CN} to unlock level ${L+1}${W?' in this stage':''}.</p>`:down?`<p class="note" style="margin:0">Try level ${L-1} to warm up, then come back.</p>`:''}
     ${C.missed.length?`<div><p class="note" style="margin-bottom:8px">Words to review:</p><div class="chips">${C.missed.flatMap(x=>x.pair?[{w:x.w,c:x.c,def:x.def},{w:x.w2,c:x.c2,def:x.def2}]:[x]).map(x=>`<span>${hl(x.w,x.c)} = ${esc(x.def)}</span>`).join('')}</div></div>`:''}
-    <div class="grp">${fw?`<button class="btn primary" id="cfc">Study the week ${fw} flashcards</button>`:''}${up?`<button class="btn primary" id="cup">Try level ${L+1}</button><button class="btn" id="cagain">Play level ${L} again</button>`:`${dropped?'':`<button class="btn ${fw?'':'primary'}" id="cagain">Play again</button>`}`}${down?`<button class="btn${dropped?' primary':''}" id="cdown">${dropped?`Go to level ${L-1}`:`Try level ${L-1}`}</button>`:''}</div>`;
+    <div class="grp">${fw?`<button class="btn primary" id="cfc">Study the stage ${fw} flashcards</button>`:''}${up?`<button class="btn primary" id="cup">Try level ${L+1}</button><button class="btn" id="cagain">Play level ${L} again</button>`:`${dropped?'':`<button class="btn ${fw?'':'primary'}" id="cagain">Play again</button>`}`}${down?`<button class="btn${dropped?' primary':''}" id="cdown">${dropped?`Go to level ${L-1}`:`Try level ${L-1}`}</button>`:''}</div>`;
   wireLevels();
   if($('cagain'))$('cagain').onclick=startContext;
   if($('cfc'))$('cfc').onclick=()=>{fcGo();scrollTo({top:0})};
@@ -18119,7 +18119,7 @@ function renderReview(){
     <div class="gtop"><b style="font-size:1.25rem">Today's review</b>${done?'<span class="streak">✓ Done today</span>':''}</div>
     <p class="note" style="margin:0">A quick 10-question quiz on the cards you need most right now: cards you've missed, and cards you haven't seen in a while.</p>
     ${picks.length?`<div class="chips">${picks.map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)} <small>${x.t?Math.round(x.acc*100)+'%':'new'}</small></span>`).join('')}</div>
-    ${done?'<p class="note" style="margin:0"><b>Done for today!</b> Come back tomorrow for a new review. Any other activity is open for more practice.</p>':`<div><button class="btn primary" id="startReview">Start today's review</button></div>`}`:'<p class="note">Choose some weeks to study first.</p>'}
+    ${done?'<p class="note" style="margin:0"><b>Done for today!</b> Come back tomorrow for a new review. Any other activity is open for more practice.</p>':`<div><button class="btn primary" id="startReview">Start today's review</button></div>`}`:'<p class="note">Choose some stages to study first.</p>'}
   </div>`;
   if($('startReview'))$('startReview').onclick=()=>{if(reviewDone())return renderReview();setMode('quiz',true);startQuiz(picks.map(x=>x.c),{review:true})};
 }
@@ -18154,17 +18154,17 @@ function renderHome(){
   const got=actsFor(fw),n=Math.min(got.length,READY);
   /* one "next up" card: the check-in when ready, otherwise practice (today's review first) */
   let next;const fg=fcGate();
-  if(!fg.ok&&!ready){const fn=fg.ids.length;next=`<div class="hnext"><p class="hkick">🗂️ Next up</p><h3>Study the week ${fg.w} flashcards</h3>
-      <p class="note">Look at both sides of every card to ${fcActLocked()?'unlock the activities':'add them to your activities. Earlier weeks stay open'}.</p>
+  if(!fg.ok&&!ready){const fn=fg.ids.length;next=`<div class="hnext"><p class="hkick">🗂️ Next up</p><h3>Study the stage ${fg.w} flashcards</h3>
+      <p class="note">Look at both sides of every card to ${fcActLocked()?'unlock the activities':'add them to your activities. Earlier stages stay open'}.</p>
       <div class="fg-bar" style="max-width:none"><i style="width:${fn?Math.round(fg.done/fn*100):0}%"></i></div><p class="note" style="margin:0"><b>${fg.done} of ${fn}</b> cards studied on both sides</p>
       <div class="grp"><button class="btn primary big" id="homeFc">${fg.done?'Keep going':'Start the flashcards'} →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
-  else if(ready){next=`<div class="hnext ready"><p class="hkick">🎯 Next up</p><h3>Take the week ${fw} check-in</h3>
+  else if(ready){next=`<div class="hnext ready"><p class="hkick">🎯 Next up</p><h3>Take the stage ${fw} check-in</h3>
       <p class="note">Score ${PASS}/10 to ${nextGoal(fw)}.${ph?` Best so far: ${ph.best}/10.`:''}</p>
       <div class="grp"><button class="btn primary big" id="homeCheck">Start the check-in →</button><button class="linkish" id="homePlan">See the plan</button></div></div>`}
   else{
-    const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>Week ${fw} check-in: ${3-readyMissing(fw).length} of 3 steps done${readyMissing(fw).length?` · still need ${readyMissing(fw).join(', ')}`:''}</span></div>`;
+    const dots=all?'':`<div class="hn-prog"><span class="rdots">${Array.from({length:READY},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span><span>Stage ${fw} check-in: ${3-readyMissing(fw).length} of 3 steps done${readyMissing(fw).length?` · still need ${readyMissing(fw).join(', ')}`:''}</span></div>`;
     next=`<div class="hnext"><p class="hkick">${done?'✓ Today\'s review is done':'Next up'}</p>
-      <h3>${done?'New review tomorrow. Pick any activity to keep practicing':picks.length?`Today's review: ${picks.length} word parts`:'Pick some weeks to study first'}</h3>
+      <h3>${done?'New review tomorrow. Pick any activity to keep practicing':picks.length?`Today's review: ${picks.length} word parts`:'Pick some stages to study first'}</h3>
       ${!done&&picks.length?`<div class="chips">${picks.slice(0,5).map(x=>`<span class="chip c-${x.c.kind}" style="background:var(--fc)">${esc(x.c.main)}</span>`).join('')}${picks.length>5?`<span class="chip">+${picks.length-5}</span>`:''}</div>`:''}
       ${dots}
       <div class="grp">${picks.length&&!done?`<button class="btn primary big" id="homeReview">Start today's review →</button>`:''}<button class="linkish" id="homePlan">See the plan</button></div></div>`}
@@ -18173,7 +18173,7 @@ function renderHome(){
       <div class="hpills"><span class="hpill ${run?'':'off'}" title="Days in a row">🔥 ${run} day${run===1?'':'s'}</span>
         <span class="hpill" title="Cards mastered">⭐ ${mastered}/${total} mastered</span>
         <button class="hpill" id="homeBadges" title="See your badges">🏅 ${nb} badge${nb===1?'':'s'}</button>
-        <span class="hpill" title="Weeks unlocked">🔓 Week ${all?WEEKS:fw} of ${WEEKS}</span></div></div></div>
+        <span class="hpill" title="Stages unlocked">🔓 Stage ${all?WEEKS:fw} of ${WEEKS}</span></div></div></div>
     ${next}
     <div class="hpractice"><p class="plabel">Practice</p><div class="hgames">${HOME_GAMES.map(([k,t])=>{const sv=$('tab-'+k).querySelector('svg');const lk=!FC_FREE.includes(k)&&fcActLocked();return`<button class="hgame${lk?' gated':''}" data-go="${k}"${lk?' aria-description="Locked until you study the flashcards"':''}>${sv?sv.outerHTML:''}<span>${t}</span></button>`}).join('')}</div></div>
   </div>`;
@@ -18325,8 +18325,8 @@ function openReport(info){
     t.innerHTML=`<div><small>Thank you!</small><b>Problem reported</b><span>Your teacher will see it.</span></div>`;t.hidden=false;setTimeout(()=>{t.hidden=true},2600)};
 }
 
-/* ---------- Week links: #week-5 or #weeks-3-4-5 opens those weeks ---------- */
-function weeksFromHash(){const h=(location.hash||'').toLowerCase();const m=h.match(/^#weeks?-([\d-]+)$/);if(!m)return null;
+/* ---------- Stage links: #stage-5 or #stages-3-4-5 (or the older #week-5, #weeks-3-4-5) opens those stages ---------- */
+function weeksFromHash(){const h=(location.hash||'').toLowerCase();const m=h.match(/^#(?:weeks?|stages?)-([\d-]+)$/);if(!m)return null;
   const ws=m[1].split('-').map(Number).filter(w=>w>=1&&w<=WEEKS);return ws.length?ws:null}
 function applyHashWeeks(){const ws=weeksFromHash();if(ws){store.set('rd-open-weeks',[...new Set([...store.get('rd-open-weeks',[]),...ws])]);setStudyWeeks(ws)}}
 addEventListener('hashchange',applyHashWeeks);
@@ -18371,7 +18371,7 @@ const LOCK_ICON=`<svg class="slock" viewBox="0 0 24 24" aria-hidden="true"><rect
 function renderPlan(){
   const uw=unlockedWeeks(),fw=frontierWeek(),all=questDone(),ch=checkHistory(HIST.days);
   const totalStars=PLAN.reduce((a,p)=>a+(ch[p.w]?starsFor(ch[p.w].best):0),0);
-  let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a week:</b> add <code>#week-5</code> to the end of your share link (or <code>#weeks-3-4-5</code> for several). The link opens with those weeks ticked in the Study menu.</div>`:''}
+  let h=`${canTeach&&shared?`<div class="tipbox"><b>Send students straight to a stage:</b> add <code>#stage-5</code> to the end of your share link (or <code>#stages-3-4-5</code> for several). The link opens with those stages ticked in the Study menu.</div>`:''}
   <div class="maphead"><div><p class="hkick">🗺️ Word Quest</p><h2>${all?'🏆 Quest complete!':`Stage ${fw} of ${WEEKS}`}</h2>
     <span class="note">${uw.length} of ${WEEKS} stages open · ⭐ ${totalStars} of ${WEEKS*3} stars</span></div>
     <div class="pp-bar"><i style="width:${uw.length/WEEKS*100}%"></i></div></div>
@@ -18384,21 +18384,21 @@ function renderPlan(){
     const i=w-1,p=PLAN[i],boss=p.review,left=i%2===0,x=left?22:78,cy=y+46,st=stageState(w),cur=w===fw&&!all&&st!=='done';
     pts.push({x,y:cy,w,st,cur});
     const best=ch[w]?ch[w].best:0,stars=starsFor(best);
-    const lbl=`Week ${w}${boss?' review':''}: ${st==='done'?`passed, ${stars} star${stars===1?'':'s'}`:st==='locked'?'locked':cur?'you are here':'open'}`;
+    const lbl=`Stage ${w}${boss?' review':''}: ${st==='done'?`passed, ${stars} star${stars===1?'':'s'}`:st==='locked'?'locked':cur?'you are here':'open'}`;
     h+=`<button class="stage ${st} ${boss?'boss':''} ${cur?'cur':''} ${mapSel===w?'sel':''}" data-stage="${w}" style="left:${x}%;top:${cy}px" aria-label="${lbl}">
         <span class="snum">${st==='locked'?LOCK_ICON:w}</span></button>`;
     const status=st==='done'?`<span class="sc-stars" aria-hidden="true">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>`
       :cur?`<span class="sc-here">${MASCOT}You are here</span>`:st==='locked'?`<span class="sc-lock">${LOCK_ICON}Locked</span>`:`<span class="sc-open">Open</span>`;
-    const words=boss?`<span class="sc-review">Every word from weeks 1–${w-1}</span>`
+    const words=boss?`<span class="sc-review">Every word from stages 1–${w-1}</span>`
       :`<span class="chipset ${st==='locked'?'dim':''}">${p.ids.map(id=>{const c=BYID[id];return`<span class="chip c-${c.kind}" style="background:var(--fc)">${esc(c.main)}</span>`}).join('')}</span>`;
     h+=`<button type="button" class="scard ${left?'r':'l'} ${st} ${cur?'cur':''}" data-stage="${w}" style="top:${cy}px" aria-label="${lbl}" tabindex="-1">
-        <span class="sc-top"><b>${boss?`Week ${w} · Review`:`Week ${w}`}</b>${status}</span>${words}</button>`;
+        <span class="sc-top"><b>${boss?`Stage ${w} · Review`:`Stage ${w}`}</b>${status}</span>${words}</button>`;
     y+=GAP;
   }
   y+=4;
   h+=`<div class="snake-end" style="top:${y}px">🏆 Finish</div>`;y+=40;
   h+=`</div>
-  <details class="routine-d"><summary>📅 How each week works</summary><p class="note">About 15 minutes a day. Weeks 8 and 16 are reviews that cover everything so far.</p>
+  <details class="routine-d"><summary>📅 How each stage works</summary><p class="note">About 15 minutes a day. Stages 8 and 16 are reviews that cover everything so far.</p>
     <div class="days">${ROUTINE.map(([d,m,t])=>`<div class="day"><b>${d}</b><span>${m}</span><small>${t}</small></div>`).join('')}</div></details>
   <div class="stagesheet" id="stageSheet" hidden></div>`;
   $('planBody').innerHTML=h;
@@ -18424,19 +18424,19 @@ function openStage(w,keep){
   mapSel=w;const el=$('stageSheet');if(!el)return;const p=PLAN[w-1],st=stageState(w),ch=checkHistory(HIST.days)[w],stars=ch?starsFor(ch.best):0;
   const fw=frontierWeek(),isNext=w===fw&&st==='open',ready=checkReady(w),got=actsFor(w),n=Math.min(got.length,READY);
   document.querySelectorAll('.stage.sel,.scard.sel').forEach(s=>s.classList.remove('sel'));const sb=document.querySelector(`.stage[data-stage="${w}"]`);if(sb)sb.classList.add('sel');const sc=document.querySelector(`.scard[data-stage="${w}"]`);if(sc)sc.classList.add('sel');
-  const chips=p.review?`<p class="note" style="margin:0">Review: all ${p.ids.length} word parts from weeks 1–${w-1}.</p>`
+  const chips=p.review?`<p class="note" style="margin:0">Review: all ${p.ids.length} word parts from stages 1–${w-1}.</p>`
     :`<div class="chipset ${st==='locked'?'dim':''}">${p.ids.map(i=>{const c=BYID[i];return`<span class="chip c-${c.kind}" style="background:var(--fc)" title="${esc(c.mean)}">${esc(c.main)}</span>`}).join('')}</div>`;
   let status='',btns='';
-  if(st==='locked'){status=`<p class="ss-status lock">🔒 ${isUnlocked(w-1)?`Pass the week ${w-1} check-in with ${PASS}/10 to open this stage.`:`Clear week ${w-1} first.`}</p>`}
+  if(st==='locked'){status=`<p class="ss-status lock">🔒 ${isUnlocked(w-1)?`Pass the stage ${w-1} check-in with ${PASS}/10 to open this stage.`:`Clear stage ${w-1} first.`}</p>`}
   else{
     status=st==='done'?`<p class="ss-status ok">✓ Cleared · best ${ch.best}/10 <span class="ss-stars">${[1,2,3].map(k=>`<i class="${k<=stars?'on':''}">★</i>`).join('')}</span>${stars<3?` <small>Score ${stars===1?9:10}/10 for another star</small>`:''}</p>`
       :!ready?`<div class="ss-status"><span class="rdots">${Array.from({length:READY},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span> ${isNext?`Check-in: ${3-readyMissing(w).length} of 3 steps done${readyMissing(w).length?` · still need ${readyMissing(w).join(', ')}`:''}`:`${n} of ${READY} activities done, then the check-in`}</div>`
       :`<p class="ss-status">${ch?`Best so far: ${ch.best}/10. `:''}Score ${PASS}/10 on the check-in to clear this stage.</p>`;
-    /* the check-in only opens after the week's practice activities (or once it has been passed) */
+    /* the check-in only opens after the stage's practice activities (or once it has been passed) */
     const canCheck=st==='done'||ready;
-    btns=`<button class="btn ${st==='done'||!canCheck?'primary':''}" data-ss="study">Study week ${w} cards</button>`+(canCheck?`<button class="btn ${st!=='done'?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button>`:`<button class="btn" disabled title="Pass ${READY} activities ${ROUNDS} times each (including Spell it) and Context clues level ${CTX_REQ} first">🔒 Check-in locked</button>`)}
+    btns=`<button class="btn ${st==='done'||!canCheck?'primary':''}" data-ss="study">Study stage ${w} cards</button>`+(canCheck?`<button class="btn ${st!=='done'?'primary':''}" data-ss="check">${p.review?'Review check-in':'Check-in quiz'}</button>`:`<button class="btn" disabled title="Pass ${READY} activities ${ROUNDS} times each (including Spell it) and Context clues level ${CTX_REQ} first">🔒 Check-in locked</button>`)}
   el.innerHTML=`<div class="ss-card"><button class="ss-x" data-ss="close" aria-label="Close">✕</button>
-    <h3>Week ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
+    <h3>Stage ${w}${p.review?' review':''}</h3>${status}${chips}<div class="grp">${btns}</div></div>`;
   el.hidden=false;
   el.querySelectorAll('[data-ss]').forEach(b=>b.onclick=()=>{const a=b.dataset.ss;
     if(a==='close'){el.hidden=true;mapSel=null;document.querySelectorAll('.stage.sel,.scard.sel').forEach(s=>s.classList.remove('sel'));return}
@@ -18514,7 +18514,7 @@ function dayLine(k,d){const bits=[];
   if(d.spell&&d.spell.t)bits.push(`Spell it ${d.spell.c||0}/${d.spell.t}`);
   if(d.sort&&d.sort.r)bits.push(`Word sort ${d.sort.r} round${d.sort.r>1?'s':''}`);
   if(d.speed&&d.speed.r)bits.push(`Speed round best ${d.speed.best||0}`);
-  if(d.check)bits.push(Object.keys(d.check).map(w=>`Week ${w} check-in ${d.check[w].s}/10`).join(', '));
+  if(d.check)bits.push(Object.keys(d.check).map(w=>`Stage ${w} check-in ${d.check[w].s}/10`).join(', '));
   return bits.join(' · ')||'Opened the app'}
 const fmtDay=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})};
 const topMissed=(miss,n=5)=>Object.entries(miss).filter(([id])=>BYID[id]).sort((a,b)=>b[1]-a[1]).slice(0,n);
@@ -18603,17 +18603,17 @@ function statsHTML(days,range,opts={}){
         <div><b>Daily review</b><span>${A.rv} day${A.rv===1?'':'s'}</span></div>
       </div></section>
     ${(()=>{const ch=checkHistory(Object.fromEntries(keys.filter(k=>days[k]).map(k=>[k,days[k]])));const ws=Object.keys(ch).sort((a,b)=>a-b);return ws.length?`<section class="sblock"><p class="plabel">Weekly check-ins</p>
-      <div class="tablewrap"><table class="ctable small"><thead><tr><th>Week</th><th>First try</th><th>Best</th><th>Latest</th><th>Tries</th></tr></thead><tbody>
-      ${ws.map(w=>{const h=ch[w];return`<tr><td>Week ${w}</td><td>${h.first}/10</td><td>${h.best}/10${h.best>h.first?` <small class="upt">▲${h.best-h.first}</small>`:''}</td><td>${h.last}/10</td><td>${h.n}</td></tr>`}).join('')}</tbody></table></div></section>`:''})()}
-    ${wkRows.length?`<section class="sblock"><p class="plabel">Progress by week</p>
-      <div class="tablewrap"><table class="ctable small"><thead><tr><th>Week</th><th>Cards practiced</th><th>Accuracy</th><th>Mastered</th></tr></thead><tbody>
-      ${wkRows.map(r=>`<tr><td>Week ${r.p.w}</td><td>${r.prac} of ${r.n}</td><td>${r.t?`${pct(r.c,r.t)} <small>(${r.c}/${r.t})</small>`:'–'}</td><td>${r.mas} of ${r.n}</td></tr>`).join('')}
+      <div class="tablewrap"><table class="ctable small"><thead><tr><th>Stage</th><th>First try</th><th>Best</th><th>Latest</th><th>Tries</th></tr></thead><tbody>
+      ${ws.map(w=>{const h=ch[w];return`<tr><td>Stage ${w}</td><td>${h.first}/10</td><td>${h.best}/10${h.best>h.first?` <small class="upt">▲${h.best-h.first}</small>`:''}</td><td>${h.last}/10</td><td>${h.n}</td></tr>`}).join('')}</tbody></table></div></section>`:''})()}
+    ${wkRows.length?`<section class="sblock"><p class="plabel">Progress by stage</p>
+      <div class="tablewrap"><table class="ctable small"><thead><tr><th>Stage</th><th>Cards practiced</th><th>Accuracy</th><th>Mastered</th></tr></thead><tbody>
+      ${wkRows.map(r=>`<tr><td>Stage ${r.p.w}</td><td>${r.prac} of ${r.n}</td><td>${r.t?`${pct(r.c,r.t)} <small>(${r.c}/${r.t})</small>`:'–'}</td><td>${r.mas} of ${r.n}</td></tr>`).join('')}
       </tbody></table></div></section>`:''}
     <section class="sblock two"><div><p class="plabel">Needs work</p>${weak.length?`<div class="chips">${weak.map(chip).join('')}</div>`:'<p class="note">Nothing below 70% yet.</p>'}</div>
       <div><p class="plabel">Strongest cards</p>${strong.length?`<div class="chips">${strong.map(chip).join('')}</div>`:'<p class="note">Answer a card at least twice to see it here.</p>'}</div></section>
     ${opts.study&&weak.length?`<div><button class="btn small primary" id="studyWeak">Study the cards that need work</button></div>`:''}
     <section class="sblock"><p class="plabel">Day by day</p><ul class="phist">${keys.filter(k=>days[k]).sort().reverse().slice(0,30).map(k=>{const d=days[k],qt=(d.quiz?d.quiz.t||0:0)+(d.ctx?d.ctx.t||0:0),qc=(d.quiz?d.quiz.c||0:0)+(d.ctx?d.ctx.c||0:0);
-      return`<li><b>${fmtDay(k)}</b><span>${Math.round(d.min||0)} min${qt?` · ${pct(qc,qt)} right (${qc}/${qt})`:''}${d.wk?` · week${String(d.wk).includes(',')?'s':''} ${d.wk}`:''}</span><p>${esc(dayLine(k,d))}</p></li>`}).join('')}</ul></section>`;
+      return`<li><b>${fmtDay(k)}</b><span>${Math.round(d.min||0)} min${qt?` · ${pct(qc,qt)} right (${qc}/${qt})`:''}${d.wk?` · stage${String(d.wk).includes(',')?'s':''} ${d.wk}`:''}</span><p>${esc(dayLine(k,d))}</p></li>`}).join('')}</ul></section>`;
 }
 /* ---------- Badges: computed from the history, so they never disagree with it ---------- */
 function bestRun(days){const ks=Object.keys(days).sort();let best=0,run=0,prev=null;
@@ -18636,7 +18636,7 @@ function badgeVals(days,name){
    v.passed=PLAN.filter(p=>ok(p.w)).length;v.pass8=ok(8)?1:0;v.pass16=ok(WEEKS)?1:0;v.checkBest=Math.max(0,...Object.values(ch).map(h=>h.best||0))}
   {const f=new Set(),b=new Set();all.forEach(d=>{if(d.fc){(d.fc.f||[]).forEach(i=>f.add(i));(d.fc.b||[]).forEach(i=>b.add(i))}});
    v.both=[...f].filter(i=>b.has(i)).length;v.fcWeeks=PLAN.filter(p=>!p.review&&p.ids.length&&p.ids.every(i=>f.has(i)&&b.has(i))).length}
-  {/* Context clues levels now unlock week by week: the highest level reached in any week, and weeks that reached Master */
+  {/* Context clues levels now unlock stage by stage: the highest level reached in any stage, and stages that reached Master */
    const wb={};all.forEach(d=>{const wk=(d.ctx&&d.ctx.wk)||{};for(const w in wk)for(const L in wk[w])if(L!=='t'){wb[w]=wb[w]||{};wb[w][L]=Math.max(wb[w][L]||0,wk[w][L]||0)}});
    const top=o=>{let t=1;for(let L=1;L<=5;L++)if((o[L]||0)>=CTX_PASS)t=Math.max(t,L+1);return t};
    const old=1+[1,2,3,4,5].filter(L=>((A.x.lv[L]||{}).best||0)>=CTX_PASS).length;   // scores from before weekly levels still count
@@ -18649,12 +18649,12 @@ function badgeVals(days,name){
 const BADGES=[
  {id:'name',name:'Name Tag',desc:'Save your name',cat:'start',sym:'Hi',val:v=>v.name,n:1},
  {id:'first',name:'First Clue',desc:'Practice on your first day',cat:'start',sym:'1',val:v=>v.days,n:1},
- {id:'fcwk',name:'Card Ready',desc:'Study both sides of every card in a week',cat:'start',sym:'2x',val:v=>v.fcWeeks,n:1},
+ {id:'fcwk',name:'Card Ready',desc:'Study both sides of every card in a stage',cat:'start',sym:'2x',val:v=>v.fcWeeks,n:1},
  {id:'pass1',name:'Quest Begins',desc:`Pass your first weekly check-in (${PASS}/10 or better)`,cat:'plan',sym:'W1',val:v=>v.passed,n:1},
  {id:'pass3',name:'Trailblazer',desc:'Pass 3 weekly check-ins',cat:'plan',sym:'W3',val:v=>v.passed,n:3},
- {id:'pass8',name:'Halfway Hero',desc:'Pass the week 8 review check-in',cat:'plan',sym:'W8',val:v=>v.pass8,n:1},
+ {id:'pass8',name:'Halfway Hero',desc:'Pass the stage 8 review check-in',cat:'plan',sym:'W8',val:v=>v.pass8,n:1},
  {id:'pass12',name:'Long Haul',desc:'Pass 12 weekly check-ins',cat:'plan',sym:'W12',val:v=>v.passed,n:12},
- {id:'pass16',name:'Quest Complete',desc:'Pass the final week 16 review check-in',cat:'plan',sym:'W16',val:v=>v.pass16,n:1},
+ {id:'pass16',name:'Quest Complete',desc:'Pass the final stage 16 review check-in',cat:'plan',sym:'W16',val:v=>v.pass16,n:1},
  {id:'chk1st',name:'Nailed It',desc:`Pass a weekly check-in on your first try`,cat:'plan',sym:'1st',val:v=>v.firstTry,n:1},
  {id:'chk10',name:'Perfect Check-in',desc:'Score 10 out of 10 on a weekly check-in',cat:'plan',sym:'10/10',val:v=>v.checkBest,n:10,best:1},
  {id:'run3',name:'On a Roll',desc:'Practice 3 days in a row',cat:'streak',sym:'3',val:v=>v.run,n:3},
@@ -18672,8 +18672,8 @@ const BADGES=[
  {id:'quizr10',name:'Quiz Regular',desc:'Finish 10 quiz rounds',cat:'quiz',sym:'Q10',val:v=>v.quizRounds,n:10},
  {id:'ctx1',name:'Clue Finder',desc:'Finish a Context clues round',cat:'clues',sym:'?',val:v=>v.ctxRounds,n:1},
  {id:'ctxup',name:'Level Up',desc:`Unlock Context clues level 2 by scoring ${CTX_PASS}+ on level 1`,cat:'clues',sym:'L2',val:v=>v.ctxOpen,n:2},
- {id:'ctxm',name:'Master Key',desc:'Reach the Master level of Context clues in a week',cat:'clues',sym:'M',val:v=>v.ctxOpen,n:6},
- {id:'ctxm3',name:'Master Every Week',desc:'Reach the Master level in 3 different weeks',cat:'clues',sym:'M3',val:v=>v.ctxMasterWeeks,n:3},
+ {id:'ctxm',name:'Master Key',desc:'Reach the Master level of Context clues in a stage',cat:'clues',sym:'M',val:v=>v.ctxOpen,n:6},
+ {id:'ctxm3',name:'Master Every Stage',desc:'Reach the Master level in 3 different stages',cat:'clues',sym:'M3',val:v=>v.ctxMasterWeeks,n:3},
  {id:'ctxr25',name:'Clue Collector',desc:'Finish 25 Context clues rounds',cat:'clues',sym:'25',val:v=>v.ctxRounds,n:25},
  {id:'lv3',name:'Medium Sleuth',desc:'Score 8+ on Context clues level 3 or higher',cat:'clues',sym:'L3',val:v=>v.lv3,n:8,best:1},
  {id:'lv4',name:'Hard Case',desc:'Score 8+ on Context clues level 4 or higher',cat:'clues',sym:'L4',val:v=>v.lv4,n:8,best:1},
@@ -18697,7 +18697,7 @@ const BADGES=[
  {id:'mast50',name:'Root Ranger',desc:'Master 50 cards',cat:'cards',sym:'50★',val:v=>v.mastered,n:50},
  {id:'mast100',name:'Root Royalty',desc:'Master 100 cards',cat:'cards',sym:'100★',val:v=>v.mastered,n:100},
  {id:'mastall',name:'Root Legend',desc:`Master all ${BANK.length} cards`,cat:'cards',sym:'All★',val:v=>v.mastered,n:BANK.length},
- {id:'week',name:'Week Wrapped',desc:'Master every card in one plan week',cat:'cards',sym:'Wk',val:v=>v.weekDone,n:1},
+ {id:'week',name:'Stage Wrapped',desc:'Master every card in one plan stage',cat:'cards',sym:'St',val:v=>v.weekDone,n:1},
  {id:'rev5',name:'Review Regular',desc:'Do the Daily review on 5 days',cat:'streak',sym:'R5',val:v=>v.reviews,n:5},
  {id:'rev20',name:'Daily Devotee',desc:'Do the Daily review on 20 days',cat:'streak',sym:'R20',val:v=>v.reviews,n:20},
  {id:'spell10',name:'Spelling Bee',desc:'Spell 10 words right on the first try',cat:'games',sym:'abc',val:v=>v.spellFirst,n:10},
