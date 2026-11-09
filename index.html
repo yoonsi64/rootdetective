@@ -142,7 +142,7 @@ input:focus-visible{outline:3px solid var(--primary);outline-offset:-3px}
 
 /* Flashcard — modeled on the printed IMSE cards: category band, meaning header, T-chart, number tab */
 .scene{perspective:1400px}
-.flash{display:block;width:100%;border:0;background:none;padding:0;text-align:left;--fc:var(--suffix);touch-action:pan-y;will-change:transform}
+.flash{display:block;width:100%;border:0;background:none;padding:0;text-align:left;--fc:var(--suffix);touch-action:none;will-change:transform}
 .flash.cat-prefix{--fc:var(--prefix)} .flash.cat-suffix{--fc:var(--suffix)} .flash.cat-latin{--fc:var(--latin)} .flash.cat-greek{--fc:var(--greek)}
 .inner{display:grid;transition:transform .5s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flash.flipped .inner{transform:rotateY(180deg)}
@@ -2165,16 +2165,20 @@ document.addEventListener('keydown',e=>{if(mode!=='cards'||e.altKey||e.ctrlKey||
 /* the space bar flips the card, so it mustn't also press whichever button has focus */
 document.addEventListener('keyup',e=>{if(mode==='cards'&&(e.key===' '||e.code==='Space')&&!e.target.closest('input,textarea,select,[role=tab],.tabs,.filter,.disppop,[role=dialog]'))e.preventDefault()});
 /* Swipe the card: left = next card, right = previous card. The card follows the finger a little; a tap still flips it. */
-(()=>{const f=$('flash'),mv=$('fcMove')||f;let x0=null,y0=0,dx=0,id=null,horiz=null;
+(()=>{const f=$('flash'),mv=$('fcMove')||f;let x0=null,y0=0,dx=0,id=null,horiz=null,ly=0,lt=0,vy=0,pt='',glide=0;
   const reset=()=>{mv.style.transition='transform .2s ease';mv.style.transform='';x0=null;horiz=null;setTimeout(()=>{mv.style.transition=''},220)};
-  f.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;x0=e.clientX;y0=e.clientY;dx=0;id=e.pointerId;horiz=null;mv.style.transition=''});
+  f.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;x0=e.clientX;y0=e.clientY;dx=0;id=e.pointerId;horiz=null;mv.style.transition='';ly=e.clientY;lt=e.timeStamp;vy=0;pt=e.pointerType;cancelAnimationFrame(glide)});
   f.addEventListener('pointermove',e=>{if(x0==null||e.pointerId!==id)return;dx=e.clientX-x0;const dy=e.clientY-y0;
-    if(horiz==null&&(Math.abs(dx)>8||Math.abs(dy)>8))horiz=Math.abs(dx)>Math.abs(dy);
-    if(horiz){try{f.setPointerCapture(id)}catch(_){}mv.style.transform=`translateX(${dx*.6}px) rotate(${dx/40}deg)`}});
+    if(horiz==null&&(Math.abs(dx)>8||Math.abs(dy)>8)){horiz=Math.abs(dx)>Math.abs(dy)*.8;try{f.setPointerCapture(id)}catch(_){}}
+    if(horiz)mv.style.transform=`translateX(${dx*.6}px) rotate(${dx/40}deg)`;
+    else if(horiz===false&&pt!=='mouse'){/* an up/down drag on the card scrolls the page (the card itself takes every touch, so a slightly slanted swipe never scrolls by accident) */
+      const d=ly-e.clientY,dt=Math.max(1,e.timeStamp-lt);window.scrollBy(0,d);vy=.8*(d/dt)+.2*vy;ly=e.clientY;lt=e.timeStamp}});
   const end=e=>{if(x0==null||e.pointerId!==id)return;const go=horiz&&Math.abs(dx)>60;
     if(go){window.__fcSwiped=Date.now();mv.style.transition='transform .16s ease-in';mv.style.transform=`translateX(${dx<0?-120:120}px) rotate(${dx<0?-4:4}deg)`;
       setTimeout(()=>{mv.style.transition='';mv.style.transform=`translateX(${dx<0?60:-60}px)`;(dx<0?$('next'):$('prev')).click();requestAnimationFrame(()=>{mv.style.transition='transform .18s ease-out';mv.style.transform='';setTimeout(()=>{mv.style.transition=''},200)});x0=null;horiz=null},150)}
-    else{if(horiz)window.__fcSwiped=Date.now();reset()}};
+    else{if(horiz!=null)window.__fcSwiped=Date.now();
+      if(horiz===false&&pt!=='mouse'&&Math.abs(vy)>.2){let v=vy,t0=performance.now();const step=t=>{const dt=t-t0;t0=t;window.scrollBy(0,v*dt);v*=Math.pow(.995,dt);if(Math.abs(v)>.02)glide=requestAnimationFrame(step)};glide=requestAnimationFrame(step)}
+      reset()}};
   f.addEventListener('pointerup',end);f.addEventListener('pointercancel',e=>{if(x0!=null)reset()});
 })();
 
